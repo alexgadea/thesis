@@ -1,0 +1,761 @@
+\documentclass{beamer} % en min\'uscula!
+\usefonttheme{professionalfonts} % fuentes de LaTeX
+\usetheme{Warsaw} % tema escogido en este ejemplo
+%%%% packages y comandos personales %%%%
+\usepackage[latin1]{inputenc}
+\usepackage{latexsym,amsmath,amssymb} % S\'imbolos
+\usepackage{diagrams}
+\usepackage{stmaryrd}
+\usepackage{xcolor}
+\usepackage{MnSymbol}
+\newtheorem{Teorema}{Teorema}
+\newtheorem{Ejemplo}{Ejemplo}
+\newtheorem{Definicion}{Definici\'on}
+\newtheorem{Corolario}{Corolario}
+\newtheorem{Prueba}{Prueba}
+
+\newcommand{\ti}{\textit}
+\newcommand{\semBrcks}[1]{\llbracket #1 \rrbracket}
+\newcommand{\angles}[1]{\langle #1 \rangle}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\T}{\mathcal{T}}
+
+\newcommand{\deltaexp}{\delta \bf{exp}}
+\newcommand{\boolexp}{\bf{boolexp}}
+\newcommand{\intexp}{{\bf intexp}}
+\newcommand{\realexp}{\bf{realexp}}
+\newcommand{\intacc}{{\bf intacc}}
+\newcommand{\realacc}{\bf{realacc}}
+\newcommand{\intvar}{{\bf intvar}}
+\newcommand{\boolvar}{{\bf boolvar}}
+\newcommand{\deltavar}{\delta \bf{var}}
+\newcommand{\deltaacc}{\delta \bf{acc}}
+\newcommand{\comm}{\bf{comm}}
+\newcommand{\cskip}{$\bf{skip}$}
+\newcommand{\clet}{\ $\bf{let}$ }
+\newcommand{\cin}{\ $\bf{in}$ }
+\newcommand{\ifthenelse}[3]{\ $\bf{if}$ \ #1 \ $\bf{then}$ \ #2 \ $\bf{else}$ \ #3}
+\newcommand{\whiledo}[2]{\ $\bf{while}$ \ #1 \ $\bf{do}$ \ #2}
+\newcommand{\rec}[1]{\ $\bf{rec}$ \ #1}
+\newcommand{\clambda}[3]{\lambda #1_{#2} . #3}
+\newcommand{\assig}[2]{#1 \ ${\bf :=}$ \ #2}
+\newcommand{\newvar}[4]{{\bf new \ #1} \ #2 \ ${\bf :=}$ \ #3 \ {\bf in} \ #4}
+\newcommand{\newdeltavar}[3]{{\bf new \ \deltavar} \ #1 \ ${\bf :=}$ \ #2 \ {\bf in} \ #3}
+\newcommand{\seq}[2]{#1 $;$ #2}
+\newcommand{\denotalsem}[5]{\semBrcks{#1 \vdash #2} #3 #4 #5}
+\newcommand{\iotabot}{\iota_{\uparrow}}
+\newcommand{\parentcolor}[2]{\textcolor{#1}{(} #2 \textcolor{#1}{)}}
+\newcommand{\Y}{\bf{Y}}
+\newcommand{\setstate}{\Pi \alpha}
+\newcommand{\Dcomm}{\setstate \rightarrow (\setstate)_\bot}
+\newcommand{\sigmah}{\widehat{\sigma}}
+
+\newcommand{\deducrule}[2]{
+\begin{diagram}[height=0.8em,width=1em,center]
+    & #1 & \\
+   	\rLine &&& \\
+   	& #2 &
+\end{diagram}
+}
+
+\begin{document}
+\title{Sem\'antica denotacional directa para lenguajes Algol-Like.}
+\author{{Ale Gadea.}\\
+\vspace*{0.5cm}}
+\date{Alg\'un d\'ia de junio en 2012.}
+\frame{\titlepage}
+
+\section{Introducci\'on}
+
+\begin{frame}
+\frametitle{Introducci\'on}
+\begin{block}{Plan de trabajo}
+\end{block}
+\begin{block}{Lenguajes Algol-like}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Introducci\'on}
+\begin{block}{Plan de trabajo}
+1. Repaso sem\'antica denotacional.\\
+2. Estudio de lenguajes Algol-Like.\\
+3. Repaso de sem\'antica categ\'orica del calculo\\
+\ \ \ \ lambda simplemente tipado.\\
+4. Estudio de Forsythe.\\
+5. Definici\'on de sem\'antica de Forsythe.
+\end{block}
+\begin{block}{Lenguajes Algol-like}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Introducci\'on}
+\begin{block}{Plan de trabajo}
+\end{block}
+\begin{block}{Lenguajes Algol-like}
+1. Principios de Algol-Like.\\
+2. Presentaci\'on de la sintaxis.\\
+3. Peque\~no resumen sobre tipos.\\
+4. Presentaci\'on de la sem\'antica.\\
+5. Ejemplo.
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Principios de Algol-Like.}
+\begin{block}{}
+1. Algol se obtiene de la combinaci\'on de lenguaje imperativo simple, un mecanismo de evaluaci\'on completamente tipado y
+call-by-name lambda calculus.\\
+\end{block}
+\begin{block}{}
+2. Hay dos clases de tipos, $data \ types$ y $phrase \ types$.\\
+\end{block}
+\begin{block}{}
+3. Contempla stack-discipline.\\
+\end{block}
+\begin{block}{}
+4. Los procedimientos, recursiones, ifthenelse, pueden tener cualquier $phrase \ types$.
+\end{block}
+\end{frame}
+
+\section{Sem\'antica lenguajes Algol-like}
+\begin{frame}
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Sintaxis abstracta.}
+
+\begin{block}{Phrases(Expresiones) de algol-like.}
+$\angles{phrase}$ $::=$ $\bf{true}$ $|$ $\bf{false}$ $|$ $0$ $|$ $1$ $|$ $2$ $|$ $\ldots$\\
+
+\ \ \ \ \ \ \ \ \ \ \ $|$ $\odot \angles{phrase}$ $|$ $\angles{phrase} \ominus \angles{phrase}$\\
+
+\ \ \ \ \ \ \ \ \ \ \ $|$ \cskip \ $|$ $\ifthenelse{\angles{phrase}}{\angles{phrase}}{\angles{phrase}}$\\
+
+\ \ \ \ \ \ \ \ \ \ $|$ $\whiledo{\angles{phrase}}{\angles{phrase}}$\\
+
+\ \ \ \ \ \ \ \ \ \ $|$ $\assig{\angles{phrase}}{\angles{phrase}}$\\
+
+\ \ \ \ \ \ \ \ \ \ $|$ $\newdeltavar{\angles{id}}{\angles{phrase}}{\angles{phrase}}$\\
+
+\ \ \ \ \ \ \ \ \ \ $|$ $\angles{id}$ $|$ $\clambda{\angles{id}}{\theta}{\angles{phrase}}$ $|$ $\angles{phrase}\angles{phrase}$ 
+
+\ \ \ \ \ \ \ \ \ \ $|$ $\rec{\angles{phrase}}$\\
+
+\
+
+$\ominus \in \{+, -, =, ...\}$ \ \
+$\odot \in \{ \neg , - \}$ \ \
+$\delta \in \angles{data \ type}$
+\end{block}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Resumen de tipos y subtipos.}
+\framesubtitle{Sintaxis abstracta.}
+\begin{block}{Data types}\small
+$\angles{data \ type}$ $::=$ $\bf{real}$ $|$ $\bf{int}$ $|$ $\bf{bool}$
+\end{block}
+\begin{block}{Phrase types}\small
+$\angles{phrase \ type}$ $::=$ $\deltavar$ $|$ $\deltaexp$ $|$ $\deltaacc$ $|$ $\comm$ \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $|$ $\angles{phrase \ type}$ $\rightarrow$ $\angles{phrase \ type}$
+\end{block}
+\begin{block}{El tipo variable}\small
+$\deltavar$ $\stackrel{def}{=}$ $\deltaacc$ $\&$ $\deltaexp$
+\end{block}
+$\delta \in \angles{data \ type}$
+\end{frame}
+
+\begin{frame}[shrink=2]
+\frametitle{Resumen de tipos y subtipos.}
+\framesubtitle{Reglas inferencia.}
+\begin{block}{Reglas que vamos a necesitar.}\small
+$\deducrule{\pi \vdash p_0 : $ $\comm$ $ \pi \vdash p_1 : \comm}{\pi \vdash \seq{p_0}{p_1} : \comm}$ 
+$\deducrule{\pi \vdash p_0 : $ $\comm$ $ \ \pi \vdash p_1 : \comm}{\pi \vdash \assig{p_0}{p_1} : \comm}$\\
+
+\
+
+\
+
+$\deducrule{\pi \vdash p_0 : $ $\boolexp$ $ \ \ \ \pi \vdash p_1 :\theta \ \ \ \pi \vdash p_2 :\theta}
+   		   {\pi \vdash \ifthenelse{p_0}{p_1}{p_2} : \theta}$
+$\deducrule{}{\pi \vdash \cskip : \comm}$ \\
+		   
+\
+
+\
+\begin{center}
+$\deducrule{\pi \vdash p_0 : $ $\deltaexp$ $ \pi,\iota:$ $\deltavar$ $ \vdash p_1 : \comm}
+		   {\pi \vdash \newdeltavar{\iota}{p_0}{p_1} : \comm}$
+\end{center}
+\end{block}
+\begin{block}{Reglas generales de tipado.}\tiny
+\begin{center}
+$\deducrule{}{\theta \leq \theta}$
+$\deducrule{ \theta \leq \theta' \ \ \ \theta' \leq \theta'' }{\theta \leq \theta''}$
+$\deducrule{ \pi \vdash p : \theta \ \ \ \theta \leq \theta'}{\pi \vdash p:\theta'}$
+\end{center}
+\end{block}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Resumen de tipos y subtipos.}
+\framesubtitle{Sem\'antica intr\'inseca.}
+\begin{block}{Definici\'on de state shape(forma del estado).}\small
+Un state shape sera una secuencia de conjuntos numerables, denotamos con $\bf{Shp}$ a la colecci\'on de tales secuencias.\\
+Diremos que un estado $\sigma$ tiene shape(forma) $\angles{S_0, \ldots, S_{n-1}}$, si este contiene $n$ componentes
+y cada componente $\sigma_i$ pertenece a $S_i$.\\
+Definimos $\setstate$ como el conjunto de estados con shape(forma) $\alpha$.
+\end{block}
+\begin{block}{Definici\'on de dominios.}\small
+$\D(\deltaexp)\alpha$ $=$ $\setstate$ $\rightarrow$ $(S_\delta)_\bot$ \ \ \ \ \ \ \ \ 
+$\D(\deltaacc)\alpha$ $=$ $S_\delta$ $\rightarrow$ $\setstate$ $\rightarrow$ $(\setstate)_\bot$\\
+$\D(\comm)\alpha$ $=$ $\setstate$ $\rightarrow$ $(\setstate)_\bot$ \ \ \ \ \ 
+$\D(\deltavar)\alpha$ $=$ $\D(\deltaacc)$ $\times$ $\D(\deltaexp)$ \\
+\
+
+$\D(\theta \rightarrow \theta')\alpha$ $=$ 
+$\prod\limits_{\alpha' \in \bf{Shp}} \D(\theta)(\alpha \circ \alpha') \rightarrow \D(\theta')(\alpha \circ \alpha')$ \\
+\
+
+$\D^* (\pi)\alpha$ $=$ $\prod\limits_{\iota \in dom \pi} \D(\pi\iota)\alpha$
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Resumen de tipos y subtipos.}
+\framesubtitle{Sem\'antica intr\'inseca.}
+\begin{block}{Sem\'antica denotacional relevante para nosotros.}\small
+$\semBrcks{\pi \vdash \ p:\theta'} \alpha$ $=$ $\semBrcks{\theta \leq \theta'}\alpha$ $\circ$ $\semBrcks{\pi \vdash \ p:\theta} \alpha$\\
+\
+
+$\semBrcks{\pi \vdash \ p:\theta} \alpha$ $\in$ $\textcolor{violet}{\D^{*}(\pi)\alpha} \rightarrow \D(\theta)\alpha$ $\ =$ 
+$\textcolor{violet}{\prod\limits_{\iota \in dom \pi} \D(\pi\iota)\alpha} \rightarrow \D(\theta)\alpha$\\
+
+\begin{center}
+$\eta \rightarrow \D^{*}(\pi)\alpha$ \ \ \
+$\theta \rightarrow \angles{phrase \ types}$\\
+
+$p \rightarrow \angles{phrase}$ \ \ \
+$\alpha \rightarrow$ ${\bf Shp}$\\
+\end{center}
+\end{block}
+\end{frame}
+
+\begin{frame}[shrink=1]
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Sem\'antica denotacional.}
+
+\begin{block}{Sem\'antica denotacional.} \small
+$\semBrcks{\pi \vdash \ \iota:\theta}\alpha\eta$ $=$ $\eta\iota$ \ cuando $\pi$ contenga $\iota:\theta$ y donde $\eta$ $\in$ $\D^* (\pi)$.\\
+
+\
+
+$\denotalsem{\pi}{\ \cskip : \comm}{\alpha}{\eta}{\sigma}$ $=$ $\iotabot \sigma$\\
+
+\
+
+$\denotalsem{\pi}{ \seq{p_0}{p_1} : \comm}{\alpha}{\eta}{\sigma}$ $=$ 
+$(\denotalsem{\pi}{p_1:\comm}{\alpha}{\eta}{\sigma})_{\upmodels}$ 
+$\denotalsem{\pi}{p_0:\comm}{\alpha}{\eta}{\sigma}$\\
+
+\
+
+$\denotalsem{\pi}{\ifthenelse{p_0}{p_1}{p_2}:\theta}{\alpha}{\eta}{\sigma}$ $=$ \\
+\ \ \ \ \ $(\lambda b . \ if \ b $
+$then \ \denotalsem{\pi}{p_1:\theta}{\alpha}{\eta}{\sigma}$
+$else \ \denotalsem{\pi}{p_2:\theta}{\alpha}{\eta}{\sigma})_{\upmodels}$ \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+$\denotalsem{\pi}{p_0:\boolexp}{\alpha}{\eta}{\sigma}$\\
+
+\
+
+$\denotalsem{\pi}{\assig{p_0}{p_1}:\comm}{\alpha}{\eta}{\sigma}$ $=$ \\
+\ \ \ \ \ \ \ \ $(\lambda x. \ (\denotalsem{\pi}{p_0:\deltaacc}{\alpha}{\eta})$$x$${\sigma})_{\upmodels}$ 
+$\denotalsem{\pi}{p_1:\deltaexp}{\alpha}{\eta}{\sigma}$ \\
+\end{block}
+$\delta \in \angles{data \ type}$
+\end{frame}
+
+\begin{frame}[shrink=1]
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Sem\'antica denotacional; Declaraci\'on de variables.}
+
+\begin{block}{Notaci\'on.}\small
+Usaremos $\circ$ para denotar la concatenaci\'on de secuencias, tanto de estados como de shapes.
+Si $\sigma$ tiene shape $\alpha$ y $\sigma'$ tiene shape $\alpha'$ entonces $\sigma \circ \sigma'$ tiene shape $\alpha \circ \alpha'$.\\
+Si $\sigma$ tiene shape $\alpha \circ \alpha$ decimos que $head_{\alpha}\sigma$ y $tail_{\alpha'}\sigma$ son los \'unicos estados con
+shape $\alpha$ y $\alpha'$ respectivamente. Es decir que, \\
+$head_{\alpha}\sigma$ $\circ$ $tail_{\alpha'}\sigma$ $=$ $\sigma$. Adem\'as escribimos $last_{S_\delta}\sigma$ para la \'unica
+componente de $tail_{\alpha'}\sigma$.
+\end{block}
+
+\begin{block}{Sem\'antica denotacional para declaraci\'on de variables.}\small
+$\denotalsem{\pi}{\newdeltavar{\iota}{p_0}{p_1}:\comm}{\alpha}{\eta}{\sigma}$ $=$ 
+$(\lambda \sigmah . \ head_{\alpha}\sigmah)$ $\textcolor{red}{(}$\\
+\ \ $\textcolor{blue}{(}
+\lambda x.$ $\denotalsem{\pi, \iota:$ $\deltavar$ $}{p_1:$ $\comm$ $}$ \\
+\ \ \ \ \ \ \ \ ${\parentcolor{orange}{\alpha \circ \angles{S_\delta}}}
+{\parentcolor{green}{[\T^{*}(\pi)(\alpha,\angles{S_\delta})\eta \ | \ \iota:\angles{a,e}]}}
+{\parentcolor{gray}{\sigma \circ \angles{x}}} \textcolor{blue}{)}_{\upmodels}$\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+$\denotalsem{\pi}{p_0:$ $\deltaexp$ $}{\alpha}{\eta}{\sigma} \textcolor{red}{)}$\\
+
+\
+
+$a$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\alpha}\sigmah \circ \angles{x})$\\
+$e$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_\delta}\sigmah)$
+
+\end{block}
+\end{frame}
+
+\begin{frame}[shrink=1]
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Sem\'antica denotacional; Declaraci\'on de variables.}
+
+\begin{block}{Sem\'antica denotacional para declaraci\'on de variables(Cont.). \\ Que hace $\T^{*}$?.}\small
+El environment $\eta$ pertenece a $\D^{*}(\pi)(\alpha)$ pero el environment necesario para ejecutar $p_1$ pertenece a \\
+$\D^{*}(\pi,\iota :$ $\deltavar$ $)(\alpha \circ \angles{S_\delta})$, entonces necesitamos trasformar $\eta$.
+Esto lo realiza $\T^{*}$, definimos entonces
+\end{block}
+\begin{block}{1. La trasformaci\'on de un dominio $\alpha$ a otro $\alpha \circ \alpha'$ para cada tipo.}
+\ \ \ \ $\T(\theta)(\alpha,\alpha')$ $\in$ $\D(\theta)\alpha$ $\rightarrow$ $\D(\theta)(\alpha \circ \alpha')$\\
+
+
+
+\ \ \ \ $\T($ $\deltaexp$ $)(\alpha,\alpha')e$ $=$ $\lambda \sigmah .$ $e(head_{\alpha}\sigmah)$\\
+
+
+
+\ \ \ \ $\T($ $\comm$ $)(\alpha,\alpha')c$ $=$ 
+$\lambda \sigmah .$ $(\lambda \sigma' .$ $\sigma' \circ (tail_{\alpha'}\sigmah)$ $)_{\upmodels}$ $c(head_{\alpha}\sigmah)$\\
+
+\ \ \ \ $\T($ $\deltavar$ $)(\alpha,\alpha')\angles{a,e}$ $=$ \\
+\ \ \ \ \ \ \ \ \ \ \ \ $\angles{\lambda x.$ $\T($ $\comm$ $)(\alpha,\alpha')(a x),$ $\T($ $\deltaexp$ $)(\alpha,\alpha')e$ $}$
+\end{block}
+\end{frame}
+
+
+\begin{frame}[shrink=1]
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Sem\'antica denotacional; Declaraci\'on de variables.}
+
+\begin{block}{2. La trasformaci\'on de un dominio $\alpha$ a otro $\alpha \circ \alpha'$ para cada contexto($\pi$).}
+\ \ \ \ $\T^{*}(\pi)(\alpha,\alpha')$ $\in$ $\D^{*}(\pi)\alpha$ $\rightarrow$ $\D^{*}(\pi)(\alpha \circ \alpha')$\\
+
+Para cada componente de $\iota$ del dominio de $\eta$, \\
+$\T^{*}(\pi)(\alpha,\alpha')\eta\iota$ $=$ $\T(\pi\iota)(\alpha,\alpha')(\eta\iota)$ 
+\end{block}
+
+\begin{block}{}
+$\T^{*}(\pi)(\alpha,\alpha')[\iota_1:\angles{a_1,e_1} \ldots \iota_n:\angles{a_n,e_n}]$ $=$ \\
+
+$[\iota_1:\T(\pi\iota_1)(\alpha,\alpha')\angles{a_1,e_1} \ldots \iota_n:\T(\pi\iota_n)(\alpha,\alpha')\angles{a_n,e_n}]$
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Ejemplo.}
+\begin{block}{Ejemplo.}
+$\newvar{\intvar}{y}{1}{}$\\
+\ \ \ \ $\newvar{\boolvar}{b}{true}{}$\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ ${\bf if}$ $b$ ${\bf then}$\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $\assig{y}{y+1}$\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ ${\bf else}$\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \cskip\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ ${\bf fi}$\\
+\ \ \ \ ${\bf end}$\\
+${\bf end}$
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Ejemplo.}
+
+\begin{block}{Evaluando el ejemplo.}
+$\denotalsem{\pi}{\newdeltavar{y}{1}{newvarb}:\comm}{\angles{}}{[]}{\angles{}}$ $=$
+\pause
+$(\lambda \sigmah . \ head_{\angles{}}\sigmah)$ $\textcolor{red}{(}$\\
+\ \ $\textcolor{blue}{(}
+\lambda x.$ $\denotalsem{\pi, y:$ $\intvar$ $}{newvarb:$ $\comm$ $}$ \\
+\ \ \ \ \ \ \ \ ${\parentcolor{orange}{\angles{} \circ \angles{S_{int}}}}
+{\parentcolor{green}{[\T^{*}(\pi)(\angles{},\angles{S_{int}})[] \ | \ y:\angles{a_y,e_y}]}}
+{\parentcolor{gray}{\angles{} \circ \angles{x}}} \textcolor{blue}{)}_{\upmodels}$\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+$\denotalsem{\pi}{1:$ $\intexp$ $}{\angles{}}{[]}{\angles{}} \textcolor{red}{)}$\\
+$a_y$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\angles{}}\sigmah \circ \angles{x})$\\
+$e_y$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_{int}}\sigmah)$
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Ejemplo.}
+
+\begin{block}{Evaluando el ejemplo.}
+$\denotalsem{\pi}{\newdeltavar{y}{1}{newvarb}:\comm}{\angles{}}{[]}{\angles{}}$ $=$
+$(\lambda \sigmah . \ head_{\angles{}}\sigmah)$ 
+$\textcolor{red}{(}$ \\
+$\denotalsem{\pi, y:$ $\intvar$ $}{newvarb:$ $\comm$ $}$
+${\parentcolor{orange}{\angles{S_{int}}}}
+{\parentcolor{green}{[y:\angles{a_y,e_y}]}}
+{\parentcolor{gray}{\angles{1}}} $ $\textcolor{red}{)}$\\
+
+\
+
+\
+
+$a_y$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\angles{}}\sigmah \circ \angles{x})$\\
+$e_y$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_{int}}\sigmah)$
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Ejemplo.}
+
+\begin{block}{Evaluando el ejemplo.}
+$\denotalsem{\pi}{\newdeltavar{y}{1}{newvarb}:\comm}{\angles{}}{[]}{\angles{}}$ $=$
+$(\lambda \sigmah . \ head_{\angles{}}\sigmah)$ $\textcolor{red}{(}$ $(\lambda \sigmah . \ head_{\angles{S_{int}}} \sigmah)$ $\textcolor{red}{(}$\\
+\ \ $\textcolor{blue}{(}
+\lambda x.$ $\denotalsem{\pi_{y}, b:$ $\boolvar$ $}{ifbthenelse:$ $\comm$ $}$ \\ \pause
+\ \ \ \ \ \ \ \ ${\parentcolor{orange}{\angles{S_{int}} \circ \angles{S_{bool}}}}$ \\ \pause
+\ \ \ \ \ \ \ \ ${\parentcolor{green}{[\T^{*}(\pi_y)(\angles{S_{int}},\angles{S_{bool}})[y:\angles{a_y,e_y}] \ | \ b:\angles{a_b,e_b}]}}$\\ \pause
+\ \ \ \ \ \ \ \ ${\parentcolor{gray}{\angles{1} \circ \angles{x}}} \textcolor{blue}{)}_{\upmodels}$ \pause
+$\denotalsem{\pi_y}{true:$ $\boolexp$ $}{\angles{S_{int}}}{[y:\angles{a_y,e_y}]}{\angles{1}} \textcolor{red}{)}$ $\textcolor{red}{)}$\\
+
+\
+
+\
+
+$a_b$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\angles{S_{int}}}\sigmah \circ \angles{x})$\\
+$e_b$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_{bool}}\sigmah)$\\
+
+$a_y$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\angles{}}\sigmah \circ \angles{x})$\\
+$e_y$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_{int}}\sigmah)$
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Ejemplo.}
+
+\begin{block}{Evaluando el ejemplo.}
+$\denotalsem{\pi}{\newdeltavar{y}{1}{newvarb}:\comm}{\angles{}}{[]}{\angles{}}$ $=$
+$(\lambda \sigmah . \ head_{\angles{}}\sigmah)$ $\textcolor{red}{(}$ $(\lambda \sigmah . \ head_{\angles{S_{int}}} \sigmah)$ $\textcolor{red}{(}$\\
+\ \ \ \ $\denotalsem{\pi_{y}, b:$ $\boolvar$ $}{ifbthenelse:$ $\comm$ $}$ ${\parentcolor{orange}{\angles{S_{int}, S_{bool}}}}$ \\
+\ \ \ \ \ \ \ \ \ \ \ \ ${\parentcolor{green}{[y:\angles{a_{yb},e_{yb}}, b:\angles{a_b,e_b}]}}$\\
+\ \ \ \ \ \ \ \ \ \ \ \ ${\parentcolor{gray}{\angles{1, true}}} \textcolor{red}{)}$ $\textcolor{red}{)}$\\
+
+\
+
+\
+
+$a_{yb}$ $=$ $\lambda x.$ $\lambda \sigmah .$ $(\lambda \sigma' .$ $\sigma' \circ (tail_{S_{bool}}\sigmah)$ $)_{\upmodels}$ $(a_y x)(head_{\angles{S_{int}}}\sigmah)$
+
+$e_{yb}$ $=$ $\lambda \sigmah .$ $e_y(head_{\angles{S_{int}}}\sigmah)$
+
+$a_b$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\angles{S_{int}}}\sigmah \circ \angles{x})$\\
+$e_b$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_{bool}}\sigmah)$\\
+
+$a_y$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\angles{}}\sigmah \circ \angles{x})$\\
+$e_y$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_{int}}\sigmah)$
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Ejemplo.}
+
+\begin{block}{Evaluando el ejemplo.}
+$\denotalsem{\pi}{\newdeltavar{y}{1}{newvarb}:\comm}{\angles{}}{[]}{\angles{}}$ $=$
+$(\lambda \sigmah . \ head_{\angles{}}\sigmah)$ $\textcolor{red}{(}$ $(\lambda \sigmah . \ head_{\angles{S_{int}}} \sigmah)$ $\textcolor{red}{(}$\\ \pause
+\ \ \ \ $(\lambda x. \ (\denotalsem{\pi_{yb}}{y:\intacc}{{\parentcolor{orange}{\angles{S_{int}, S_{bool}}}}}$ \\
+\ \ \ \ \ \ \ \ \ \ \ \ ${\parentcolor{green}{[y:\angles{a_{yb},e_{yb}}, b:\angles{a_b,e_b}]}} x$\\
+\ \ \ \ \ \ \ \ \ \ \ \ ${\parentcolor{gray}{\angles{1, true}}} )_{\upmodels} $ \pause
+$\denotalsem{\pi}{y+1:\intexp}{{\parentcolor{orange}{\angles{S_{int}, S_{bool}}}}}$\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ${{\parentcolor{green}{[y:\angles{a_{yb},e_{yb}}, b:\angles{a_b,e_b}]}}}$ \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ${\parentcolor{gray}{\angles{1, true}}}$ \\
+
+$\textcolor{red}{)}$ $\textcolor{red}{)}$\\
+
+$a_{yb}$ $=$ $\lambda x.$ $\lambda \sigmah .$ $(\lambda \sigma' .$ $\sigma' \circ (tail_{S_{bool}}\sigmah)$ $)_{\upmodels}$ $(a_y x)(head_{\angles{S_{int}}}\sigmah)$
+
+$e_{yb}$ $=$ $\lambda \sigmah .$ $e_y(head_{\angles{S_{int}}}\sigmah)$
+
+$a_b$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\angles{S_{int}}}\sigmah \circ \angles{x})$\\
+$e_b$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_{bool}}\sigmah)$\\
+
+$a_y$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\angles{}}\sigmah \circ \angles{x})$\\
+$e_y$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_{int}}\sigmah)$
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Ejemplo.}
+
+\begin{block}{Evaluando el ejemplo.}
+$\denotalsem{\pi}{\newdeltavar{y}{1}{newvarb}:\comm}{\angles{}}{[]}{\angles{}}$ $=$
+$(\lambda \sigmah . \ head_{\angles{}}\sigmah)$ $\textcolor{red}{(}$ $(\lambda \sigmah . \ head_{\angles{S_{int}}} \sigmah)$ $\textcolor{red}{(}$\\
+\ \ \ \ $\denotalsem{\pi_{yb}}{y:\intacc}{{\parentcolor{orange}{\angles{S_{int}, S_{bool}}}}}$
+${\parentcolor{green}{[y:\angles{a_{yb},e_{yb}}, b:\angles{a_b,e_b}]}} 2$\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ${\parentcolor{gray}{\angles{1, true}}} $\\
+
+$\textcolor{red}{)}$ $\textcolor{red}{)}$\\
+
+$a_{yb}$ $=$ $\lambda x.$ $\lambda \sigmah .$ $(\lambda \sigma' .$ $\sigma' \circ (tail_{S_{bool}}\sigmah)$ $)_{\upmodels}$ $(a_y x)(head_{S_{int}}\sigmah)$
+
+$e_{yb}$ $=$ $\lambda \sigmah .$ $e_y(head_{S_{int}}\sigmah)$
+
+$a_b$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\angles{S_{int}}}\sigmah \circ \angles{x})$\\
+$e_b$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_{bool}}\sigmah)$\\
+
+$a_y$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\angles{}}\sigmah \circ \angles{x})$\\
+$e_y$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_{int}}\sigmah)$
+\end{block}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Ejemplo.}
+
+\begin{block}{Evaluando el ejemplo.}
+$\denotalsem{\pi}{\newdeltavar{y}{1}{newvarb}:\comm}{\angles{}}{[]}{\angles{}}$ $=$
+$(\lambda \sigmah . \ head_{\angles{}}\sigmah)$ $\textcolor{red}{(}$ $(\lambda \sigmah . \ head_{\angles{S_{int}}} \sigmah)$ $\textcolor{red}{(}$ \pause $\angles{2, true}$
+$\textcolor{red}{)}$ $\textcolor{red}{)}$ $=$\\ \pause
+$(\lambda \sigmah . \ head_{\angles{}}\sigmah)$ $\textcolor{red}{(}$ $\angles{2}$ $\textcolor{red}{)}$ $=$ \pause $\angles{}$\\
+
+\
+
+\
+
+
+$a_{yb}$ $=$ $\lambda x.$ $\lambda \sigmah .$ $(\lambda \sigma' .$ $\sigma' \circ (tail_{S_{bool}}\sigmah)$ $)_{\upmodels}$ $(a_y x)(head_{S_{int}}\sigmah)$
+
+$e_{yb}$ $=$ $\lambda \sigmah .$ $e_y(head_{S_{int}}\sigmah)$
+
+$a_b$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\angles{S_{int}}}\sigmah \circ \angles{x})$\\
+$e_b$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_{bool}}\sigmah)$\\
+
+$a_y$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\angles{}}\sigmah \circ \angles{x})$\\
+$e_y$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_{int}}\sigmah)$
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\begin{center}\Huge
+Fin!
+\end{center}
+\
+
+\
+
+\
+
+\
+
+\
+
+\
+
+\
+
+\
+
+{\tiny Contin\'uan mas reglas.}
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Ejemplo.}
+
+\begin{block}{Transformaci\'on del environment, para el ejemplo.}
+
+$\T^{*}(\pi_y)(\angles{S_{int}},\angles{S_{bool}})[y:\angles{a_y,e_y}]y$ $=$ \\
+$\T(\intvar)(\angles{S_{int}},\angles{S_{bool}})(a_y,e_y)$ $=$\\
+\
+
+$\angles{\lambda x.$ $\T($ $\comm$ $)(\angles{S_{int}},\angles{S_{bool}})(a_y x),$ \\
+\ \ \ \ \ \  $\T($ $\intexp$ $)(\angles{S_{int}},\angles{S_{bool}})e_y$ $}$ $=$ \\
+
+\
+
+$\angles {
+\lambda x.$ $\lambda \sigmah .$ $(\lambda \sigma' .$ $\sigma' \circ (tail_{S_{bool}}\sigmah)$ $)_{\upmodels}$ $(a_y x)(head_{S_{int}}\sigmah),$ \\
+$\lambda \sigmah .$ $e_y(head_{S_{int}}\sigmah)}$ $=$ $\angles{a_{yb},e_{yb}}$
+
+\
+
+$a_b$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\angles{S_{int}}}\sigmah \circ \angles{x})$\\
+$e_b$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_{bool}}\sigmah)$\\
+
+$a_y$ $=$ $\lambda x. \ \lambda \sigmah . \ \iotabot(head_{\angles{}}\sigmah \circ \angles{x})$\\
+$e_y$ $=$ $\lambda \sigmah . \ \iotabot(last_{S_{int}}\sigmah)$
+\end{block}
+\end{frame}
+
+\begin{frame}[shrink=1]
+\frametitle{Resumen de tipos y subtipos.}
+\framesubtitle{Reglas inferencia.}
+\begin{block}{Reglas generales para n\'umeros y booleanos.}\tiny
+$\deducrule{\pi \vdash p_0:\theta \ \ \ \ \ \pi \vdash p_1:\theta}{\pi \vdash p_0 \ \ominus \ p_1:\theta}$
+$\deducrule{\pi \vdash p_0:\theta}{\pi \vdash \odot \ p_0:\theta}$\\
+\
+
+$\ominus \in \{+, -, =, ...\}$
+$\odot \in \{ \neg , - \}$
+\end{block}
+\begin{block}{Reglas para los comandos.}\tiny
+$\deducrule{}{\pi \vdash \cskip : \comm}$
+$\deducrule{\pi \vdash p_0 : $ $\comm$ $ \ \pi \vdash p_1 : \comm}{\pi \vdash \assig{p_0}{p_1} : \comm}$
+$\deducrule{\pi \vdash p_0 : $ $\comm$ $ \pi \vdash p_1 : \comm}{\pi \vdash \seq{p_0}{p_1} : \comm}$\\
+\
+
+\
+
+\
+
+$\deducrule{\pi \vdash p_0 : $ $\boolexp$ $ \ \ \ \pi \vdash p_1 :\theta \ \ \ \pi \vdash p_2 :\theta}
+   		   {\pi \vdash \ifthenelse{p_0}{p_1}{p_2} : \theta}$
+$\deducrule{\pi \vdash p_0 : $ $\boolexp$ $ \ \ \pi \vdash p_1 : \comm}{\pi \vdash \whiledo{p_0}{p_1} : \comm}$\\
+\
+
+\begin{center}
+$\deducrule{\pi \vdash p_0 : $ $\deltaexp$ $ \pi,\iota:$ $\deltavar$ $ \vdash p_1 : \comm}
+		   {\pi \vdash \newdeltavar{\iota}{p_0}{p_1} : \comm}$		   
+\end{center}
+\begin{center}
+$\deducrule{\pi \vdash p_0 : \theta_0 \ \ldots \ \pi \vdash p_{n-1} : \theta_{n-1} \ \ \ \ \
+			\pi,\iota_0:\theta_0, \ldots, \iota_{n-1}:\theta_{n-1} \vdash p:\theta}
+		   {\pi \vdash \clet \ \iota_0 \equiv p_0, \ldots, \iota_{n-1} \equiv p_{n-1} \cin \ p: \theta}$
+\end{center}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Resumen de tipos y subtipos.}
+\framesubtitle{Reglas inferencia.}
+\begin{block}{Reglas para el calculo lambda y punto fijo.}\tiny
+$\deducrule{}{\pi \vdash \iota : \theta}$ \ cuando $\pi$ contenga $\iota:\theta$ \ \ \ \
+$\deducrule{ \pi,\iota:\theta \vdash p : \theta'}{\pi \vdash \clambda{\iota}{\theta}{p}: \theta \rightarrow \theta'}$
+$\deducrule{ \pi \vdash p_0 : \theta \rightarrow \theta' \ \ \ \pi \vdash p_1 : \theta}
+ 	 	   {\pi \vdash p_0 p_1:\theta'}$\\
+\begin{center}
+$\deducrule{\pi \vdash p : \theta \rightarrow \theta'}{\pi \vdash \rec{p} : \theta'}$
+\end{center}
+\end{block}
+\begin{block}{Reglas generales de tipado.}\tiny
+\begin{center}
+$\deducrule{}{\theta \leq \theta}$
+$\deducrule{ \theta \leq \theta' \ \ \ \theta' \leq \theta'' }{\theta \leq \theta''}$
+$\deducrule{ \pi \vdash p : \theta \ \ \ \theta \leq \theta'}{\pi \vdash p:\theta'}$
+$\deducrule{ \theta'_0 \leq \theta_0 \ \ \ \theta_1 \leq \theta'_1 }{\theta_0 \rightarrow \theta_1 \leq \theta'_0 \rightarrow \theta'_1}$
+\end{center}
+\end{block}
+\end{frame}
+
+\begin{frame}[shrink=1]
+\frametitle{Resumen de tipos y subtipos.}
+\framesubtitle{Sem\'antica intr\'inseca.}
+\begin{block}{Sem\'antica denotacional.}\small
+$\semBrcks{\theta \leq \theta} \alpha$ $=$ $\it{I}_{\D(\theta)\alpha}$\\
+\
+
+$\semBrcks{\theta \leq \theta''} \alpha$ $=$ $\semBrcks{\theta' \leq \theta''}\alpha$ $\circ$ $\semBrcks{\theta \leq \theta'}\alpha$\\
+\
+
+$\semBrcks{\pi \vdash \ p:\theta'} \alpha$ $=$ $\semBrcks{\theta \leq \theta'}\alpha$ $\circ$ $\semBrcks{\pi \vdash \ p:\theta} \alpha$\\
+\
+
+$\semBrcks{\pi \vdash \ p:\theta} \alpha$ $\in$ $\textcolor{violet}{\D^{*}(\pi)\alpha} \rightarrow \D(\theta)\alpha$ $\ =$ 
+$\textcolor{violet}{\prod\limits_{\iota \in dom \pi} \D(\pi\iota)\alpha} \rightarrow \D(\theta)\alpha$\\
+\
+
+$\semBrcks{\pi \vdash \ \iota:\theta}$ $=$ $\eta\iota$ \ cuando $\pi$ contenga $\iota:\theta$ y donde $\eta$ $\in$ $\D^* (\pi)$.
+\end{block}
+
+\begin{block}{Sem\'antica denotacional base.}\small
+$\semBrcks{\intexp \leq \realexp} \alpha$ $e$ $=$ $J \circ e$\\
+\
+
+$\semBrcks{\realacc \leq \intacc} \alpha$ $a$ $=$ $a \circ J$\\
+\
+
+donde $a$ $\in$ $S_{\bf{real}}$ $\rightarrow$ $\setstate$ $\rightarrow$ $(\setstate)_\bot$, 
+$e$ $\in$ $\setstate$ $\rightarrow$ $(S_{\bf{int}})_\bot$ y $J$ es la inyecci\'on de enteros en reales.
+\end{block}
+\end{frame}
+
+\begin{frame}[shrink=1]
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Sem\'antica denotacional.}
+
+\begin{block}{Constantes y operadores(algunos).}
+$\denotalsem{\pi}{0:\intexp}{\alpha}{\eta}{\sigma}$ $=$ $\iotabot$ $0$\\
+
+
+$\denotalsem{\pi}{p_{0} \ominus p_{1} : \theta}{\alpha}{\eta}{\sigma}$ $=$ \\
+\ \ \ \ \ \ \ $\parentcolor{red}{\lambda i . \parentcolor{blue}{\lambda i' . \iotabot (i \ominus i')}_{\upmodels}
+\denotalsem{\pi}{p_1:\theta}{\alpha}{\eta}{\sigma}}_{\upmodels}
+\denotalsem{\pi}{p_0:\theta}{\alpha}{\eta}{\sigma}$\\
+
+$\ominus \in \{+, -, =, ...\}$
+\end{block}
+
+\begin{block}{Comandos.}\small
+$\denotalsem{\pi}{\ \cskip : \comm}{\alpha}{\eta}{\sigma}$ $=$ $\iotabot \sigma$\\
+$\denotalsem{\pi}{ \seq{p_0}{p_1} : \comm}{\alpha}{\eta}{\sigma}$ $=$ 
+$(\denotalsem{\pi}{p_1:\comm}{\alpha}{\eta}{\sigma})_{\upmodels}$ 
+$\denotalsem{\pi}{p_0:\comm}{\alpha}{\eta}{\sigma}$\\
+$\denotalsem{\pi}{\ifthenelse{p_0}{p_1}{p_2}:\theta}{\alpha}{\eta}{\sigma}$ $=$ \\
+\ \ \ \ \ $(\lambda b . \ if \ b $
+$then \ \denotalsem{\pi}{p_1:\theta}{\alpha}{\eta}{\sigma}$
+$else \ \denotalsem{\pi}{p_2:\theta}{\alpha}{\eta}{\sigma})_{\upmodels}$ \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+$\denotalsem{\pi}{p_0:\boolexp}{\alpha}{\eta}{\sigma}$
+\end{block}
+$\delta \in \angles{data \ type}$
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguajes Algol-like.}
+\framesubtitle{Sem\'antica denotacional.}
+
+\begin{block}{Comandos(Cont).}
+$\denotalsem{\pi}{\whiledo{p_0}{p_1}:\comm}{\alpha}{\eta}{\sigma}$ $=$ $\Y_{\Dcomm}$ $\textcolor{red}{(}\lambda c .$ $\lambda \sigma .$\\
+\ \ \ \ \ $\parentcolor{blue}{
+\lambda b. \ if \ b \ then \ c_{\upmodels} \denotalsem{\pi}{p_1:\comm}{\alpha}{\eta}{\sigma} \ else \ \iotabot \sigma
+}_{\upmodels}$ \\
+\ \ \ \ \ \ \ \ \ \ $\denotalsem{\pi}{p_0:\boolexp}{\alpha}{\eta}{\sigma}$ $\textcolor{red}{)}$\\
+
+\
+
+$\denotalsem{\pi}{\assig{p_0}{p_1}:\comm}{\alpha}{\eta}{\sigma}$ $=$ \\
+\ \ \ \ \ \ \ \ $(\lambda x. \ (\denotalsem{\pi}{p_0:\deltaacc}{\alpha}{\eta})$$x$${\sigma})_{\upmodels}$ 
+$\denotalsem{\pi}{p_1:\deltaexp}{\alpha}{\eta}{\sigma}$ \\
+
+
+
+\end{block}
+
+\begin{block}{}
+Notar que $\denotalsem{\pi}{p_0:\deltaacc}{\alpha}{\eta}$ $\in$ $\D(\deltaacc)\alpha$ $=$ $S_\delta$ $\rightarrow$ $\setstate$ $\rightarrow$ $(\setstate)_\bot$
+\\
+\end{block}
+\end{frame}
+
+
+\end{document}
