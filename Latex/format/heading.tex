@@ -1,0 +1,26 @@
+\makeatletter
+\makepagestyle{headings}
+\makeevenhead{headings}{\thepage}{}{\leftmark}
+\makeoddhead{headings}{\rightmark}{}{\thepage}
+\makepsmarks{headings}{%
+\def\chaptermark##1{%
+\markboth{\textsc{%
+\ifnum\c@secnumdepth > \m@ne
+\if@mainmatter
+\thechapter. \ %
+\fi
+\fi
+##1}}{}}%
+\def\sectionmark##1{%
+\markright{
+\ifnum\c@secnumdepth > \z@
+\thesection. \ %
+\fi
+##1}}
+\def\tocmark{\markboth{\MakeUppercase{\contentsname}}{}}
+\def\lofmark{\markboth{\MakeUppercase{\listfigurename}}{}}
+\def\lotmark{\markboth{\MakeUppercase{\listtablename}}{}}
+\def\bibmark{\markboth{\MakeUppercase{\bibname}}{}}
+\def\indexmark{\markboth{\MakeUppercase{\indexname}}{}}
+\def\glossarymark{\markboth{\MakeUppercase{\glossaryname}}{}}}
+\makeatother

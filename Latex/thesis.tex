@@ -1,0 +1,105 @@
+\documentclass[a4paper,twoside,openright]{memoir}
+%\usepackage{xltxtra}
+\newcommand{\thesistitle}{Estudio de sem\'anticas para el lenguaje Fortsythe.} 
+\author{Ale}
+\title{\thesistitle}
+
+%% STRUCTURE
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+
+\usepackage{ellipsis}
+\usepackage{multind}
+\usepackage{enumitem}
+\usepackage{verbatim}
+\usepackage{appendix}
+\usepackage{xspace}
+\usepackage{expl3}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{shapes,fit,intersections,positioning}
+
+
+
+%% Hyphenation?
+%\usepackage{babel}
+
+
+%% Bibliography
+\usepackage[style=numeric,sorting=nyt,sortcites=true,backref=true,autopunct=false,backend=biber]{biblatex}
+\bibliography{thesis}
+
+
+%%PDF archival
+\usepackage[a-1b]{pdfxLSB}
+\usepackage{pdfpages}
+\let\oldphantomsection\phantomsection
+\usepackage{fixltx2e}
+\renewcommand{\eminnershape}{\sscshape} % emph inside emph we do with small caps.
+
+
+\usepackage{xcolor}
+% chapter numbers will be semi transparent .5 .55 .6 .0
+\definecolor{halfgray}{gray}{0.55} 
+% \definecolor{webgreen}{rgb}{0,.5,0}
+% \definecolor{webbrown}{rgb}{.6,0,0}
+
+%% MATHEMATICS
+\usepackage{amssymb} 
+\usepackage{amsmath} 
+\usepackage{amsthm}
+% fix amslatex, provide \smashoperator, \cramped, \adjustlimits
+\usepackage{mathtools}      
+
+
+%%% FONTS
+\input{format/fonts}
+
+%% FORMAT
+\input{format/page}
+\input{format/toc}
+\input{format/heading}
+\input{format/chaptering}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% HYPERLINKS/PDF
+%% these packages must come last:
+\usepackage{bookmark}
+\usepackage{hyperxmp}
+\PassOptionsToPackage{hyperfootnotes=false,linktoc=all,bookmark=true}{hyperref}
+\hypersetup{%
+pdftitle={\thesistitle},
+pdfauthor={ale},
+pdfcopyright={},
+pdfsubject={},
+pdfkeywords={},
+pdflang={es}
+}
+
+%%Footnote or sidenotes?
+% \renewcommand{\footnote}[1]{\marginpar{\footnotesize #1}}
+
+\newcommand{\ruleref}[1]{#1}
+
+\begin{document}
+
+%\frontmatter
+%%%TAPA%%%
+%\input{front-matter.tex}
+%%%%%%%%%%
+
+%\tableofcontents*
+%\input{acknowledgements.tex}
+
+%\mainmatter
+%\pagestyle{headings}
+\input{intro.tex}
+\input{types.tex}
+\input{algollike.tex}
+
+\backmatter
+
+%\printbibliography
+
+\end{document}

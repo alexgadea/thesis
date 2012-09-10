@@ -1,0 +1,39 @@
+%\usepackage{sectsty} % load before fncychap
+% \sectionfont{\fontfamily{ppl}\fontseries{m}\fontsize{15}{17}\selectfont}
+% \subsectionfont{\fontfamily{ppl}\fontseries{m}\fontsize{13}{15}\selectfont}
+
+% \usepackage{titlesec}
+\newfont{\chapterNumber}{eurb10 scaled 6000}%
+%\microtypesetup{expansion=false}%
+% \DeclareRobustCommand{\spacedallcaps}[1]{\textls[160]{\MakeTextUppercase{#1}}}%
+% \DeclareRobustCommand{\spacedlowsmallcaps}[1]{\textls[80]{\scshape\MakeTextLowercase{#1}}}%
+% \titleformat{\chapter}[display]%             
+% {\relax}{\raggedleft{\color{halfgray}\chapterNumber\thechapter} }{-14pt}%
+% {\raggedright\fontseries{m}\fontsize{19}{21}\selectfont}[\vspace*{.2\baselineskip}\titlerule]%
+% %{\raggedright\fontfamily{ppl}\fontseries{m}\fontsize{19}{21}\selectfont}[\vspace*{.2\baselineskip}\titlerule]%
+
+
+\makeatletter
+\makechapterstyle{famaf}{%
+\setlength{\beforechapskip}{12pt}
+\setlength{\midchapskip}{12pt}
+\setlength{\afterchapskip}{24pt}
+\setlength{\marginparsep}{24pt}
+\renewcommand*{\chapnumfont}{\color{halfgray}\chapterNumber}
+\renewcommand*{\chaptitlefont}{\fontseries{m}\fontsize{18}{21}\selectfont\flushleft}
+\renewcommand*{\printchaptername}{}%
+\renewcommand*{\printchaptertitle}[1]{\chaptitlefont ##1%
+\if@mainmatter \marginpar{{\chapnumfont \thechapter}}%
+\fi}
+\renewcommand*{\chapternamenum}{}
+\renewcommand*{\printchapternum}{}
+\renewcommand*{\afterchaptertitle}%
+{\vskip 6pt \hrule\vskip \afterchapskip}
+\makeoddfoot{plain}{}{}{\thepage}}
+\makeatother
+\chapterstyle{famaf}
+
+%% Sections
+\setsecheadstyle{\Large}
+\setsubsecheadstyle{\large\itshape}
+\setparaheadstyle{\itshape}

@@ -1,0 +1,95 @@
+\chapter{Tipos}
+\label{chap:types}
+
+En la introducci\'on ya comentamos algo sobre tipos, en particular la 
+motivaci\'on de contar con ellos. En este cap\'itulo vamos a estudiar las 
+nociones importantes sobre tipado, a su vez, vamos a tener un primer contacto
+con la idea de sem\'antica denotacional. \
+
+Es importante comentar que los tipos que estudiemos en este cap\'itulo van
+a formar parte de los tipos concretos que usemos a lo largo de los dem\'as
+cap\'itulos.
+
+
+\section{Tipos simples}
+
+\subsection{Sintaxis}
+Comencemos introduciendo tipos b\'asicos que representen los tipos de datos,
+una vez con estos definidos, podemos definir los tipos b\'asicos para las
+frases de nuestro lenguaje y agregar operadores para en base a estos
+construir nuevos.\
+
+Una pregunta a esta altura puede ser, ?`Por que tener dos clases de tipos 
+distinta?; de momento puede no tener sentido esto, pero simplemente
+comentamos que por el m\'etodo de evaluaci\'on de nuestro lenguaje
+vamos a querer esta distinci\'on.\
+
+Definamos, ahora si, la sintaxis de los tipos de dato b\'asicos, 
+que vamos a llamar $data$ $types$ y la de los tipos de las frases que
+llamaremos $phrase$ $types$ 
+
+\begin{center} $\langle data \ type \rangle ::=$ ${\ int}$ $|$ ${\ real}$ $|$ ${\ bool}$ \end{center}
+
+\begin{center} 
+$\langle phrase \ type \rangle ::=$ $\delta {\ exp}$ $|$ $\delta {\ acc}$ $|$ $\delta {\ var}$ $|$ ${\ comm}$ \\
+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+\ \ \ \ 
+$|$ $\langle phrase \ type \rangle$ $\rightarrow$ $\langle phrase \ type \rangle$
+\end{center}
+
+donde $\delta$ $\in$ $\langle data \ type \rangle$.
+
+De momento introducimos solamente el operador $\rightarrow$, adelante en este 
+cap\'itulo vamos a agregar otros mas e iremos viendo como se completa nuestro
+sistema de tipos.\
+
+\subsection{Inferencia}
+Para definir la inferencia de tipos primero vamos a necesitar introducir las 
+nociones de contexto y juicio de tipado. Pero antes, veamos a que nos referimos
+con inferencia de tipos, la idea es que dado que ciertas expresiones tiene 
+su correspondiente tipo poder inferir el tipo de expresiones mas complejas.
+Por ejemplo, nuestro futuro lenguaje va a contener el operador "+" cuyo significado
+es el usual, un posible tipo podr\'ia ser ${\ intexp} \rightarrow {\ intexp} \rightarrow {\ intexp}$
+por lo tanto si tenemos la expresi\'on $v + w$, donde $v,w$ son variables en
+nuestro lenguaje, vamos a querer poder inferir que los tipos de $v$ y $w$ son
+${\ intexp}$.\
+
+\
+
+\
+
+\noindent Definamos contexto y juicio de tipado, un contexto sera una lista de 
+patterns y $phrase types$
+
+\begin{center} 
+
+$\langle context \rangle ::=$ 
+		$\langle context \rangle , \langle patterns \rangle:\langle phrase \ types \rangle$
+
+\end{center}
+(no me acuerdo bien que eran los patterns, completar ac\'a)
+
+ahora entonces un juicio de tipado sera, una relaci\'on entre un contexto $\pi$ y un expresi\'on $e$
+con su determinado tipo $\theta$, lo denotamos como
+
+\begin{center} $\pi \vdash e : \theta$ \end{center}
+
+y decimos que $e$ tiene tipo $\theta$ mediante $\pi$.\
+
+Ahora estamos en posici\'on de definir la inferencia de tipos mediante reglas,
+
+\
+
+(ac\'a van las reglas de inferencia de tipos escritas en las slides, creo que por primera vez
+hace falta conocer la sintaxis del lenguaje.)
+
+\subsection{Sem\'antica denotacional}
+
+(La sem\'antica definida en las slides pero sin considerar stack discipline.)
+
+
+\section{Sub-tipos}
+
+\section{Intersecci\'on}

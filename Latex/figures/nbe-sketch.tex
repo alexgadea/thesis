@@ -1,0 +1,38 @@
+\newcommand{\lSyn}{\textsf{Syntax}}
+\newcommand{\lSem}{\textsf{Semantics}}
+\newcommand{\toSem}{$\llbracket\ \rrbracket$}
+\newcommand{\fromSem}{$\mathsf{R}$}
+
+\begin{tikzpicture}[>=latex]
+
+  \node (a) at (-4.8,1.2) {};
+  \node (b) at (-3,-0.2) {};
+  \node (termNode) at (-4,1.2) [label=left:$t$] {};
+  \node (reifiedNode) at (-4.8,-1.4) [] {};
+  \node (termRfNode) at (-4,-0.2) [label=left:$t'$] {};
+  \node (typeSyn) [name path=typeSyn,draw,thick,ellipse,fit=(termNode) (termRfNode) (a) (b),label=above:$\Lambda_A$] {};
+  \node (nfSyn) [name path=nfSyn,draw,thick,ellipse,fit=(reifiedNode) (termRfNode) (b),label=below:$Nf$] {};
+
+  \fill[red] (termNode) circle [radius=1.5pt]; 
+  \fill[red] (termRfNode) circle [radius=1.5pt];
+
+  \node (syn) at (-3.8,0) [draw,thick,ellipse,inner xsep=1.4cm,inner ysep=2cm,label=above:\lSyn] {};
+
+  \node (x) at (4.2,0.8) {};
+  \node (semTermNode) at (3.2,0.5) [label=right:$d$] {};
+  \node (anySemNode) at (3.0,1) [] {};
+  \node (anyNfPerNode) at (4.6,-1.2) [] {};
+  \node (typeSem) [draw,thick,ellipse,fit=(x) (semTermNode),label=below:$D_A$] {};
+  \node (nfSem) [draw,thick,ellipse,fit= (anySemNode) (anyNfPerNode) (semTermNode) ,label=below:$\mathsf{R}^{-1}(Nf)$] {};
+  
+  \fill[red] (semTermNode) circle [radius=1.5pt];
+  \node (sem) at (4,0) [draw,thick,ellipse,inner xsep=1.4cm,inner ysep=2cm,label=above:sem] {};
+
+  \path [->,shorten <=2pt,shorten >=2pt] (syn.60) edge [bend left] node [above] {sem} (sem.120);
+  \path [->,shorten <=2pt,shorten >=2pt] (sem.240) edge [bend left] node [below] {back} (syn.300);
+
+  \path [->] (termNode) edge [bend left] (semTermNode);
+  \path [->] (semTermNode) edge [bend left] (termRfNode);
+
+
+\end{tikzpicture}
