@@ -4,12 +4,29 @@
 En la introducci\'on ya comentamos algo sobre tipos, en particular la 
 motivaci\'on de contar con ellos. En este cap\'itulo vamos a estudiar las 
 nociones importantes sobre tipado, a su vez, vamos a tener un primer contacto
-con la idea de sem\'antica denotacional. \
+con la idea de definir sem\'antica. \
 
 Es importante comentar que los tipos que estudiemos en este cap\'itulo van
 a formar parte de los tipos concretos que usemos a lo largo de los dem\'as
-cap\'itulos.
+cap\'itulos. A su vez, para estudiar tipado hace falta hacerlo sobre un
+lenguaje, presentamos entonces la siguiente sintaxis abstracta la cual
+se correspondera con la sintaxis del lenguaje del cap\'itulo siguiente.
 
+\begin{center} 
+
+$\lrangles{Phrase} ::=$ $\lrangles{PBool}$ $|$ $\lrangles{PInt}$ $|$ $\lrangles{PReal}$ $|$ \\
+$\odot \lrangles{Phrase}$ $|$ $\lrangles{Phrase} \otimes \lrangles{Phrase} $ $|$ \\
+$\lrangles{Phrase} := \lrangles{Phrase}$ $|$ $skip$ $|$ $\lrangles{Phrase};\lrangles{Phrase}$ $|$ \\
+$if \lrangles{Phrase} then \lrangles{Phrase} else \lrangles{Phrase}$ $|$\\
+$while \lrangles{Phrase} do \lrangles{Phrase}$ $|$ \\
+$new \ \delta var \lrangles{Id} := \lrangles{Phrase} in \lrangles{Phrase}$ $|$\\
+$\lrangles{Id}$ $|$ $\lrangles{Phrase}\lrangles{Phrase}$ $|$\\
+$\lambda \lrangles{Phrase}_\theta \ . \ \lrangles{Phrase} $ $|$ $rec \ \lrangles{Phrase}$
+
+\end{center}
+
+donde $\delta \in \lrangles{Data types}$, $\odot \in \{-, \neg\}$ y 
+$\otimes \in \{+,-,*,/,\wedge,\vee,\Rightarrow,\Leftrightarrow\}$
 
 \section{Tipos simples}
 
@@ -28,18 +45,13 @@ Definamos, ahora si, la sintaxis de los tipos de dato b\'asicos,
 que vamos a llamar $data$ $types$ y la de los tipos de las frases que
 llamaremos $phrase$ $types$ 
 
-\begin{center} $\langle data \ type \rangle ::=$ ${\ int}$ $|$ ${\ real}$ $|$ ${\ bool}$ \end{center}
+\begin{center} $\lrangles{data type} ::=$ $int$ $|$ $real$ $|$ $bool$ \end{center}
 
 \begin{center} 
-$\langle phrase \ type \rangle ::=$ $\delta {\ exp}$ $|$ $\delta {\ acc}$ $|$ $\delta {\ var}$ $|$ ${\ comm}$ \\
 
-\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
-\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
-\ \ \ \ 
-$|$ $\langle phrase \ type \rangle$ $\rightarrow$ $\langle phrase \ type \rangle$
+$\lrangles{phrase type}::=$ $\lrangles{data type}$ $|$ $\lrangles{phrase type} \rightarrow \lrangles{phrase type}$
+
 \end{center}
-
-donde $\delta$ $\in$ $\langle data \ type \rangle$.
 
 De momento introducimos solamente el operador $\rightarrow$, adelante en este 
 cap\'itulo vamos a agregar otros mas e iremos viendo como se completa nuestro
@@ -47,49 +59,238 @@ sistema de tipos.\
 
 \subsection{Inferencia}
 Para definir la inferencia de tipos primero vamos a necesitar introducir las 
-nociones de contexto y juicio de tipado. Pero antes, veamos a que nos referimos
-con inferencia de tipos, la idea es que dado que ciertas expresiones tiene 
-su correspondiente tipo poder inferir el tipo de expresiones mas complejas.
-Por ejemplo, nuestro futuro lenguaje va a contener el operador "+" cuyo significado
-es el usual, un posible tipo podr\'ia ser ${\ intexp} \rightarrow {\ intexp} \rightarrow {\ intexp}$
+nociones de contexto y juicio de tipado. Pero antes, veamos la idea general
+sobre la inferencia de tipos, la idea es poder averiguar el tipo de una expresi\'on
+usando informaci\'on de expresiones b\'asicas que tiene su tipos determinado e
+informaci\'on de los tipos de los operadores del lenguaje.\\
+Por ejemplo, nuestro lenguaje contiene el operador $+$ cuyo significado
+es el usual, un posible tipo podr\'ia ser $int \rightarrow int \rightarrow int$
 por lo tanto si tenemos la expresi\'on $v + w$, donde $v,w$ son variables en
 nuestro lenguaje, vamos a querer poder inferir que los tipos de $v$ y $w$ son
-${\ intexp}$.\
+$int$ y que el tipo de la expresi\'on completa $v + w$ es $int$.\
 
 \
 
 \
 
 \noindent Definamos contexto y juicio de tipado, un contexto sera una lista de 
-patterns y $phrase types$
+pares $\lrangles{Phrase}:\lrangles{phrase type}$, a la primera componente de este 
+par le diremos pattern para hacer referencia a que durante la inferencia de tipos
+necesitaremos hacer matching entre una expresi\'on concreta y una expresi\'on, el
+pattern, en un contexto. Ademas la lista de patterns no tiene elementos repetidos.
 
 \begin{center} 
 
-$\langle context \rangle ::=$ 
-		$\langle context \rangle , \langle patterns \rangle:\langle phrase \ types \rangle$
+$\lrangles{Context}::=$ $\varnothing$ $|$ $\lrangles{Context}, \lrangles{Pattern}:\lrangles{phrase type}$
 
 \end{center}
-(no me acuerdo bien que eran los patterns, completar ac\'a)
 
-ahora entonces un juicio de tipado sera, una relaci\'on entre un contexto $\pi$ y un expresi\'on $e$
+una vez dada la definici\'on anterior estamos en condiciones de definir un juicio de tipado
+este sera, una relaci\'on entre un contexto $\pi$ y un expresi\'on $e$
 con su determinado tipo $\theta$, lo denotamos como
 
 \begin{center} $\pi \vdash e : \theta$ \end{center}
 
 y decimos que $e$ tiene tipo $\theta$ mediante $\pi$.\
 
-Ahora estamos en posici\'on de definir la inferencia de tipos mediante reglas,
+Ahora estamos en posici\'on de definir la inferencia de tipos mediante reglas, a
+continuaci\'on listamos las reglas para nuestro sistema de tipos y lenguaje antes
+mencionados.
 
 \
 
-(ac\'a van las reglas de inferencia de tipos escritas en las slides, creo que por primera vez
-hace falta conocer la sintaxis del lenguaje.)
+Sean \\
+$\theta \in \lrangles{phrase type}$ \ \ \ $p \in \lrangles{pattern}$\\
+$e \in \lrangles{phrase}$ \ \ \ $n,m \in \N$\\
+$\pi \in \lrangles{context}$ \ \ \ $v \in \lrangles{Id}$\\
 
-\subsection{Sem\'antica denotacional}
+Comencemos con las expresiones simples que dan una primera idea sobre la inferencia
+
+\begin{center}
+\AxiomC{}
+\RightLabel{$b \in \lrangles{PBool}$}
+\UnaryInfC{$\pi \vdash b : bool$}
+\DisplayProof
+\quad
+\AxiomC{}
+\RightLabel{$i \in \lrangles{PInt}$}
+\UnaryInfC{$\pi \vdash i : int$}
+\DisplayProof
+
+\quad
+
+\AxiomC{}
+\RightLabel{$r \in \lrangles{PReal}$}
+\UnaryInfC{$\pi \vdash r : real$}
+\DisplayProof
+\end{center}
+
+claramente, estas reglas de inferencia expresan que las expresiones simples
+son totalmente independientes del contexto en el que se utilizan. Continuemos
+con las reglas de inferencia para los operadores
+
+\begin{center}
+\AxiomC{$\pi \vdash e : int$}
+\RightLabel{Ty Rule: $-$ $int$}
+\UnaryInfC{$\pi \vdash -e : int$}
+\DisplayProof
+\quad
+\AxiomC{$\pi \vdash e : real$}
+\RightLabel{Ty Rule: $-$ $real$}
+\UnaryInfC{$\pi \vdash -e : real$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : bool$}
+\RightLabel{Ty Rule: $\neg$}
+\UnaryInfC{$\pi \vdash \neg e : bool$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : int$}
+\AxiomC{$\pi \vdash e' : int$}
+\RightLabel{Ty Rule: $\otimes$ $int$. $\otimes \in \{+,-,*\}$}
+\BinaryInfC{$\pi \vdash e \otimes e' : int$}
+\DisplayProof
+
+\quad
+
+\AxiomC{$\pi \vdash e : real$}
+\AxiomC{$\pi \vdash e' : real$}
+\RightLabel{Ty Rule: $\otimes$ $real$. $\otimes \in \{+,-,*,/\}$}
+\BinaryInfC{$\pi \vdash e \otimes e' : real$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : bool$}
+\AxiomC{$\pi \vdash e' : bool$}
+\RightLabel{Ty Rule: $\otimes$ $bool$. $\otimes \in \{\wedge,\vee,\Rightarrow,\Leftrightarrow\}$}
+\BinaryInfC{$\pi \vdash e \otimes e' : bool$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \delta$}
+\AxiomC{$\pi \vdash e' : \delta$}
+\RightLabel{Ty Rule: $=$. $\delta \in \lrangles{data \ type}$}
+\BinaryInfC{$\pi \vdash e = e' : bool$}
+\DisplayProof
+\end{center}
+
+Aqui ya se puede observar que para determinar si es correcto el tipo
+de una expresi\'on nos hace falta utilizar el contexto. Veamos ahora
+las reglas de inferencia para el tipado de una variable y el calculo
+lambda tipado.
+
+\begin{center}
+\AxiomC{}
+\RightLabel{Ty Rule: Var. $v:\theta \in \pi$}
+\UnaryInfC{$\pi \vdash v : \theta$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \theta \rightarrow \theta'$}
+\AxiomC{$\pi \vdash e': \theta$}
+\RightLabel{Ty Rule: App}
+\BinaryInfC{$\pi \vdash ee' : \theta'$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi,\iota:\theta \vdash e : \theta'$}
+\RightLabel{Ty Rule: Lambda}
+\UnaryInfC{$\pi \vdash \lambda \ \iota_\theta \ . \ e : \theta \rightarrow \theta'$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \theta \rightarrow \theta$}
+\RightLabel{Ty Rule: Rec}
+\UnaryInfC{$\pi \vdash rec \ e : \theta$}
+\DisplayProof
+\end{center}
+
+Podemos observar en la regla Lambda, de momento, es la \'unica que modifica el contexto
+agregando a este el identificador de variable con su respectivo tipo. \\
+
+Para seguir avanzando en la definici\'on de las reglas de inferencia vamos a necesitar
+entender de sub-tipos e intersecci\'on, ademas de enriquezer la gramatica de $\lrangles{phrase \ type}$.
+Sin embargo, todav\'ia podemos dar una definici\'on mas que puede no resultar intuitiva,
+esta se basa en una propiedad deseable de los lenguajes Algol-like, que es la del comando
+$if \ then \ else$.
+
+\begin{center}
+\AxiomC{$\pi \vdash b : bool$}
+\AxiomC{$\pi \vdash e : \theta$}
+\AxiomC{$\pi \vdash e' : \theta$}
+\RightLabel{Ty Rule: IfThenElse}
+\TrinaryInfC{$\pi \vdash if \ b \ then \ e \ else \ e' \ : \theta$}
+\DisplayProof
+\end{center}
+
+Lo interesante a notar es que, en principio uno estar\'ia tentando a decir que una expresi\'on
+$e$ $=$ $if \ b \ then \ e' \ else \ e'' \ $ ''tiene" alg\'un tipo que se corresponda con las
+expresi\'ones que son programas en el lenguaje, sin embargo aqui $e$ puede tener cualquiera
+de los tipos b\'asicos o inclusive tipo $\theta \rightarrow \theta'$.\\
+
+Veamos un ejemplo del chequeo de un juicio de tipado y que ademas involucre esta propiedad que
+comentabamos antes, supongamos \\
+
+\noindent
+$\lambda \ f_{int \rightarrow int} . \ \lambda \ b_{bool} . \ \lambda \ i_{int} . $\
+
+$if \ b \ then \ fi \ else \ i$
+$:$
+$(int \rightarrow int) \rightarrow bool \rightarrow int \rightarrow int$\\
+
+luego tenemos la siguiente prueba de que el juicio es correcto.
+
+\begin{prooftree}
+\AxiomC{}
+\RightLabel{Var}
+\def\extraVskip{5pt}
+\UnaryInfC{$\pi \vdash b:bool$}
+\AxiomC{}
+\RightLabel{Var}
+\def\extraVskip{5pt}
+\UnaryInfC{$\pi \vdash f:int \rightarrow int$}
+\AxiomC{}
+\RightLabel{Var}
+\def\extraVskip{5pt}
+\UnaryInfC{$\pi \vdash i:int$}
+\RightLabel{App}
+\def\extraVskip{5pt}
+\BinaryInfC{$\pi \vdash fi : int$}
+\AxiomC{}
+\RightLabel{Var}
+\UnaryInfC{$\pi \vdash i:int$}
+\def\extraVskip{5pt}
+\TrinaryInfC{$f:int \rightarrow int,b:bool,i:int \vdash if \ b \ then \ fi \ else \ i \ : \ int$}
+\RightLabel{Lambda}
+\def\extraVskip{5pt}
+\UnaryInfC{$f:int \rightarrow int,b:bool \vdash  \lambda \ i_{int} . \ if \ b \ then \ fi \ else \ i \ : \ int \rightarrow int$}
+\RightLabel{Lambda}
+\def\extraVskip{5pt}
+\UnaryInfC{$f:int \rightarrow int \vdash  \lambda \ b_{bool} . \ \lambda \ i_{int} . \ if \ b \ then \ fi \ else \ i \ : \ bool \rightarrow int \rightarrow int$}
+\RightLabel{Lambda}
+\def\extraVskip{5pt}
+\UnaryInfC{$\vdash \lambda \ f_{int \rightarrow int} . \ \lambda \ b_{bool} . \ \lambda \ i_{int} . \ if \ b \ then \ fi \ else \ i \ : \ (int \rightarrow int) \rightarrow bool \rightarrow int \rightarrow int$}
+\end{prooftree}
+
+donde $\pi$ $=$ $f:int \rightarrow int,b:bool,i:int$
+
+\subsection{Sem\'antica categorica}
 
 (La sem\'antica definida en las slides pero sin considerar stack discipline.)
 
 
 \section{Sub-tipos}
+
+Extendamos los tipos anteriores de manera de que ahora consideremos sub-tipado,
+esto es, extender $data \ type$ y $phrase type$.
 
 \section{Intersecci\'on}
