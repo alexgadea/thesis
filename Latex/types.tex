@@ -10,7 +10,7 @@ Es importante comentar que los tipos que estudiemos en este cap\'itulo van
 a formar parte de los tipos concretos que usemos a lo largo de los dem\'as
 cap\'itulos. A su vez, para estudiar tipado hace falta hacerlo sobre un
 lenguaje, presentamos entonces la siguiente sintaxis abstracta la cual
-se correspondera con la sintaxis del lenguaje del cap\'itulo siguiente.
+se corresponder\'a con la sintaxis del lenguaje del cap\'itulo siguiente.
 
 \begin{center} 
 
@@ -77,7 +77,7 @@ $int$ y que el tipo de la expresi\'on completa $v + w$ es $int$.\
 pares $\lrangles{Phrase}:\lrangles{phrase type}$, a la primera componente de este 
 par le diremos pattern para hacer referencia a que durante la inferencia de tipos
 necesitaremos hacer matching entre una expresi\'on concreta y una expresi\'on, el
-pattern, en un contexto. Ademas la lista de patterns no tiene elementos repetidos.
+pattern, en un contexto. Adem\'as la lista de patterns no tiene elementos repetidos.
 
 \begin{center} 
 
@@ -285,12 +285,101 @@ donde $\pi$ $=$ $f:int \rightarrow int,b:bool,i:int$
 
 \subsection{Sem\'antica categorica}
 
-(La sem\'antica definida en las slides pero sin considerar stack discipline.)
-
+\note {Para esto va a hacer faltar contar algunas cosas de categor\'ias, hacer algo aparte?.}
 
 \section{Sub-tipos}
 
-Extendamos los tipos anteriores de manera de que ahora consideremos sub-tipado,
-esto es, extender $data \ type$ y $phrase type$.
+En la secci\'on anterior definimos la gram\'atica $\lrangles{data \ type}$ este representaba
+los tipos de dato b\'asico de nuestro lenguaje, luego dos tipos b\'asico posibles son
+$int$ y $real$, los cuales representan los conjuntos de enteros y reales matem\'aticos.
+Algo interesante a pensar es que, los enteros forman parte de los reales, es decir,
+$\N \subseteq \R$, luego surge la pregunta, ¿Existir\'a una forma de expresar esta relaci\'on 
+como una relaci\'on entre los $\lrangles{data \ type}$?, la respuesta es s\'i y es el sub-tipado.\\
+
+Para agregar sub-tipado a nuestro lenguaje no hace falta cambiar nada de la gram\'atica de los
+tipos de dato ba\'sico ni otros, simplemente vamos a necesitar definir nuevas reglas de tipado
+y definir un nuevo tipo de juicio de tipado.
+
+\subsection{Inferencia}
+
+Comencemos definiendo el nuevo juicio de tipado y las reglas de inferencia necesarias. Como mencionamos
+antes, el nuevo juicio de tipado sera una relaci\'on entre tipos, sean $\theta$ y $\theta'$ tipos
+diremos $\theta$ es sub-tipo de $\theta'$ cuando $\theta \leq \theta'$.\\
+
+Primero veamos reglas de inferencia generales a cualquier tipo, empecemos discutiendo
+una idea intuitiva de las reglas que ser\'ian deseables. Supongamos tenemos que la expresi\'on
+$e$ tiene tipo $int$ y adem\'as que $int$ es sub-tipo de $real$, luego quisi\'eramos 
+poder decir que $e$ tiene tipo $real$, adem\'as si suponemos un tipo $nat$ que es
+sub-tipo de $int$, entonces deber\'iamos poder decir que $nat$ es sub-tipo de $real$,
+es decir, tener transitividad entre los tipos, cualquier tipo es
+sub-tipo de \'el mismo, es decir, los tipos son reflexivos. Para finalizar, 
+supongamos tenemos $\theta_0 \leq \theta_0'$ y $\theta_1 \leq \theta_1'$ y adem\'as
+que tenemos una expresi\'on $e$ que tiene tipo $theta_0' \rightarrow theta_1$. Luego
+$e$ puede aplicarse a elementos de tipo $\theta_0$ y el resultado de tal aplicaci\'on
+puede ser un elemento de tipo $\theta_1'$.
+
+Ahora si presentemos la reglas de inferencia,
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \theta$}
+\AxiomC{$\theta \leq \theta'$}
+\RightLabel{Ty Rule: Subsumption}
+\BinaryInfC{$\pi \vdash e : \theta'$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\theta \leq \theta'$}
+\AxiomC{$\theta' \leq \theta''$}
+\RightLabel{Ty Rule: Trans}
+\BinaryInfC{$\theta \leq \theta''$}
+\DisplayProof
+\quad
+\AxiomC{}
+\RightLabel{Ty Rule: Reflex}
+\UnaryInfC{$\theta \leq \theta$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\theta_0 \leq \theta_0'$}
+\AxiomC{$\theta_1 \leq \theta_1'$}
+\RightLabel{Ty Rule: Func}
+\BinaryInfC{$\theta_0' \rightarrow \theta_1 \leq \theta_0 \rightarrow \theta_1'$}
+\DisplayProof
+\end{center}
+
+Como mencionamos antes, las reglas anteriores son generales para cualquier tipado.
+Definamos ahora mas reglas en relaci\'on a nuestros tipos y lenguaje concreto,
+esto es b\'asicamente definir la relaci\'on entre enteros y reales. Luego podemos
+analizar un poco que relaci\'on nos implica esto para otros tipos mas complejos.
+
+\begin{center}
+\AxiomC{}
+\RightLabel{Ty Rule: intToreal}
+\UnaryInfC{$int \leq real$}
+\DisplayProof
+\end{center}
+
+Podemos ahora pensar en la relaci\'on entre nuestros tipos con el siguiente diagrama
+
+\begin{diagram}[size=2em]
+  real & & bool & & & \\
+  \uLine^{} & & & & & \\
+  int & & & &
+\end{diagram}
+
+Un ejemplo de la relaci\'on entre tipos funcionales usando la regla Func podr\'ia ser
+
+\begin{diagram}[size=2em]
+   & & int \rightarrow real & \\
+   & \ruLine^{} & & \luLine^{} & \\
+   int \rightarrow int & & & & real \rightarrow real \\
+   & \rdLine^{} & & \ldLine^{} & \\
+   & & real \rightarrow int & 
+\end{diagram}
+
+\subsection{Sem\'antica categorica}
 
 \section{Intersecci\'on}
+
