@@ -48,9 +48,7 @@ llamaremos $phrase$ $types$
 \begin{center} $\lrangles{data type} ::=$ $int$ $|$ $real$ $|$ $bool$ \end{center}
 
 \begin{center} 
-
 $\lrangles{phrase type}::=$ $\lrangles{data type}$ $|$ $\lrangles{phrase type} \rightarrow \lrangles{phrase type}$
-
 \end{center}
 
 De momento introducimos solamente el operador $\rightarrow$, adelante en este 
@@ -381,5 +379,217 @@ Un ejemplo de la relaci\'on entre tipos funcionales usando la regla Func podr\'i
 
 \subsection{Sem\'antica categorica}
 
+\note {Pensar :D}
+
 \section{Intersecci\'on}
 
+En la secci\'on anterior sobre sub-tipos no hizo falta modificar la gram\'atica, ese
+podr\'ia ser el caso para el estudio de intersercci\'on, sin embargo vamos a aplicar 
+la gram\'atica de $\lrangles{phrase \ type}$ con el fin de presentar la definici\'on
+final sobre los tipos del lenguaje del cap\'itulo siguiente, adem\'as nos sirve para
+estudiar un caso particularmente interesante. Al igual que antes, vamos a agregar 
+nuevas reglas de inferencia y en particular un operador sobre tipos.
+
+\subsection{Gram\'atica}
+
+Comencemos definiendo la nueva gram\'atica para $\lrangles{phrase \ type}$, en la cual
+adem\'as de agregar las definiciones particulares, vamos a agregar el operador de 
+intersecci\'on sobre tipos.
+
+\begin{center} 
+$\lrangles{phrase \ type}::=$ $\delta var$ $|$ $\delta exp$ $|$ $\delta acc$ $|$ $comm$\\
+$|$ $\lrangles{phrase \ type} \rightarrow \lrangles{phrase \ type}$ \\
+$|$ $\lrangles{phrase \ type} \ \& \ \lrangles{phrase \ type}$
+\end{center}
+con $\delta \in \lrangles{data \ type}$\\
+
+Analicemos las construcciones de tipos que acabamos de introducir dejando para el final
+el operador $\&$ de intersecci\'on. El tipo $comm$ representara el tipo de los programas
+de la parte imperativa de nuestro lenguaje, $\delta exp$ es el nuevo nombre para los tipos
+que antes nos refer\'iamos usando simplemente $\lrangles{data \ type}$, $\delta acc$ 
+representara el tipo de una variable durante su asignaci\'on imperativa y finalmente
+$\delta var$ sera un tipo que encapsule la representaci\'on de una variable tanto
+cuando se usa como almacenamiento como cuando se usa como valor concreto.
+
+\subsection{Inferencia}
+
+Ya tenemos definida la gram\'atica final de nuestros tipos, re-escribamos las reglas de
+inferencia que ya definimos contemplando ahora los nuevos tipos y completemos con las
+reglas que no definimos todav\'ia. Pero antes, definamos las reglas de inferencia para
+el operador de intersecc\'ion.
+
+\begin{center}
+\AxiomC{}
+\RightLabel{Ty Rule: Intersec1}
+\UnaryInfC{$\theta \ \& \ \theta' \leq \theta$}
+\DisplayProof
+\quad
+\AxiomC{}
+\RightLabel{Ty Rule: Intersec2}
+\UnaryInfC{$\theta \ \& \ \theta' \leq \theta'$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\theta \leq \theta'$}
+\AxiomC{$\theta \leq \theta''$}
+\RightLabel{Ty Rule: Intersec3}
+\BinaryInfC{$\theta \leq \theta' \ \& \ \theta''$}
+\DisplayProof
+\end{center}
+
+Y finalmente la regla que nos dice que si una expresi\'on ''tiene" dos tipos
+entonces tiene tipo la intersecci\'on de estos.
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \theta$}
+\AxiomC{$\pi \vdash e : \theta'$}
+\RightLabel{Ty Rule: Intersec4}
+\BinaryInfC{$\pi \vdash e : \theta \ \& \ \theta'$}
+\DisplayProof
+\end{center}
+
+Ahora si definamos las reglas de inferencia para las expresiones del lenguaje.
+
+\begin{center}
+\AxiomC{}
+\RightLabel{Ty Rule: varToexpr}
+\UnaryInfC{$\delta var \leq \delta exp$}
+\DisplayProof
+\quad
+\AxiomC{}
+\RightLabel{Ty Rule: varToacc}
+\UnaryInfC{$\delta var \leq \delta acc$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{}
+\RightLabel{Ty Rule: intToreal exp}
+\UnaryInfC{$intexp \leq realexp$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{}
+\RightLabel{Ty Rule: realToint acc}
+\UnaryInfC{$realacc \leq intacc$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{}
+\RightLabel{$b \in \lrangles{PBool}$}
+\UnaryInfC{$\pi \vdash b : boolexp$}
+\DisplayProof
+\quad
+\AxiomC{}
+\RightLabel{$i \in \lrangles{PInt}$}
+\UnaryInfC{$\pi \vdash i : intexp$}
+\DisplayProof
+
+\quad
+
+\AxiomC{}
+\RightLabel{$r \in \lrangles{PReal}$}
+\UnaryInfC{$\pi \vdash r : realexp$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : intexp$}
+\RightLabel{Ty Rule: $-$ $int$}
+\UnaryInfC{$\pi \vdash -e : intexp$}
+\DisplayProof
+\quad
+\AxiomC{$\pi \vdash e : realexp$}
+\RightLabel{Ty Rule: $-$ $real$}
+\UnaryInfC{$\pi \vdash -e : realexp$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : boolexp$}
+\RightLabel{Ty Rule: $\neg$}
+\UnaryInfC{$\pi \vdash \neg e : boolexp$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : intexp$}
+\AxiomC{$\pi \vdash e' : intexp$}
+\RightLabel{Ty Rule: $\otimes$ $int$. $\otimes \in \{+,-,*\}$}
+\BinaryInfC{$\pi \vdash e \otimes e' : intexp$}
+\DisplayProof
+
+\quad
+
+\AxiomC{$\pi \vdash e : realexp$}
+\AxiomC{$\pi \vdash e' : realexp$}
+\RightLabel{Ty Rule: $\otimes$ $real$. $\otimes \in \{+,-,*,/\}$}
+\BinaryInfC{$\pi \vdash e \otimes e' : realexp$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : boolexp$}
+\AxiomC{$\pi \vdash e' : boolexp$}
+\RightLabel{Ty Rule: $\otimes$ $bool$. $\otimes \in \{\wedge,\vee,\Rightarrow,\Leftrightarrow\}$}
+\BinaryInfC{$\pi \vdash e \otimes e' : boolexp$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \delta exp$}
+\AxiomC{$\pi \vdash e' : \delta exp$}
+\RightLabel{Ty Rule: $=$. $\delta \in \lrangles{data \ type}$}
+\BinaryInfC{$\pi \vdash e = e' : boolexp$}
+\DisplayProof
+\end{center}
+
+Hasta aqu\'i las re-definiciones para adecuarnos a nuestros nuevos tipos,
+vemos ahora las nuevas reglas para las expresiones restantes.
+
+\begin{center}
+\AxiomC{}
+\RightLabel{Ty Rule: skip}
+\UnaryInfC{$\pi \vdash skip: comm$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \delta acc$}
+\AxiomC{$\pi \vdash e' : \delta exp$}
+\RightLabel{Ty Rule: assign}
+\BinaryInfC{$\pi \vdash e := e' : comm$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : comm$}
+\AxiomC{$\pi \vdash e': comm$}
+\RightLabel{Ty Rule: seq}
+\BinaryInfC{$\pi \vdash e ; e' : comm$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : boolexp$}
+\AxiomC{$\pi \vdash e': comm$}
+\RightLabel{Ty Rule: while}
+\BinaryInfC{$\pi \vdash while \ e \ do \ e' : comm$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \delta exp$}
+\AxiomC{$\pi,\iota:\delta var \vdash e': comm$}
+\RightLabel{Ty Rule: varDecl}
+\BinaryInfC{$\pi \vdash new \ \delta var \ \iota := e \ in \ e': comm$}
+\DisplayProof
+\end{center}
+
+para finalizar, haciendo uso de la intersecci\'on, podemos definir el tipo
+$\delta var$ $=$ $\delta acc \ \& \ \delta exp$. Notar que de esta manera
+estamos capturando la noci\'on de que una variable imperativa tiene dos usos,
+como expresi\'on que acepta un valor y como expresi\'on que refiere a un valor.
