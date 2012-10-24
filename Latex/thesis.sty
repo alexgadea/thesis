@@ -1,11 +1,53 @@
 \usepackage{diagrams}
 
+\newcommand{\concat}{+\kern-1.3ex+\kern0.8ex}
 \newcommand{\ti}{\textit}
 \newcommand{\semBrcks}[1]{\llbracket #1 \rrbracket}
 \newcommand{\lrangles}[1]{\langle #1 \rangle}
+\newcommand{\DC}{{\D}^{\C}}
+\newcommand{\C}{\mathcal{C}}
 \newcommand{\D}{\mathcal{D}}
 \newcommand{\N}{\mathcal{N}}
+\newcommand{\Z}{\mathcal{Z}}
+\newcommand{\T}{\mathcal{T}}
 \newcommand{\R}{\mathcal{R}}
+\newcommand{\J}{\mathcal{J}}
+\newcommand{\Y}{\textbf{Y}}
+
+
+\newcommand{\intt}{\textbf{int}}
+\newcommand{\realt}{\textbf{real}}
+\newcommand{\boolt}{\textbf{bool}}
+\newcommand{\commt}{\textbf{comm}}
+
+\newcommand{\deltaexp}{\delta \textbf{exp}}
+\newcommand{\boolexp}{\textbf{boolexp}}
+\newcommand{\intexp}{\textbf{intexp}}
+\newcommand{\realexp}{\textbf{realexp}}
+\newcommand{\intacc}{\textbf{intacc}}
+\newcommand{\realacc}{\textbf{realacc}}
+\newcommand{\intvar}{\textbf{intvar}}
+\newcommand{\boolvar}{\textbf{boolvar}}
+\newcommand{\deltavar}{\delta \textbf{var}}
+\newcommand{\deltaacc}{\delta \textbf{acc}}
+\newcommand{\comm}{\textbf{comm}}
+\newcommand{\cskip}{\textbf{skip}}
+\newcommand{\clet}{\textbf{let}}
+\newcommand{\cin}{\textbf{in}}
+\newcommand{\cifthenelse}[3]{\textbf{if} \ #1 \ \textbf{then} \ #2 \ \textbf{else} \ #3}
+\newcommand{\cwhiledo}[2]{\textbf{while} \ #1 \ \textbf{do} \ #2}
+\newcommand{\rec}[1]{\textbf{rec} \ #1}
+\newcommand{\clambda}[3]{\lambda #1_{#2} . #3}
+\newcommand{\assig}[2]{#1 \textbf{:=} #2}
+\newcommand{\newvar}[4]{\textbf{new} \ #1 \ \assig{#2}{#3} \ \cin \ #4}
+\newcommand{\newdeltavar}[3]{\newvar{\deltavar}{#1}{#2}{#3}}
+\newcommand{\seq}[2]{#1 \textbf{;} #2}
+
+\newcommand{\denotalsem}[5]{\semBrcks{#1 \vdash #2} #3 #4 #5}
+\newcommand{\iotabot}{\iota_{\uparrow}}
+\newcommand{\sigmahat}{\widehat{\sigma}}
+
+\newcommand{\parentcolor}[2]{\textcolor{#1}{(} #2 \textcolor{#1}{)}}
 
 \newcommand{\snote}[1]{\fbox{Nota: #1}}
 \newcommand{\note}[1]{

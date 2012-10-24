@@ -16,12 +16,15 @@ se corresponder\'a con la sintaxis del lenguaje del cap\'itulo siguiente.
 
 $\lrangles{Phrase} ::=$ $\lrangles{PBool}$ $|$ $\lrangles{PInt}$ $|$ $\lrangles{PReal}$ $|$ \\
 $\odot \lrangles{Phrase}$ $|$ $\lrangles{Phrase} \otimes \lrangles{Phrase} $ $|$ \\
-$\lrangles{Phrase} := \lrangles{Phrase}$ $|$ $skip$ $|$ $\lrangles{Phrase};\lrangles{Phrase}$ $|$ \\
-$if \lrangles{Phrase} then \lrangles{Phrase} else \lrangles{Phrase}$ $|$\\
-$while \lrangles{Phrase} do \lrangles{Phrase}$ $|$ \\
-$new \ \delta var \lrangles{Id} := \lrangles{Phrase} in \lrangles{Phrase}$ $|$\\
+$\assig{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$ $\cskip$ $|$ $\seq{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$ \\
+
+$\cifthenelse{\lrangles{Phrase}}{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$\\
+
+$\cwhiledo{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$ \\
+$\newdeltavar{\lrangles{Id}}{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$\\
 $\lrangles{Id}$ $|$ $\lrangles{Phrase}\lrangles{Phrase}$ $|$\\
-$\lambda \lrangles{Phrase}_\theta \ . \ \lrangles{Phrase} $ $|$ $rec \ \lrangles{Phrase}$
+$\clambda{\lrangles{Id}}{\theta}{\lrangles{Phrase}} $ $|$ 
+$\rec{\lrangles{Phrase}}$
 
 \end{center}
 
@@ -45,10 +48,11 @@ Definamos, ahora si, la sintaxis de los tipos de dato b\'asicos,
 que vamos a llamar $data$ $types$ y la de los tipos de las frases que
 llamaremos $phrase$ $types$ 
 
-\begin{center} $\lrangles{data type} ::=$ $int$ $|$ $real$ $|$ $bool$ \end{center}
+\begin{center} $\lrangles{data \ type} ::=$ $\intt$ $|$ $\realt$ $|$ $\boolt$ \end{center}
 
 \begin{center} 
-$\lrangles{phrase type}::=$ $\lrangles{data type}$ $|$ $\lrangles{phrase type} \rightarrow \lrangles{phrase type}$
+$\lrangles{phrase \ type}::=$ $\lrangles{data \ type}$ 
+$|$ $\lrangles{phrase \ type} \rightarrow \lrangles{phrase \ type}$
 \end{center}
 
 De momento introducimos solamente el operador $\rightarrow$, adelante en este 
@@ -72,14 +76,14 @@ $int$ y que el tipo de la expresi\'on completa $v + w$ es $int$.\
 \
 
 \noindent Definamos contexto y juicio de tipado, un contexto sera una lista de 
-pares $\lrangles{Phrase}:\lrangles{phrase type}$, a la primera componente de este 
+pares $\lrangles{Phrase}:\lrangles{Phrase \ type}$, a la primera componente de este 
 par le diremos pattern para hacer referencia a que durante la inferencia de tipos
 necesitaremos hacer matching entre una expresi\'on concreta y una expresi\'on, el
 pattern, en un contexto. Adem\'as la lista de patterns no tiene elementos repetidos.
 
 \begin{center} 
 
-$\lrangles{Context}::=$ $\varnothing$ $|$ $\lrangles{Context}, \lrangles{Pattern}:\lrangles{phrase type}$
+$\lrangles{Context}::=$ $\varnothing$ $|$ $\lrangles{Context}, \lrangles{Pattern}:\lrangles{Phrase \ type}$
 
 \end{center}
 
@@ -97,29 +101,28 @@ mencionados.
 
 \
 
-Sean \\
-$\theta \in \lrangles{phrase type}$ \ \ \ $p \in \lrangles{pattern}$\\
-$e \in \lrangles{phrase}$ \ \ \ $n,m \in \N$\\
-$\pi \in \lrangles{context}$ \ \ \ $v \in \lrangles{Id}$\\
+Sean $\theta$ un tipo en $\lrangles{phrase type}$, p un $\lrangles{Pattern}$, e una frase
+de nuestro lenguaje $\lrangles{phrase}$, $n,m \in \N$, $\pi$ un contexto en $\lrangles{context}$ y
+$v$ un identificador en $\lrangles{Id}$.\\
 
 Comencemos con las expresiones simples que dan una primera idea sobre la inferencia
 
 \begin{center}
 \AxiomC{}
 \RightLabel{$b \in \lrangles{PBool}$}
-\UnaryInfC{$\pi \vdash b : bool$}
+\UnaryInfC{$\pi \vdash b : \boolt$}
 \DisplayProof
 \quad
 \AxiomC{}
 \RightLabel{$i \in \lrangles{PInt}$}
-\UnaryInfC{$\pi \vdash i : int$}
+\UnaryInfC{$\pi \vdash i : \intt$}
 \DisplayProof
 
 \quad
 
 \AxiomC{}
 \RightLabel{$r \in \lrangles{PReal}$}
-\UnaryInfC{$\pi \vdash r : real$}
+\UnaryInfC{$\pi \vdash r : \realt$}
 \DisplayProof
 \end{center}
 
@@ -128,45 +131,45 @@ son totalmente independientes del contexto en el que se utilizan. Continuemos
 con las reglas de inferencia para los operadores
 
 \begin{center}
-\AxiomC{$\pi \vdash e : int$}
+\AxiomC{$\pi \vdash e : \intt$}
 \RightLabel{Ty Rule: $-$ $int$}
-\UnaryInfC{$\pi \vdash -e : int$}
+\UnaryInfC{$\pi \vdash -e : \intt$}
 \DisplayProof
 \quad
-\AxiomC{$\pi \vdash e : real$}
+\AxiomC{$\pi \vdash e : \realt$}
 \RightLabel{Ty Rule: $-$ $real$}
-\UnaryInfC{$\pi \vdash -e : real$}
+\UnaryInfC{$\pi \vdash -e : \realt$}
 \DisplayProof
 \end{center}
 
 \begin{center}
-\AxiomC{$\pi \vdash e : bool$}
+\AxiomC{$\pi \vdash e : \boolt$}
 \RightLabel{Ty Rule: $\neg$}
-\UnaryInfC{$\pi \vdash \neg e : bool$}
+\UnaryInfC{$\pi \vdash \neg e : \boolt$}
 \DisplayProof
 \end{center}
 
 \begin{center}
-\AxiomC{$\pi \vdash e : int$}
-\AxiomC{$\pi \vdash e' : int$}
+\AxiomC{$\pi \vdash e : \intt$}
+\AxiomC{$\pi \vdash e' : \intt$}
 \RightLabel{Ty Rule: $\otimes$ $int$. $\otimes \in \{+,-,*\}$}
-\BinaryInfC{$\pi \vdash e \otimes e' : int$}
+\BinaryInfC{$\pi \vdash e \otimes e' : \intt$}
 \DisplayProof
 
 \quad
 
-\AxiomC{$\pi \vdash e : real$}
-\AxiomC{$\pi \vdash e' : real$}
+\AxiomC{$\pi \vdash e : \realt$}
+\AxiomC{$\pi \vdash e' : \realt$}
 \RightLabel{Ty Rule: $\otimes$ $real$. $\otimes \in \{+,-,*,/\}$}
-\BinaryInfC{$\pi \vdash e \otimes e' : real$}
+\BinaryInfC{$\pi \vdash e \otimes e' : \realt$}
 \DisplayProof
 \end{center}
 
 \begin{center}
-\AxiomC{$\pi \vdash e : bool$}
-\AxiomC{$\pi \vdash e' : bool$}
+\AxiomC{$\pi \vdash e : \boolt$}
+\AxiomC{$\pi \vdash e' : \boolt$}
 \RightLabel{Ty Rule: $\otimes$ $bool$. $\otimes \in \{\wedge,\vee,\Rightarrow,\Leftrightarrow\}$}
-\BinaryInfC{$\pi \vdash e \otimes e' : bool$}
+\BinaryInfC{$\pi \vdash e \otimes e' : \boolt$}
 \DisplayProof
 \end{center}
 
@@ -174,7 +177,7 @@ con las reglas de inferencia para los operadores
 \AxiomC{$\pi \vdash e : \delta$}
 \AxiomC{$\pi \vdash e' : \delta$}
 \RightLabel{Ty Rule: $=$. $\delta \in \lrangles{data \ type}$}
-\BinaryInfC{$\pi \vdash e = e' : bool$}
+\BinaryInfC{$\pi \vdash e = e' : \boolt$}
 \DisplayProof
 \end{center}
 
@@ -201,14 +204,14 @@ lambda tipado.
 \begin{center}
 \AxiomC{$\pi,\iota:\theta \vdash e : \theta'$}
 \RightLabel{Ty Rule: Lambda}
-\UnaryInfC{$\pi \vdash \lambda \ \iota_\theta \ . \ e : \theta \rightarrow \theta'$}
+\UnaryInfC{$\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'$}
 \DisplayProof
 \end{center}
 
 \begin{center}
 \AxiomC{$\pi \vdash e : \theta \rightarrow \theta$}
 \RightLabel{Ty Rule: Rec}
-\UnaryInfC{$\pi \vdash rec \ e : \theta$}
+\UnaryInfC{$\pi \vdash \rec{e} : \theta$}
 \DisplayProof
 \end{center}
 
@@ -219,19 +222,19 @@ Para seguir avanzando en la definici\'on de las reglas de inferencia vamos a nec
 entender de sub-tipos e intersecci\'on, ademas de enriquezer la gramatica de $\lrangles{phrase \ type}$.
 Sin embargo, todav\'ia podemos dar una definici\'on mas que puede no resultar intuitiva,
 esta se basa en una propiedad deseable de los lenguajes Algol-like, que es la del comando
-$if \ then \ else$.
+$\cifthenelse{}{}{}$.
 
 \begin{center}
-\AxiomC{$\pi \vdash b : bool$}
-\AxiomC{$\pi \vdash e : \theta$}
+\AxiomC{$\pi \vdash b v: \boolt$}
+\AxiomC{$\pi \vdash e  : \theta$}
 \AxiomC{$\pi \vdash e' : \theta$}
 \RightLabel{Ty Rule: IfThenElse}
-\TrinaryInfC{$\pi \vdash if \ b \ then \ e \ else \ e' \ : \theta$}
+\TrinaryInfC{$\pi \vdash \cifthenelse{b}{e}{e'} : \theta$}
 \DisplayProof
 \end{center}
 
 Lo interesante a notar es que, en principio uno estar\'ia tentando a decir que una expresi\'on
-$e$ $=$ $if \ b \ then \ e' \ else \ e'' \ $ ''tiene" alg\'un tipo que se corresponda con las
+$e$ $=$ $\cifthenelse{b}{e'}{e''}$ ''tiene" alg\'un tipo que se corresponda con las
 expresi\'ones que son programas en el lenguaje, sin embargo aqui $e$ puede tener cualquiera
 de los tipos b\'asicos o inclusive tipo $\theta \rightarrow \theta'$.\\
 
@@ -239,11 +242,11 @@ Veamos un ejemplo del chequeo de un juicio de tipado y que ademas involucre esta
 comentabamos antes, supongamos \\
 
 \noindent
-$\lambda \ f_{int \rightarrow int} . \ \lambda \ b_{bool} . \ \lambda \ i_{int} . $\
+$\lambda \ f_{\intt \rightarrow \intt} . \ \lambda \ b_{\boolt} . \ \lambda \ i_{\intt} . $\
 
-$if \ b \ then \ fi \ else \ i$
+$\cifthenelse{b}{fi}{i}$
 $:$
-$(int \rightarrow int) \rightarrow bool \rightarrow int \rightarrow int$\\
+$(\intt \rightarrow \intt) \rightarrow \boolt \rightarrow \intt \rightarrow \intt$\\
 
 luego tenemos la siguiente prueba de que el juicio es correcto.
 
@@ -251,47 +254,139 @@ luego tenemos la siguiente prueba de que el juicio es correcto.
 \AxiomC{}
 \RightLabel{Var}
 \def\extraVskip{5pt}
-\UnaryInfC{$\pi \vdash b:bool$}
+\UnaryInfC{$\pi \vdash b:\boolt$}
 \AxiomC{}
 \RightLabel{Var}
 \def\extraVskip{5pt}
-\UnaryInfC{$\pi \vdash f:int \rightarrow int$}
+\UnaryInfC{$\pi \vdash f:\intt \rightarrow \intt$}
 \AxiomC{}
 \RightLabel{Var}
 \def\extraVskip{5pt}
-\UnaryInfC{$\pi \vdash i:int$}
+\UnaryInfC{$\pi \vdash i:\intt$}
 \RightLabel{App}
 \def\extraVskip{5pt}
-\BinaryInfC{$\pi \vdash fi : int$}
+\BinaryInfC{$\pi \vdash fi : \intt$}
 \AxiomC{}
 \RightLabel{Var}
-\UnaryInfC{$\pi \vdash i:int$}
+\UnaryInfC{$\pi \vdash i:\intt$}
 \def\extraVskip{5pt}
-\TrinaryInfC{$f:int \rightarrow int,b:bool,i:int \vdash if \ b \ then \ fi \ else \ i \ : \ int$}
+\TrinaryInfC{$f:\intt \rightarrow \intt,b:\boolt,i:\intt \vdash \cifthenelse{b}{fi}{i} : \intt$}
 \RightLabel{Lambda}
 \def\extraVskip{5pt}
-\UnaryInfC{$f:int \rightarrow int,b:bool \vdash  \lambda \ i_{int} . \ if \ b \ then \ fi \ else \ i \ : \ int \rightarrow int$}
+\UnaryInfC{$f:\intt \rightarrow \intt,b:\boolt \vdash  \lambda \ i_{\intt} . \cifthenelse{b}{fi}{i} : \intt \rightarrow \intt$}
 \RightLabel{Lambda}
 \def\extraVskip{5pt}
-\UnaryInfC{$f:int \rightarrow int \vdash  \lambda \ b_{bool} . \ \lambda \ i_{int} . \ if \ b \ then \ fi \ else \ i \ : \ bool \rightarrow int \rightarrow int$}
+\UnaryInfC{$f:\intt \rightarrow \intt \vdash  \lambda \ b_{\boolt} . \ \lambda \ i_{\intt} . \cifthenelse{b}{fi}{i} : \ \boolt \rightarrow \intt \rightarrow \intt$}
 \RightLabel{Lambda}
 \def\extraVskip{5pt}
-\UnaryInfC{$\vdash \lambda \ f_{int \rightarrow int} . \ \lambda \ b_{bool} . \ \lambda \ i_{int} . \ if \ b \ then \ fi \ else \ i \ : \ (int \rightarrow int) \rightarrow bool \rightarrow int \rightarrow int$}
+\UnaryInfC{$\vdash \lambda \ f_{\intt \rightarrow \intt} . \ \lambda \ b_{\boolt} . \ \lambda \ i_{\intt} . \cifthenelse{b}{fi}{i} 
+: (\intt \rightarrow \intt) \rightarrow \boolt \rightarrow \intt \rightarrow \intt$}
 \end{prooftree}
 
-donde $\pi$ $=$ $f:int \rightarrow int,b:bool,i:int$
+donde $\pi$ $=$ $f:\intt \rightarrow \intt,b:\boolt,i:\intt$
 
-\subsection{Sem\'antica categorica}
+\subsection{Sem\'antica}
 
-\note {Para esto va a hacer faltar contar algunas cosas de categor\'ias, hacer algo aparte?.}
+En las secciones anteriores definimos las frases validas de nuestro lenguaje y 
+definimos ademas ciertos tipos de manera de poder verificar que las frases
+que escribimos tengan sentido. En esta secci\'on vamos a definir el significado
+de nuestro tipos, para esto vamos a usar nociones de teor\'ia de categor\'ias.\\
+
+Para definir la sem\'antica de nuestros tipos, la idea general sera tener una
+categor\'ia de tipos y una categor\'ia funtorial que representelos dominios 
+necesarios. Luego la sem\'antica de un tipo concreto sera una funtor entre 
+la categor\'ia de los tipos y la categor\'ia funtorial de los dominios.\\
+
+Comencemos entonces definiendo la categor\'ia de los tipos, esta categor\'ia
+se simbolizara $\Theta$,\\
+
+\noindent $\Theta_0$ $=$ $\{\theta \ | \ \theta \ \in \lrangles{Phrase \ types} \}$\\
+$\Theta_1$ $=$ $\{\theta \rTo \theta \ | \ \theta \ \in \lrangles{Phrase \ types} \}$\\
+
+Definamos ahora la categor\'ia funtorial, esta tiene por objetos a funtores y 
+por flechas a transformaciones naturales, la denotaremos con $\DC$. Sucede entonces
+que para definir la categor\'ia $\DC$ de manera un poco concreta como vamos a 
+necesitar, debemos definir primero $\C$ y $\D$, esta segunda de momento no tiene
+mucha importancia, simplemente mencionamos que debe ser cartesiana cerrada. 
+Veamos entonces quien es $\C$, \\
+
+\noindent
+$\C_0$ $=$ colecci\'on de conjuntos de "determinada forma"\\
+$\C_1$ $=$ $\{C \rTo{(h,s)} C' $ $|$  C y C' objetos de $\C_0 \}$ \\
+donde $h : C' \rTo C$ y $s : (C \rTo C_\bot) \rTo (C' \rTo C'_\bot)$.\\
+
+Basta mencionar, de momento, que cuando decimos "determinada forma" 
+refiri\'endonos a un conjunto de $\C_0$, nos referimos a que los
+elementos de este conjunto todos tiene una misma forma, si pens\'aramos
+en simples secuencias de valores, se podr\'ia decir que un $C$ en $\C_0$
+agrupa secuencias de igual longitud. De todas maneras todav\'ia no
+es importante preocuparnos por esto.\\
+
+Pasemos a definir entonces la sem\'antica de nuestros tipos, esto es
+definir la sem\'antica para los $\lrangles{Phrase \ types}$, antes
+mencionamos que esta ser\'ia un funtor entre la $\Theta$ y $\DC$.
+A este funtor lo denotaremos con $\semBrcks{ \ }$ $:$ $\Theta \rTo \DC$,
+definamos entonces como es $\semBrcks{ \ }$. \\
+El funtor aplicado a un tipo $\theta$ tendr\'a tipo
+$\semBrcks{ \theta }$ $:$ $\C \rTo \D$, es decir, que como ya
+hab\'iamos mencionado, cada tipo nos define un funtor distinto y 
+por lo tanto hay que definir como se comporta para objetos y para 
+flechas de $\C$. Sean $C$ y $C'$ objetos de $\C$ y $(h,s) : C \rTo C'$ 
+una flecha en $\C$. Empecemos definiendo para los tipos b\'asicos, la
+idea es que la sem\'antica de un tipo represente el conjunto de valores
+posibles para una frase que satisfaga un juicio de tipado para ese tipo,
+una vez mencionado esto lo que sucede en realidad es poco diferente y 
+necesitamos de algo un poco distinto, vamos a decir que la sem\'antica
+de un tipo b\'asico es ahora una funci\'on de elementos de un $C$ que llamaremos
+estados, en el conjunto de valores que antes mencion\'abamos. Esto es porque para
+resolver el valor de las frases vamos a necesitar consultar valores de un estado
+particular, como ya a sucedido antes, esto quedara mas claro cuando 
+introduzcamos las caracter\'isticas de Algol-like. La sem\'antica 
+entonces queda definida as\'i,\\
+
+\noindent
+$\semBrcks{ \delta }C$ $=$ $C \rTo (S_{\delta})_\bot$\\
+$\semBrcks{ \delta }(h,s)$ $:$ $\semBrcks{ \delta }C \rTo \semBrcks{ \delta }C'$\\
+$\semBrcks{ \delta }(h,s)e$ $=$ $e \circ h$ \\
+con $\delta$ un $\lrangles{data \ type}$\\
+
+Ahora que hemos definido la sem\'antica para los tipos b\'asicos
+veamos como es esta definici\'on para el tipo funcional $\rightarrow$.
+Para entender la siguiente definici\'on primero entendamos la idea 
+detr\'as, antes dijimos que para resolver el valor de una frase
+de nuestro lenguaje necesit\'abamos consultar un estado particular,
+lo que sucede ahora es parecido salvo que como estamos suponiendo
+que tenemos una frase $e$ con tipo $\theta \rightarrow \theta'$ va 
+a ser interesante poder aplicarla a digamos una frase $e'$ con tipo
+$\theta$, surge entonces el siguiente problema, si propusi\'eramos \\
+
+\noindent
+$\semBrcks{ \theta \rightarrow \theta' }C$ $=$ $ \semBrcks{ \theta }C \rightarrow  \semBrcks{ \theta' }C$\\
+
+\noindent
+sucede entonces que el estado para resolver el valor de $e'$ deber\'ia
+tener forma $C$, pero esto podr\'ia no ser as\'i. Es decir que lo ideal
+seria tener una familia indexada por objetos de $\C$ de manera de poder
+acomodar las formas de los estados. Quedado la definici\'on as\'i,\\
+
+\noindent
+$\semBrcks{ \theta \rightarrow \theta' }C$ $=$ 
+$\{ \semBrcks{ \theta }(C \circ \widehat{C}) \rightarrow  \semBrcks{ \theta' }(C \circ \widehat{C}) \}_{\widehat{C}}$ 
+con $\widehat{C}$ objeto de $\C$\\
+$\semBrcks{ \theta \rightarrow \theta' }(h,s)$ 
+$:$ $\semBrcks{ \theta \rightarrow \theta' }C \rTo \semBrcks{ \theta \rightarrow \theta' }C'$\\
+$\semBrcks{ \theta \rightarrow \theta' }(h,s)f\widehat{C}$ $=$ $f(C' \concat \widehat{C})$\\
+
+Para finalizar entonces resta comentar que por ahora $\concat$ $:$ $\C_0 \rightarrow \C_0 \rightarrow \C_0$
+es el operador que concatena secuencias de estados.
 
 \section{Sub-tipos}
 
 En la secci\'on anterior definimos la gram\'atica $\lrangles{data \ type}$ este representaba
 los tipos de dato b\'asico de nuestro lenguaje, luego dos tipos b\'asico posibles son
-$int$ y $real$, los cuales representan los conjuntos de enteros y reales matem\'aticos.
+$\intt$ y $\realt$, los cuales representan los conjuntos de enteros y reales matem\'aticos.
 Algo interesante a pensar es que, los enteros forman parte de los reales, es decir,
-$\N \subseteq \R$, luego surge la pregunta, ¿Existir\'a una forma de expresar esta relaci\'on 
+$\Z \subseteq \R$, luego surge la pregunta, ¿Existir\'a una forma de expresar esta relaci\'on 
 como una relaci\'on entre los $\lrangles{data \ type}$?, la respuesta es s\'i y es el sub-tipado.\\
 
 Para agregar sub-tipado a nuestro lenguaje no hace falta cambiar nada de la gram\'atica de los
@@ -306,13 +401,13 @@ diremos $\theta$ es sub-tipo de $\theta'$ cuando $\theta \leq \theta'$.\\
 
 Primero veamos reglas de inferencia generales a cualquier tipo, empecemos discutiendo
 una idea intuitiva de las reglas que ser\'ian deseables. Supongamos tenemos que la expresi\'on
-$e$ tiene tipo $int$ y adem\'as que $int$ es sub-tipo de $real$, luego quisi\'eramos 
-poder decir que $e$ tiene tipo $real$, adem\'as si suponemos un tipo $nat$ que es
-sub-tipo de $int$, entonces deber\'iamos poder decir que $nat$ es sub-tipo de $real$,
+$e$ tiene tipo $\intt$ y adem\'as que $\intt$ es sub-tipo de $\realt$, luego quisi\'eramos 
+poder decir que $e$ tiene tipo $\realt$, adem\'as si suponemos un tipo $nat$ que es
+sub-tipo de $int$, entonces deber\'iamos poder decir que $nat$ es sub-tipo de $\realt$,
 es decir, tener transitividad entre los tipos, cualquier tipo es
 sub-tipo de \'el mismo, es decir, los tipos son reflexivos. Para finalizar, 
 supongamos tenemos $\theta_0 \leq \theta_0'$ y $\theta_1 \leq \theta_1'$ y adem\'as
-que tenemos una expresi\'on $e$ que tiene tipo $theta_0' \rightarrow theta_1$. Luego
+que tenemos una expresi\'on $e$ que tiene tipo $\theta_0' \rightarrow \theta_1$. Luego
 $e$ puede aplicarse a elementos de tipo $\theta_0$ y el resultado de tal aplicaci\'on
 puede ser un elemento de tipo $\theta_1'$.
 
@@ -355,31 +450,72 @@ analizar un poco que relaci\'on nos implica esto para otros tipos mas complejos.
 \begin{center}
 \AxiomC{}
 \RightLabel{Ty Rule: intToreal}
-\UnaryInfC{$int \leq real$}
+\UnaryInfC{$\intt \leq \realt$}
 \DisplayProof
 \end{center}
 
 Podemos ahora pensar en la relaci\'on entre nuestros tipos con el siguiente diagrama
 
 \begin{diagram}[size=2em]
-  real & & bool & & & \\
+  \realt & & \boolt & & & \\
   \uLine^{} & & & & & \\
-  int & & & &
+  \intt & & & &
 \end{diagram}
 
-Un ejemplo de la relaci\'on entre tipos funcionales usando la regla Func podr\'ia ser
+Ademas una relaci\'on que sale de utilizar la regla Func es,
 
 \begin{diagram}[size=2em]
-   & & int \rightarrow real & \\
+   & & \intt \rightarrow \realt & \\
    & \ruLine^{} & & \luLine^{} & \\
-   int \rightarrow int & & & & real \rightarrow real \\
+   \intt \rightarrow \intt & & & & \realt \rightarrow \realt \\
    & \rdLine^{} & & \ldLine^{} & \\
-   & & real \rightarrow int & 
+   & & \realt \rightarrow \intt &
 \end{diagram}
 
-\subsection{Sem\'antica categorica}
+\subsection{Sem\'antica}
 
-\note {Pensar :D}
+Hemos ampliado nuestro sistema de tipos para que ahora soporte sub-tipado, 
+esto genero que hicieran falta nuevas reglas de inferencia, es de esperar
+entonces que tengamos que definir la sem\'antica para esta nueva construcci\'on.
+Empecemos re-definiendo la categor\'ia de los tipos que construimos para los
+tipos simples, el gran cambio es que ahora nuestra categor\'ia tendr\'a mas
+flechas, no solo las identidades, y ser\'an las determinadas por $leq$,\\
+
+\noindent $\Theta_0$ $=$ $\{\theta \ | \ \theta \ \in \lrangles{Phrase \ types} \}$\\
+$\Theta_1$ $=$ $\{\theta \rTo \theta' \ | \ \theta,\theta' \ \in \lrangles{Phrase \ types} \wedge \theta \leq \theta' \}$\\
+
+\noindent
+notar que por la definici\'on que hicimos de $\leq$ para tipos, claramente 
+$\Theta$ es una categor\'ia. Definamos ahora si la nueva sem\'antica, esto 
+ser\'a agregar la definici\'on de $\semBrcks{\theta \leq \theta'}$ con
+$\theta$ y $\theta'$ objetos de $\Theta$, para esto tomemos primero dos 
+tipos cualquiera y analicemos un poco. Ya que $\semBrcks{ \ }$ es un funtor
+tenemos que las flechas de $\Theta$, el sub-tipado, lo mapea a flechas de $\DC$
+es decir, transformaciones naturales, luego tiene sentido entonces decir que\\
+
+\noindent
+$\semBrcks{\theta \leq \theta'}$ $:$ $\semBrcks{\theta} \rTo \semBrcks{\theta'}$\\
+
+\noindent
+es una familia flechas indexada por objetos $C$ en $\C_0$. Pensando ahora si en
+tipos concretos y las reglas que hemos dado para el sub-tipado, tenemos que definir
+\'unicamente que sucede con $\intt$ y $\realt$.\\
+
+\noindent
+$\semBrcks{\intt \leq \realt}$ $:$ $\semBrcks{\intt} \rTo \semBrcks{\realt}$\\
+$\semBrcks{\intt \leq \realt}C$ $=$ $\semBrcks{\intt}C \rTo \semBrcks{\realt}C$\\
+$\semBrcks{\intt \leq \realt}Ce$ $=$ $\J \circ e$ donde $\J$ es la inyecci\'on de enteros en reales.
+
+
+%$\semBrcks{ \deltaacc }C$ $=$ $S_{\delta} \rTo \semBrcks{ \commt }C$\\
+%$\semBrcks{ \deltaacc }(h,s)$ $:$ $\semBrcks{ \deltaacc }C \rTo \semBrcks{ \deltaacc }C'$\\
+%$\semBrcks{ \deltaacc }(h,s)a$ $=$ $a \circ s$\\
+%\\
+%$\semBrcks{ \commt }C$ $=$ $C \rTo C_\bot$\\
+%$\semBrcks{ \commt }(h,s)$ $:$ $\semBrcks{ \commt }C \rTo \semBrcks{ \commt }C'$\\
+%$\semBrcks{ \commt }(h,s)$ $=$ $s$\\
+%\\
+
 
 \section{Intersecci\'on}
 
@@ -397,18 +533,18 @@ adem\'as de agregar las definiciones particulares, vamos a agregar el operador d
 intersecci\'on sobre tipos.
 
 \begin{center} 
-$\lrangles{phrase \ type}::=$ $\delta var$ $|$ $\delta exp$ $|$ $\delta acc$ $|$ $comm$\\
+$\lrangles{phrase \ type}::=$ $\deltavar$ $|$ $\deltaexp$ $|$ $\deltaacc$ $|$ $\commt$\\
 $|$ $\lrangles{phrase \ type} \rightarrow \lrangles{phrase \ type}$ \\
 $|$ $\lrangles{phrase \ type} \ \& \ \lrangles{phrase \ type}$
 \end{center}
 con $\delta \in \lrangles{data \ type}$\\
 
 Analicemos las construcciones de tipos que acabamos de introducir dejando para el final
-el operador $\&$ de intersecci\'on. El tipo $comm$ representara el tipo de los programas
-de la parte imperativa de nuestro lenguaje, $\delta exp$ es el nuevo nombre para los tipos
-que antes nos refer\'iamos usando simplemente $\lrangles{data \ type}$, $\delta acc$ 
+el operador $\&$ de intersecci\'on. El tipo $\commt$ representara el tipo de los programas
+de la parte imperativa de nuestro lenguaje, $\deltaexp$ es el nuevo nombre para los tipos
+que antes nos refer\'iamos usando simplemente $\lrangles{data \ type}$, $\deltaacc$ 
 representara el tipo de una variable durante su asignaci\'on imperativa y finalmente
-$\delta var$ sera un tipo que encapsule la representaci\'on de una variable tanto
+$\deltavar$ sera un tipo que encapsule la representaci\'on de una variable tanto
 cuando se usa como almacenamiento como cuando se usa como valor concreto.
 
 \subsection{Inferencia}
@@ -454,96 +590,96 @@ Ahora si definamos las reglas de inferencia para las expresiones del lenguaje.
 \begin{center}
 \AxiomC{}
 \RightLabel{Ty Rule: varToexpr}
-\UnaryInfC{$\delta var \leq \delta exp$}
+\UnaryInfC{$\deltavar \leq \deltaexp$}
 \DisplayProof
 \quad
 \AxiomC{}
 \RightLabel{Ty Rule: varToacc}
-\UnaryInfC{$\delta var \leq \delta acc$}
+\UnaryInfC{$\deltavar \leq \deltaacc$}
 \DisplayProof
 \end{center}
 
 \begin{center}
 \AxiomC{}
 \RightLabel{Ty Rule: intToreal exp}
-\UnaryInfC{$intexp \leq realexp$}
+\UnaryInfC{$\intexp \leq \realexp$}
 \DisplayProof
 \end{center}
 
 \begin{center}
 \AxiomC{}
 \RightLabel{Ty Rule: realToint acc}
-\UnaryInfC{$realacc \leq intacc$}
+\UnaryInfC{$\realacc \leq \intacc$}
 \DisplayProof
 \end{center}
 
 \begin{center}
 \AxiomC{}
 \RightLabel{$b \in \lrangles{PBool}$}
-\UnaryInfC{$\pi \vdash b : boolexp$}
+\UnaryInfC{$\pi \vdash b : \boolexp$}
 \DisplayProof
 \quad
 \AxiomC{}
 \RightLabel{$i \in \lrangles{PInt}$}
-\UnaryInfC{$\pi \vdash i : intexp$}
+\UnaryInfC{$\pi \vdash i : \intexp$}
 \DisplayProof
 
 \quad
 
 \AxiomC{}
 \RightLabel{$r \in \lrangles{PReal}$}
-\UnaryInfC{$\pi \vdash r : realexp$}
+\UnaryInfC{$\pi \vdash r : \realexp$}
 \DisplayProof
 \end{center}
 
 \begin{center}
-\AxiomC{$\pi \vdash e : intexp$}
+\AxiomC{$\pi \vdash e : \intexp$}
 \RightLabel{Ty Rule: $-$ $int$}
-\UnaryInfC{$\pi \vdash -e : intexp$}
+\UnaryInfC{$\pi \vdash -e : \intexp$}
 \DisplayProof
 \quad
-\AxiomC{$\pi \vdash e : realexp$}
+\AxiomC{$\pi \vdash e : \realexp$}
 \RightLabel{Ty Rule: $-$ $real$}
-\UnaryInfC{$\pi \vdash -e : realexp$}
+\UnaryInfC{$\pi \vdash -e : \realexp$}
 \DisplayProof
 \end{center}
 
 \begin{center}
-\AxiomC{$\pi \vdash e : boolexp$}
+\AxiomC{$\pi \vdash e : \boolexp$}
 \RightLabel{Ty Rule: $\neg$}
-\UnaryInfC{$\pi \vdash \neg e : boolexp$}
+\UnaryInfC{$\pi \vdash \neg e : \boolexp$}
 \DisplayProof
 \end{center}
 
 \begin{center}
-\AxiomC{$\pi \vdash e : intexp$}
-\AxiomC{$\pi \vdash e' : intexp$}
+\AxiomC{$\pi \vdash e : \intexp$}
+\AxiomC{$\pi \vdash e' : \intexp$}
 \RightLabel{Ty Rule: $\otimes$ $int$. $\otimes \in \{+,-,*\}$}
-\BinaryInfC{$\pi \vdash e \otimes e' : intexp$}
+\BinaryInfC{$\pi \vdash e \otimes e' : \intexp$}
 \DisplayProof
 
 \quad
 
-\AxiomC{$\pi \vdash e : realexp$}
-\AxiomC{$\pi \vdash e' : realexp$}
+\AxiomC{$\pi \vdash e : \realexp$}
+\AxiomC{$\pi \vdash e' : \realexp$}
 \RightLabel{Ty Rule: $\otimes$ $real$. $\otimes \in \{+,-,*,/\}$}
-\BinaryInfC{$\pi \vdash e \otimes e' : realexp$}
+\BinaryInfC{$\pi \vdash e \otimes e' : \realexp$}
 \DisplayProof
 \end{center}
 
 \begin{center}
-\AxiomC{$\pi \vdash e : boolexp$}
-\AxiomC{$\pi \vdash e' : boolexp$}
+\AxiomC{$\pi \vdash e : \boolexp$}
+\AxiomC{$\pi \vdash e' : \boolexp$}
 \RightLabel{Ty Rule: $\otimes$ $bool$. $\otimes \in \{\wedge,\vee,\Rightarrow,\Leftrightarrow\}$}
-\BinaryInfC{$\pi \vdash e \otimes e' : boolexp$}
+\BinaryInfC{$\pi \vdash e \otimes e' : \boolexp$}
 \DisplayProof
 \end{center}
 
 \begin{center}
-\AxiomC{$\pi \vdash e : \delta exp$}
-\AxiomC{$\pi \vdash e' : \delta exp$}
+\AxiomC{$\pi \vdash e : \deltaexp$}
+\AxiomC{$\pi \vdash e' : \deltaexp$}
 \RightLabel{Ty Rule: $=$. $\delta \in \lrangles{data \ type}$}
-\BinaryInfC{$\pi \vdash e = e' : boolexp$}
+\BinaryInfC{$\pi \vdash e = e' : \boolexp$}
 \DisplayProof
 \end{center}
 
@@ -553,31 +689,31 @@ vemos ahora las nuevas reglas para las expresiones restantes.
 \begin{center}
 \AxiomC{}
 \RightLabel{Ty Rule: skip}
-\UnaryInfC{$\pi \vdash skip: comm$}
+\UnaryInfC{$\pi \vdash \cskip : \commt$}
 \DisplayProof
 \end{center}
 
 \begin{center}
-\AxiomC{$\pi \vdash e : \delta acc$}
-\AxiomC{$\pi \vdash e' : \delta exp$}
+\AxiomC{$\pi \vdash e : \deltaacc$}
+\AxiomC{$\pi \vdash e' : \deltaexp$}
 \RightLabel{Ty Rule: assign}
-\BinaryInfC{$\pi \vdash e := e' : comm$}
+\BinaryInfC{$\pi \vdash \assig{e}{e'} : \commt$}
 \DisplayProof
 \end{center}
 
 \begin{center}
-\AxiomC{$\pi \vdash e : comm$}
-\AxiomC{$\pi \vdash e': comm$}
+\AxiomC{$\pi \vdash e : \commt$}
+\AxiomC{$\pi \vdash e': \commt$}
 \RightLabel{Ty Rule: seq}
-\BinaryInfC{$\pi \vdash e ; e' : comm$}
+\BinaryInfC{$\pi \vdash \seq{e}{e'} : \commt$}
 \DisplayProof
 \end{center}
 
 \begin{center}
-\AxiomC{$\pi \vdash e : boolexp$}
-\AxiomC{$\pi \vdash e': comm$}
+\AxiomC{$\pi \vdash e : \boolexp$}
+\AxiomC{$\pi \vdash e': \commt$}
 \RightLabel{Ty Rule: while}
-\BinaryInfC{$\pi \vdash while \ e \ do \ e' : comm$}
+\BinaryInfC{$\pi \vdash \cwhiledo{e}{e'} : \commt$}
 \DisplayProof
 \end{center}
 
@@ -585,11 +721,11 @@ vemos ahora las nuevas reglas para las expresiones restantes.
 \AxiomC{$\pi \vdash e : \delta exp$}
 \AxiomC{$\pi,\iota:\delta var \vdash e': comm$}
 \RightLabel{Ty Rule: varDecl}
-\BinaryInfC{$\pi \vdash new \ \delta var \ \iota := e \ in \ e': comm$}
+\BinaryInfC{$\pi \vdash \newdeltavar{\iota}{e}{e'} : \commt$}
 \DisplayProof
 \end{center}
 
 para finalizar, haciendo uso de la intersecci\'on, podemos definir el tipo
-$\delta var$ $=$ $\delta acc \ \& \ \delta exp$. Notar que de esta manera
+$\deltavar$ $=$ $\deltaacc \ \& \ \deltaexp$. Notar que de esta manera
 estamos capturando la noci\'on de que una variable imperativa tiene dos usos,
 como expresi\'on que acepta un valor y como expresi\'on que refiere a un valor.
