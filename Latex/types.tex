@@ -370,9 +370,9 @@ seria tener una familia indexada por objetos de $\C$ de manera de poder
 acomodar las formas de los estados. Quedado la definici\'on as\'i,\\
 
 \noindent
-$\semBrcks{ \theta \rightarrow \theta' }C$ $=$ 
-$\{ \semBrcks{ \theta }(C \circ \widehat{C}) \rightarrow  \semBrcks{ \theta' }(C \circ \widehat{C}) \}_{\widehat{C}}$ 
-con $\widehat{C}$ objeto de $\C$\\
+$\semBrcks{ \theta \rightarrow \theta' }C$ $=$
+$\prod\limits_{\widehat{C} \ en \ \C_0} 
+(\semBrcks{ \theta }(C \concat \widehat{C}) \rightarrow  \semBrcks{ \theta' }(C \concat \widehat{C}))$ \\
 $\semBrcks{ \theta \rightarrow \theta' }(h,s)$ 
 $:$ $\semBrcks{ \theta \rightarrow \theta' }C \rTo \semBrcks{ \theta \rightarrow \theta' }C'$\\
 $\semBrcks{ \theta \rightarrow \theta' }(h,s)f\widehat{C}$ $=$ $f(C' \concat \widehat{C})$\\
@@ -479,14 +479,14 @@ esto genero que hicieran falta nuevas reglas de inferencia, es de esperar
 entonces que tengamos que definir la sem\'antica para esta nueva construcci\'on.
 Empecemos re-definiendo la categor\'ia de los tipos que construimos para los
 tipos simples, el gran cambio es que ahora nuestra categor\'ia tendr\'a mas
-flechas, no solo las identidades, y ser\'an las determinadas por $leq$,\\
+flechas, no solo las identidades, y ser\'an las determinadas por $\leq$,\\
 
 \noindent $\Theta_0$ $=$ $\{\theta \ | \ \theta \ \in \lrangles{Phrase \ types} \}$\\
 $\Theta_1$ $=$ $\{\theta \rTo \theta' \ | \ \theta,\theta' \ \in \lrangles{Phrase \ types} \wedge \theta \leq \theta' \}$\\
 
 \noindent
 notar que por la definici\'on que hicimos de $\leq$ para tipos, claramente 
-$\Theta$ es una categor\'ia. Definamos ahora si la nueva sem\'antica, esto 
+$\Theta$ es una categor\'ia. Definamos ahora s\'i la nueva sem\'antica, esto 
 ser\'a agregar la definici\'on de $\semBrcks{\theta \leq \theta'}$ con
 $\theta$ y $\theta'$ objetos de $\Theta$, para esto tomemos primero dos 
 tipos cualquiera y analicemos un poco. Ya que $\semBrcks{ \ }$ es un funtor
@@ -504,23 +504,15 @@ tipos concretos y las reglas que hemos dado para el sub-tipado, tenemos que defi
 \noindent
 $\semBrcks{\intt \leq \realt}$ $:$ $\semBrcks{\intt} \rTo \semBrcks{\realt}$\\
 $\semBrcks{\intt \leq \realt}C$ $=$ $\semBrcks{\intt}C \rTo \semBrcks{\realt}C$\\
-$\semBrcks{\intt \leq \realt}Ce$ $=$ $\J \circ e$ donde $\J$ es la inyecci\'on de enteros en reales.
+$\semBrcks{\intt \leq \realt}Ce$ $=$ $\J \circ e$ \\
 
-
-%$\semBrcks{ \deltaacc }C$ $=$ $S_{\delta} \rTo \semBrcks{ \commt }C$\\
-%$\semBrcks{ \deltaacc }(h,s)$ $:$ $\semBrcks{ \deltaacc }C \rTo \semBrcks{ \deltaacc }C'$\\
-%$\semBrcks{ \deltaacc }(h,s)a$ $=$ $a \circ s$\\
-%\\
-%$\semBrcks{ \commt }C$ $=$ $C \rTo C_\bot$\\
-%$\semBrcks{ \commt }(h,s)$ $:$ $\semBrcks{ \commt }C \rTo \semBrcks{ \commt }C'$\\
-%$\semBrcks{ \commt }(h,s)$ $=$ $s$\\
-%\\
-
+\noindent
+donde $\J$ es la inyecci\'on de enteros en reales.
 
 \section{Intersecci\'on}
 
 En la secci\'on anterior sobre sub-tipos no hizo falta modificar la gram\'atica, ese
-podr\'ia ser el caso para el estudio de intersercci\'on, sin embargo vamos a aplicar 
+podr\'ia ser el caso para el estudio de intersercci\'on, sin embargo vamos a ampliar 
 la gram\'atica de $\lrangles{phrase \ type}$ con el fin de presentar la definici\'on
 final sobre los tipos del lenguaje del cap\'itulo siguiente, adem\'as nos sirve para
 estudiar un caso particularmente interesante. Al igual que antes, vamos a agregar 
@@ -729,3 +721,99 @@ para finalizar, haciendo uso de la intersecci\'on, podemos definir el tipo
 $\deltavar$ $=$ $\deltaacc \ \& \ \deltaexp$. Notar que de esta manera
 estamos capturando la noci\'on de que una variable imperativa tiene dos usos,
 como expresi\'on que acepta un valor y como expresi\'on que refiere a un valor.
+
+\subsection{Sem\'antica}
+
+Después de un largo recorrido de definiciones llegamos a la gram\'atica y
+reglas de inferencias que nos interesan para nuestro lenguaje Algol-like,
+resta definir solamente la sem\'antica de todo lo nuevo. Empecemos acomodando
+la sem\'antica de tipos simples y sub-tipos con los nuevos nombres de tipos.\\
+
+\noindent
+$\semBrcks{ \deltaexp }C$ $=$ $C \rTo (S_{ \delta })_\bot$\\
+$\semBrcks{ \deltaexp }(h,s)$ $:$ $\semBrcks{ \deltaexp }C \rTo \semBrcks{ \deltaexp }C'$\\
+$\semBrcks{ \deltaexp }(h,s)e$ $=$ $e \circ h$ \\
+con $\delta$ un $\lrangles{data \ type}$\\
+
+\noindent
+$\semBrcks{\intexp \leq \realexp}$ $:$ $\semBrcks{\intexp} \rTo \semBrcks{\realexp}$\\
+$\semBrcks{\intexp \leq \realexp}C$ $=$ $\semBrcks{\intexp}C \rTo \semBrcks{\realexp}C$\\
+$\semBrcks{\intexp \leq \realexp}Ce$ $=$ $\J \circ e$ \\
+
+\noindent
+donde $\J$ es la inyecci\'on de enteros en reales.\\
+
+Ahora que hemos acomodado las definiciones de las secciones anteriores para
+que se correspondan con los nombres que usamos en esta secci\'on podemos 
+continuar con los nuevos tipos. Definamos la sem\'antica para el tipo $\commt$,
+intuitivamente esta deber\'ia ser una funci\'on que transforma un estado
+con cierta forma en otro de la misma forma, y esta es exactamente su sem\'antica.\\
+
+\noindent
+$\semBrcks{ \commt }C$ $=$ $C \rTo C_\bot$\\
+$\semBrcks{ \commt }(h,s)$ $:$ $\semBrcks{ \commt }C \rTo \semBrcks{ \commt }C'$\\
+$\semBrcks{ \commt }(h,s)$ $=$ $s$\\
+
+\noindent
+solo nos resta ahora definir la sem\'antica del tipo $\deltaacc$, al comienzo 
+de esta secci\'on mencion\'abamos que considerando el tipo $\deltavar$ como
+la intersecci\'on entre $\deltaexp$ y $\deltaacc$ captur\'abamos la idea
+de que el uso de una variable se puede separar entre usarla como valor
+o usarla como almacenamiento, de esta ultima se encargaba el tipo $\deltaacc$,
+es decir que la sem\'antica esperable es que dado un valor de tipo $\delta$ y un
+estado de determinada forma generemos un estado de igual forma pero con el 
+valor actualizado. Comencemos con una versi\'on preliminar de la sem\'antica
+para un objeto,\\
+
+\noindent
+$\semBrcks{ \deltaacc }C$ $=$ $S_{\delta} \rTo C \rTo C_\bot$\\
+
+\noindent
+si ahora prestamos atenci\'on a la sem\'antica del tipo $\commt$, nos damos
+cuenta que podemos hacer la siguiente definici\'on\\
+
+\noindent
+$\semBrcks{ \deltaacc }C$ $=$ $S_{\delta} \rTo \semBrcks{ \commt }C$\\
+
+\noindent
+solo nos resta definir como actu\'a el funtor $\semBrcks{ \deltaacc }$ para
+las flechas de $\C$. \\
+
+\noindent
+$\semBrcks{ \deltaacc }(h,s)$ $:$ $\semBrcks{ \deltaacc }C \rTo \semBrcks{ \deltaacc }C'$\\
+$\semBrcks{ \deltaacc }(h,s)a$ $=$ $a \circ s$\\
+
+\noindent
+Comentemos un poco esta ultima definici\'on para darnos cuenta de que 
+tiene sentido lo que acabamos de hacer, $a$ es un elemento de tipo 
+$\semBrcks{ \deltaacc }C$ $=$ $S_{\delta} \rTo \semBrcks{ \commt }C$ $=$ 
+$S_{\delta} \rTo C \rTo C_\bot$ y el tipo de $s$ es 
+$(C \rTo C_\bot) \rTo (C' \rTo C'_\bot)$, por lo tanto la composici\'on
+$a \circ s$ tiene tipo $S_{\delta} \rTo C' \rTo C'_\bot$ $=$ 
+$S_{\delta} \rTo \semBrcks{ \commt }C'$ $=$ $\semBrcks{ \deltaacc }C'$.
+
+\section{Conclusi\'on y aclaraciones.}
+
+En el recorrido del cap\'itulo vimos las principales construcciones y
+conceptos sobre el tipado de un lenguaje de programaci\'on, estos eran
+tipos simples que nos permiti\'an un primer acercamiento a la detecci\'on
+temprana de errores y ademas de brindar una ayuda al dar coherencia a la
+hora de programar a ciertas frases de nuestro lenguaje, sub-tipado \'el
+cual nos relaciona distintos tipos con el fin de representar de manera
+correcta los distintos tipos de una frase y finalmente intersecci\'on, 
+por supuesto que estas no son todas las construcciones y un concepto que 
+quedo fuera es el de polimorfismo.\\
+
+La primera vez que definimos la sem\'antica de nuestros tipos simples
+definimos los dominios categ\'oricos que vamos a usar, en general, 
+no quedo todo expl\'icitamente definido. Nunca mencionamos quienes son
+las flechas de la categor\'ia $\C$, ni mucho menos como es $\D$. En el
+cap\'itulo siguiente vamos a concretizar estas categor\'ias, en particular
+veremos como cambiando ligeramente $\C$ el comportamiento de nuestro 
+lenguaje varia.\\
+
+Para finalizar, algo importante a resaltar es que teniendo en cuenta que
+la idea final de este cap\'itulo era terminar con una definici\'on 
+de los tipos del lenguaje del cap\'itulo siguiente, hay que mencionar que
+el lenguaje que vamos a considerar no posee intersecci\'on de tipos pero
+aun as\'i es posible definir el tipo de las variables usando la misma.
