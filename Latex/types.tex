@@ -10,23 +10,27 @@ Es importante comentar que los tipos que estudiemos en este cap\'itulo van
 a formar parte de los tipos concretos que usemos a lo largo de los dem\'as
 cap\'itulos. A su vez, para estudiar tipado hace falta hacerlo sobre un
 lenguaje, presentamos entonces la siguiente sintaxis abstracta la cual
-se corresponder\'a con la sintaxis del lenguaje del cap\'itulo siguiente.
+se corresponder\'a con la sintaxis del lenguaje del cap\'itulo siguiente. \\
 
-\begin{center} 
-
-$\lrangles{Phrase} ::=$ $\lrangles{PBool}$ $|$ $\lrangles{PInt}$ $|$ $\lrangles{PReal}$ $|$ \\
-$\odot \lrangles{Phrase}$ $|$ $\lrangles{Phrase} \otimes \lrangles{Phrase} $ $|$ \\
-$\assig{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$ $\cskip$ $|$ $\seq{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$ \\
-
-$\cifthenelse{\lrangles{Phrase}}{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$\\
-
-$\cwhiledo{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$ \\
-$\newdeltavar{\lrangles{Id}}{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$\\
-$\lrangles{Id}$ $|$ $\lrangles{Phrase}\lrangles{Phrase}$ $|$\\
-$\clambda{\lrangles{Id}}{\theta}{\lrangles{Phrase}} $ $|$ 
+\noindent
+$\lrangles{Phrase} ::=$ $\lrangles{PBool}$ $|$ $\lrangles{PInt}$ $|$ $\lrangles{PReal}$ \\
+\indent \indent \indent $|$ 
+$\odot \lrangles{Phrase}$ $|$ $\lrangles{Phrase} \otimes \lrangles{Phrase} $ \\ 
+\indent \indent \indent $|$ 
+$\assig{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$ $\cskip$ $|$ $\seq{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
+\indent \indent \indent $|$ 
+$\cifthenelse{\lrangles{Phrase}}{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
+\indent \indent \indent $|$ 
+$\cwhiledo{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
+\indent \indent \indent $|$ 
+$\newdeltavar{\lrangles{Id}}{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
+\indent \indent \indent $|$ 
+$\lrangles{Id}$ $|$ $\lrangles{Phrase}\lrangles{Phrase}$ \\
+\indent \indent \indent $|$ 
+$\clambda{\lrangles{Id}}{\theta}{\lrangles{Phrase}} $ \\
+\indent \indent \indent $|$ 
 $\rec{\lrangles{Phrase}}$
-
-\end{center}
+\\
 
 donde $\delta \in \lrangles{Data types}$, $\odot \in \{-, \neg\}$ y 
 $\otimes \in \{+,-,*,/,\wedge,\vee,\Rightarrow,\Leftrightarrow\}$

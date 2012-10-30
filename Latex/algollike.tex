@@ -1,13 +1,111 @@
 \chapter{Lenguajes Algol-like}
 \label{chap:algollike}
 
-\section{Stack discipline}
+En el cap\'itulo anterior hicimos dos cosas relevantes 
+para este cap\'itlo, la primera fue definir la gram\'atica
+abstracta de un lenguaje, la cual va a ser exactamente la
+misma, segundo fue definir los tipos necesarios para este 
+lenguaje. \\
 
-\section{Sem\'antica denotacional directa}
-Definamos ahora la categor\'ia de los contextos, para esto vamos a tener que definir una relaci\'on
-entre dos contextos, sean $\pi$ y $\pi'$ dos contextos cualquiera, decimos que $\pi \leq \pi'$ cuando
-$\pi'$ es una extensi\'on de $\pi$, ademas vale la reflexividad y transitividad de $\leq$. Ahora
-estamos en condiciones de definir la categor\'ia de contextos que simbolizaremos con $\Pi$,\\
+En este cap\'itulo vamos a darle sem\'antica al lenguaje
+que antes mencion\'abamos, la idea es que este lenguaje 
+pertenece a la clase de lenguajes Algol-like, estos combinan
+aspectos funcionales con imperativos y se basan en evaluaci\'on
+normal. Una propiedad importante de este tipo de lenguajes es
+la forma en la que se eval\'ua la aplicaci\'on de procedimientos
+en un programa, lo que sucede es que la evaluaci\'on del programa
+ocurre en dos partes, en la primera se reduce el programa hasta que
+la aplicaci\'on del procedimiento desaparece quedando de esta manera 
+la parte imperativa por evaluar y que es exactamente la segunda parte.
+En resumen, primero se reducen las aplicaciones del calculo lambda
+del lenguaje y luego se ejecuta la parte imperativa. Otra propiedad 
+importante es la de stack discipline, la cual veremos que con 
+algunas pocas modificaciones de nuestra sem\'antica podemos capturar
+o no.\\
 
-\noindent $\Pi_0$ $=$ $\{\pi \ | \ \pi \ \in \lrangles{Context} \}$\\
+\noindent
+$\note{ Creo deber\'ia de estudiar un poco Essence of algol para contar
+cosas un poco mas interesantes.
+ }$\\
+
+Presentamos de nuevo la gram\'atica de nuestro lenguaje,\\
+
+\noindent
+$\lrangles{Phrase} ::=$ $\lrangles{PBool}$ $|$ $\lrangles{PInt}$ $|$ $\lrangles{PReal}$ \\
+\indent \indent \indent $|$ 
+$\odot \lrangles{Phrase}$ $|$ $\lrangles{Phrase} \otimes \lrangles{Phrase} $ \\ 
+\indent \indent \indent $|$ 
+$\assig{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$ $\cskip$ $|$ $\seq{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
+\indent \indent \indent $|$ 
+$\cifthenelse{\lrangles{Phrase}}{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
+\indent \indent \indent $|$ 
+$\cwhiledo{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
+\indent \indent \indent $|$ 
+$\newdeltavar{\lrangles{Id}}{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
+\indent \indent \indent $|$ 
+$\lrangles{Id}$ $|$ $\lrangles{Phrase}\lrangles{Phrase}$ \\
+\indent \indent \indent $|$ 
+$\clambda{\lrangles{Id}}{\theta}{\lrangles{Phrase}} $ \\
+\indent \indent \indent $|$ 
+$\rec{\lrangles{Phrase}}$
+\\
+
+donde $\delta \in \lrangles{Data \ types}$, $\odot \in \{-, \neg\}$ y 
+$\otimes \in \{+,-,*,/,\wedge,\vee,\Rightarrow,\Leftrightarrow\}$\\
+
+En conclusi\'on, para definir la sem\'antica de este lenguaje vamos 
+a proceder de la siguiente manera, primero vamos a definir una categor\'ia
+de contexto, una vez con esta definida vamos a darle sem\'antica a las frases
+mas simples de nuestro lenguaje, como pueden ser los operadores unarios y binarios
+as\'i como algunos comandos simples y dejando para el final la definici\'on
+de la declaraci\'on de variables imperativas, es interesante que en la 
+b\'usqueda de dos sem\'anticas distintas, una que exprese stack discipline
+y otra que no, lo \'unico que necesitamos es cambiar la sem\'antica \'esta.
+
+\section{Categor\'ias}
+
+En el cap\'itulo anterior introducimos tres categor\'ias importantes que
+nos hac\'ian falta para determinar la sem\'antica de los tipos, en su
+momento no terminamos de resolver concretamente varias cuestiones de la
+definici\'on, empecemos entonces repasando estas categor\'ias y resolviendo
+los detalles que hayan quedado libres anteriormente. \\
+Sobre la categor\'ia de los tipos no hay mucho que agregar pero veremos que
+la vamos a necesitar para definir otra categor\'ia mas de la cual hasta el
+momento no hemos mencionado nada, repasemos entonces la definici\'on de la
+categor\'ia $\C$ de "conjuntos con cierta forma". En particular desambiguemos 
+a que nos referimos con esto ultimo y comentemos el fin de esta categor\'ia.\\
+
+Lo mejor tal vez sea comenzar explicando el fin de la categor\'ia $\C$, antes
+coment\'abamos la necesidad de expresar stack discipline, para hacer este
+trabajo es que necesitamos de esta categor\'ia, ac\'a la idea sera que los
+objetos de $\C$ sean lo suficientemente generales para representar un secuencia
+de valores, pero que ademas, este relacionada con otras de manera de poder
+expandir o contraer la secuencia. Si pensamos entonces que una secuencia 
+representara un estado, de la evaluaci\'on de nuestro programa, expandir o
+contraer la secuencia representara declarar una variable nueva o perder el
+alcance de una variable, respectivamente.\\
+
+Definamos los objetos de $\C$, un objeto $C$ sera un conjunto de secuencias 
+pertenecientes a $S_1 \times \ldots \times S_n$, con $0 \leq n$ y $S_i$ conjunto, 
+luego entonces, diremos que $C$ tiene forma $<S_1,\ldots,S_n>$. Por otro lado
+la definici\'ion de las flechas las dejamos para mas adelante cuando definamos 
+la sem\'antica del la declaraci\'on de variables imperativas ya que, en parte,
+variando la definici\'on de las flechas obtenemos stack discipline o no.\\
+
+Definamos ahora la categor\'ia de los contextos, cuando nos referimos a contextos
+pensamos en los que definimos en el cap\'itulo anterior la primera vez que definimos
+inferencia de tipos. Estos ser\'an los objetos de nuestra categor\'ia, analicemos
+como ser\'an las flechas, para esto vamos a tener que definir una relaci\'on
+entre dos contextos, sean $\pi$ y $\pi'$ dos contextos cualquiera, decimos que 
+$\pi \leq \pi'$ cuando $dom(\pi)$ $=$ $dom(\pi')$ y $\forall \iota \in dom(\pi)$ 
+$\pi \iota \leq \pi' \iota$. Ahora estamos en condiciones de definir la 
+categor\'ia de contextos que simbolizaremos con $\Pi$,\\
+
+\noindent 
+$\Pi_0$ $=$ $\{\pi \ | \ \pi \ \in \lrangles{Context} \}$\\
 $\Pi_1$ $=$ $\{\pi \rTo \pi' \ | \ \pi,\pi' \ \in \lrangles{Context} \wedge \pi \leq \pi' \}$\\
+
+
+
+\section{Sem\'antica}
+
