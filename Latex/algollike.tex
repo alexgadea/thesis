@@ -51,7 +51,7 @@ $\rec{\lrangles{Phrase}}$
 \\
 
 donde $\delta \in \lrangles{Data \ types}$, $\odot \in \{-, \neg\}$ y 
-$\otimes \in \{+,-,*,/,\wedge,\vee,\Rightarrow,\Leftrightarrow\}$\\
+$\otimes \in \{+,-,*,/,\div,\rem,\wedge,\vee,\Rightarrow,\Leftrightarrow, =,\neq,<,>,\leq,\geq\}$\\
 
 En conclusi\'on, para definir la sem\'antica de este lenguaje vamos 
 a proceder de la siguiente manera, primero vamos a definir una categor\'ia
@@ -105,7 +105,195 @@ categor\'ia de contextos que simbolizaremos con $\Pi$,\\
 $\Pi_0$ $=$ $\{\pi \ | \ \pi \ \in \lrangles{Context} \}$\\
 $\Pi_1$ $=$ $\{\pi \rTo \pi' \ | \ \pi,\pi' \ \in \lrangles{Context} \wedge \pi \leq \pi' \}$\\
 
+Entonces, como pasaba con la categor\'ia de los tipos que defin\'iamos un funtor
+$\semBrcks{ \ } : \Theta \rTo \DC$, ahora vamos a definir un funtor igual pero
+$\semBrcks{ \ } : \Pi \rTo \DC$. Este funtor nos va a permitir acomodar el environment
+cada vez que se declaren varibles. Tomemos $C$, $C'$ objetos de $\C$ y $(h,s): C \rTo C'$
+flecha en $\C$, luego\\
 
+\noindent
+$\semBrcks{\pi}C$ $=$ $\prod\limits_{\iota \in dom(\pi)} \semBrcks{\pi \iota}C$\\
+$\semBrcks{\pi}(h,s)$ $:$ $\semBrcks{\pi}C \rTo \semBrcks{\pi'}C'$\\
+
+\noindent
+Para definir como act\'ua el funtor para las flechas vamos a tomar un $\eta$ $:$ $\semBrcks{\pi}C$
+cualquiera, luego\\
+
+\noindent
+$\semBrcks{\pi}(h,s)\eta$ $:$ $\semBrcks{\pi}C'$\\
+
+\noindent
+y entonces ahora definimos punto a punto para cualquier $\iota$\\
+
+\noindent
+$\semBrcks{\pi}(h,s)\eta\iota$ $=$ $\semBrcks{\pi \iota}(h,s)(\eta\iota)$
 
 \section{Sem\'antica}
+
+Ha llegado el momento de definir la sem\'antica de las frases de nuestro lenguaje,
+para comenzar hay que aclarar que en realidad la sem\'antica no sera sobre
+las frases, si no sobre los juicios de tipado, es decir que para evaluar una frase
+esta tiene que estar correctamente tipada. Antes vimos que tanto para los tipos
+como para los contexto estos se correspond\'ian mediante un funtor $\semBrcks{ \ }$
+con objeto de la categor\'ia $\DC$, los cuales eran funtores. Ahora veremos que
+la sem\'antica de un juicio de tipado sera una transformaci\'on natural en $\DC$,
+es decir una flecha, entre un funtor $\semBrcks{ \ }$ aplicado a un contexto y
+$\semBrcks{ \ }$ aplicado a un tipo. Formalmente, sean $e$ una frase del lenguaje
+$\theta$ un tipo, $\pi$ un contexto y $\pi \vdash e : \theta$ un juicio de tipado, 
+luego\\
+
+\noindent
+$\semBrcks{ \pi \vdash e : \theta }$ $:$ $\semBrcks{\pi} \rTo \semBrcks{\theta}$\\
+
+\noindent
+y cuya definici\'on para las distintas frases del lenguaje veremos a continuaci\'on.
+
+\subsection{Constantes}
+
+$\semBrcks{ \pi \vdash \true : \boolexp }C\eta\sigma$ $=$ $\iotabot true$\\
+
+\noindent
+$\semBrcks{ \pi \vdash \false : \boolexp }C\eta\sigma$ $=$ $\iotabot false$\\
+
+\noindent
+$\semBrcks{ \pi \vdash i : \intexp }C\eta\sigma$ $=$ $\iotabot i$\\
+
+\noindent
+$\semBrcks{ \pi \vdash r : \realexp }C\eta\sigma$ $=$ $\iotabot r$\\
+
+\subsection{Operadores unarios}
+
+$\semBrcks{ \pi \vdash \neg b : \boolexp }C\eta\sigma$ 
+$=$ 
+$(\lambda b . \iotabot \neg b)_{\dbot}\semBrcks{\pi \vdash b : \boolexp}C\eta\sigma$\\
+
+\noindent
+$\semBrcks{ \pi \vdash -n : \deltaexp }C\eta\sigma$ 
+$=$ 
+$(\lambda n . \iotabot -n)_{\dbot}\semBrcks{\pi \vdash n : \deltaexp}C\eta\sigma$\\
+
+\noindent
+con $\delta \in \{ \intt,\realt \}$
+
+\subsection{Operadores binarios}
+
+$\semBrcks{ \pi \vdash b \otimes b' : \boolexp }C\eta\sigma$ 
+$=$ \\
+\indent
+$(\lambda b . (\lambda b' . \iotabot (b \otimes b'))_{\dbot}
+\semBrcks{\pi \vdash b' : \boolexp}C\eta\sigma)_{\dbot}
+\semBrcks{\pi \vdash b : \boolexp}C\eta\sigma$\\
+
+con $\otimes \in \{ \wedge,\vee,\Rightarrow,\Leftrightarrow \}$\\
+
+\noindent
+$\semBrcks{ \pi \vdash i \odot i' : \intexp }C\eta\sigma$ 
+$=$ \\
+\indent
+$(\lambda i . (\lambda i' . \iotabot (i \odot i'))_{\dbot}
+\semBrcks{\pi \vdash i' : \intexp}C\eta\sigma)_{\dbot}
+\semBrcks{\pi \vdash i : \intexp}C\eta\sigma$\\
+
+con $\odot \in \{ \div,\rem \}$\\
+
+\noindent
+$\semBrcks{ \pi \vdash r / r' : \realexp }C\eta\sigma$ 
+$=$ \\
+\indent
+$(\lambda r . (\lambda r' . \iotabot (r / r'))_{\dbot}
+\semBrcks{\pi \vdash r' : \realexp}C\eta\sigma)_{\dbot}
+\semBrcks{\pi \vdash r : \realexp}C\eta\sigma$\\
+
+\noindent
+$\semBrcks{ \pi \vdash i \ominus i' : \deltaexp }C\eta\sigma$ 
+$=$ \\
+\indent
+$(\lambda i . (\lambda i' . \iotabot (i \ominus i'))_{\dbot}
+\semBrcks{\pi \vdash i' : \deltaexp}C\eta\sigma)_{\dbot}
+\semBrcks{\pi \vdash i : \deltaexp}C\eta\sigma$\\
+
+con $\odot \in \{ +,-,* \}$, $\delta \in \{\intt,\realt\}$\\
+
+\noindent
+$\semBrcks{ \pi \vdash e \oplus e' : \boolexp }C\eta\sigma$ 
+$=$ \\
+\indent
+$(\lambda e . (\lambda e' . \iotabot (e \oplus e'))_{\dbot}
+\semBrcks{\pi \vdash e' : \theta}C\eta\sigma)_{\dbot}
+\semBrcks{\pi \vdash e : \theta}C\eta\sigma$\\
+
+con $\oplus \in \{ =,\neq,\leq,\geq,<,> \}$, $\theta \in \{\intexp,\realexp,\boolexp\}$\\
+
+\subsection{Calculo lambda}
+
+$\semBrcks{ \pi \vdash \iota : \theta }C\eta$ $=$ $\eta\iota$
+
+cuando $\pi$ contiene el par $\iota:\theta$\\
+
+\noindent
+$\semBrcks{ \pi \vdash ee' : \theta' }C\eta$ 
+$=$ 
+$\semBrcks{ \pi \vdash e : \theta \rightarrow \theta' }C\eta\langle\rangle
+(\semBrcks{ \pi \vdash e' : \theta }C\eta)$\\
+
+\noindent
+$\semBrcks{ \pi \vdash \lambda \iota_{\theta} . e : \theta \rightarrow \theta' }C \eta C'z$ 
+$=$ 
+$\semBrcks{ \pi \vdash e : \theta' }(C \concat C')
+[\semBrcks{(\pi)}(C \rTo C')\eta | \iota:z]$\\
+
+\noindent
+$\semBrcks{ \pi \vdash \rec e : \theta \rightarrow \theta' }C \eta$ 
+$=$ 
+$\Y_{\semBrcks{\theta}C} 
+(\semBrcks{ \pi \vdash e : \theta \rightarrow \theta}C\eta\langle\rangle)$\\
+
+\section{Comandos}
+
+$\semBrcks{ \pi \vdash \cskip : \comm }C\eta\sigma$ 
+$=$ $\iotabot sigma$\\
+
+\noindent
+$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \theta }C\eta\sigma$ 
+$=$ \\
+\indent
+$(\lambda b . if \ b $ $then \semBrcks{ \pi \vdash e : \theta}C\eta\sigma$\\
+\indent \indent \indent \ \ 
+$else \semBrcks{ \pi \vdash e' : \theta}C\eta\sigma)_{\dbot}$\\
+\indent \indent \indent \indent
+$(\semBrcks{ \pi \vdash b : \boolexp}C\eta\sigma)$\\
+
+\noindent
+$\semBrcks{ \pi \vdash \assig{e}{e'} : \comm }C\eta\sigma$ 
+$=$ 
+$(\lambda x . \semBrcks{\pi \vdash e : \deltaacc}C\eta x)_{\dbot}
+(\semBrcks{ \pi \vdash e : \deltaexp }C\eta\sigma)$\\
+
+\noindent
+$\semBrcks{ \pi \vdash \seq{e}{e'} : \comm }C\eta\sigma$ 
+$=$ 
+$(\lambda \sigmahat . \semBrcks{\pi \vdash e : \comm}C\eta\sigmahat)_{\dbot}
+(\semBrcks{ \pi \vdash e : \comm}C\eta\sigma)$\\
+
+\noindent
+$\semBrcks{ \pi \vdash \cwhiledo{b}{e'} : \comm }C\eta$ 
+$=$ \\
+\indent 
+$\Y_{\semBrcks{\comm}C}$ $(\lambda c . \lambda \sigma .$\\
+\indent \indent \indent
+$(\lambda b . if \ b $ $then \ c_{\dbot} \semBrcks{\pi \vdash e : \comm}C\eta\sigma$\\
+\indent \indent \indent \indent \indent \ \ 
+$else \ \iotabot \sigma)_{\dbot}$\\
+\indent \indent \indent \indent \indent \indent
+$(\semBrcks{ \pi \vdash b : \boolexp}C\eta\sigma))$\\
+
+\section{Comando para declarar variable imperativa}
+
+
+
+
+
+
+
+
 
