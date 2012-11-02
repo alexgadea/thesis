@@ -24,11 +24,10 @@
 \begin{block}{Gu\'ia}
 1. Definiciones iniciales.\\
 2. Idea general.\\
-3. Primeros intentos.\\
-4. Definiciones finales.\\
-5. Sem\'antica del newvar con stack discipline.\\
-6. Sem\'antica del newvar sin stack discipline.\\
-7. Ejemplo, con SD vs sin SD.
+3. Definiciones finales.\\
+4. Sem\'antica del newvar con stack discipline.\\
+5. Sem\'antica del newvar sin stack discipline.\\
+6. Ejemplo, con SD vs sin SD.
 \end{block}
 \end{frame}
 
@@ -129,7 +128,7 @@ $\semBrcks{ \deltaexp }(h,s)e$ $=$ $e \circ h$ \\
 
 $\semBrcks{ \deltaacc }C$ $=$ $S_{\delta} \longrightarrow \semBrcks{ \commt }C$\\
 $\semBrcks{ \deltaacc }(h,s)$ $:$ $\semBrcks{ \deltaacc }C \rTo \semBrcks{ \deltaacc }C'$\\
-$\semBrcks{ \deltaacc }(h,s)a$ $=$ $a \circ s$\\
+$\semBrcks{ \deltaacc }(h,s)a$ $=$ $s \circ a$\\
 \
 
 $\semBrcks{ \commt }C$ $=$ $C \longrightarrow C_\bot$\\
@@ -194,36 +193,129 @@ $\semBrcks{\pi}(h,s)\eta\iota$ $=$ $\semBrcks{\pi \iota}(h,s)(\eta\iota)$ $\fora
 \frametitle{Definiciones iniciales}
 \framesubtitle{Sem\'antica de phrases}
 
-\begin{block}{Transformaci\'on natural sobre phrases}
+\begin{block}{Transformaci\'on natural sobre un juicio de tipado}
 
 $\semBrcks{\pi \vdash p : \theta}$ $:$ $\semBrcks{\pi} \rTo \semBrcks{\theta}$
 
 \end{block}
 
 \begin{block}{Sem\'antica de algunos comandos}\small
-$\semBrcks{ \pi \vdash \cskip : \comm }C\eta\sigma$ 
+$\semBrcks{ \pi \vdash \cskip : \commt }C\eta\sigma$ 
 $=$ $\iotabot \sigma$\\
 \
 			
-$\semBrcks{ \pi \vdash \assig{e}{e'} : \comm }C\eta\sigma$ 
+$\semBrcks{ \pi \vdash \assig{e}{e'} : \commt }C\eta\sigma$ 
 $=$ $(\lambda x . \semBrcks{\pi \vdash e : \deltaacc}C\eta x)_{\dbot}
 (\semBrcks{ \pi \vdash e : \deltaexp }C\eta\sigma)$\\
+\
 
-
-$\semBrcks{ \pi \vdash \seq{e}{e'} : \comm }C\eta\sigma$ 
-$=$ $(\lambda \sigmahat . \semBrcks{\pi \vdash e : \comm}C\eta\sigmahat)_{\dbot}
-(\semBrcks{ \pi \vdash e : \comm}C\eta\sigma)$\\
-
+$\semBrcks{ \pi \vdash \seq{e}{e'} : \commt }C\eta\sigma$ 
+$=$ \\
+\ \ \ \ $(\lambda \sigmahat . \semBrcks{\pi \vdash e : \commt}C\eta\sigmahat)_{\dbot}
+(\semBrcks{ \pi \vdash e : \commt}C\eta\sigma)$\\
 \end{block}
 
+\end{frame}
+
+\section{Pensando un rato}
+
+\begin{frame}
+\frametitle{Idea general}
+
+\begin{block}{Comportamiento que buscamos}
+$\semBrcks{\pi \vdash \newvar{\deltavar}{x}{p}{c} : \commt}C\eta\sigma$ $=$ $\sigma'$
+
+contra
+
+$\semBrcks{\pi \vdash \newvar{\deltavar}{x}{p}{c} : \commt}C\eta\sigma$ $=$ $\sigma$
+\end{block}
+
+\begin{block}{En particular}
+$\semBrcks{ \vdash \newvar{\intvar}{x}{1}{\cskip} : \commt}\lrangles{\ }[]\lrangles{\ }$ $=$ $\lrangles{1}$
+
+contra
+
+$\semBrcks{ \vdash \newvar{\intvar}{x}{1}{\cskip} : \commt}\lrangles{\ }[]\lrangles{\ }$ $=$ $\lrangles{\ }$
+\end{block}
+\end{frame}
+
+\begin{frame}\small
+\frametitle{Definiciones finales}
+\framesubtitle{Categor\'ias de formas}
+
+\begin{block}{Categor\'ia de formas hasta ahora}
+$\C_0$ $=$ colecci\'on de conjuntos de "determinada forma"\\
+$\C_1$ $=$ $\{(h,s): C \rTo C' $ $|$  C y C' objetos de $\C_0 \}$ \\
+\end{block}
+
+\begin{block}{Stack discipline}
+Un objeto $C$ sera un conjunto de secuencias pertenecientes a $S_1 \times \ldots \times S_n$, 
+con $0 \leq n$ y $S_i$ cualquier conjunto. Diremos entonces que $C$ tiene forma $<S_1,\ldots,S_n>$.\\
+Dados tres objetos $C$, $C'$, $C''$ y una flecha $(h,s)$ $:$ $C \rTo C'$ de $\C$ con $C' = C \concat C''$,\\
+\
+
+$h: C' \rTo C$\\
+$h = head_{C}$\\
+\
+
+$s: (C \rTo C_\bot) \rTo (C' \rTo C'_\bot)$\\
+$s \ c$ $=$ $\lambda \sigma' . (\lambda \sigma . \sigma \concat tail_{C''}\sigma')_{\dbot}(c(head_C \sigma'))$
+
+\end{block}
 \end{frame}
 
 \begin{frame}
-\begin{block}{Idea general}
-$\semBrcks{\pi \vdash c : comm}C\eta\sigma$ $=$ $\lrangles{ \ }$
-$\semBrcks{\pi \vdash c : comm}C\eta\sigma$ $=$ $\sigma'$
+\frametitle{Definiciones finales}
+\framesubtitle{Categor\'ias de formas}
+
+\begin{block}{Categor\'ia de formas hasta ahora}
+$\C_0$ $=$ colecci\'on de conjuntos de "determinada forma"\\
+$\C_1$ $=$ $\{(h,s): C \rTo C' $ $|$  C y C' objetos de $\C_0 \}$ \\
+\end{block}
+
+\begin{block}{$\neg$ Stack discipline}
+Definimos un \'unico objeto como la \'union de todos los conjuntos con forma anteriores.\\
+Tomando este objeto $C$ de $\C$
+\
+
+$h: C \rTo C$\\
+$h = 1_C$\\
+\
+
+$s: (C \rTo C_\bot) \rTo (C \rTo C_\bot)$\\
+$s \ c$ $=$ $c$
+
 \end{block}
 \end{frame}
 
-\section{No se todav\'ia}
+\begin{frame}
+\frametitle{Sem\'antica del newvar con stack discipline}
+
+\begin{block}{Comando newvar}
+$\semBrcks{\pi \vdash \newvar{\deltavar}{x}{p}{c} : \commt}C\eta\sigma$ $=$
+$(\lambda \sigma' . \ H \sigma')_{\dbot}$\\
+$(\lambda \ v . \semBrcks{\pi,x:\deltavar \vdash c : \commt}(C\concat\lrangles{S_\delta})$\\
+\ \ \ \ \ \ \ \ \ \ \ $[\semBrcks{\pi}(h,s)\eta \ | \ x:\lrangles{a_\sigma,e_\sigma}]$
+							$(\sigma \concat \lrangles{v}))$
+$(\semBrcks{\pi \vdash p : \deltaexp}C\eta\sigma)$
+\end{block}
+
+\begin{block}{Con stack discipline}
+$H = head_C$\\
+$a_\sigma$ $=$ $\lambda x. \ \lambda \sigmahat . \ \iotabot ((head_{C} \sigmahat) \concat \lrangles{x})$\\
+$e_\sigma$ $=$ $ \iotabot \circ last_{S_\delta}$
+\end{block}
+
+'''''''''''''''''''''
+
+\end{frame}
+
+\section{Ejemplo}
+
+\begin{frame}
+\frametitle{Definiciones finales}
+\framesubtitle{Categor\'ias de formas}
+
+\end{frame}
+
 \end{document}
