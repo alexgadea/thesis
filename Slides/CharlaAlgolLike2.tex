@@ -1,0 +1,229 @@
+\documentclass{beamer} % en min\'uscula!
+\usefonttheme{professionalfonts} % fuentes de LaTeX
+\usetheme{Warsaw} % tema escogido en este ejemplo
+%%%% packages y comandos personales %%%%
+\usepackage[latin1]{inputenc}
+\usepackage{latexsym,amsmath,amssymb} % S\'imbolos
+\usepackage{diagrams}
+\usepackage{stmaryrd}
+\usepackage{xcolor}
+\usepackage{MnSymbol}
+\usepackage{../Latex/thesis}
+
+\begin{document}
+\title{Estudiando sem\'anticas de Algol-Like.}
+\author{{Ale Gadea.}\\
+\vspace*{0.5cm}}
+%\date{}
+\frame{\titlepage}
+
+\section{Introducci\'on}
+
+\begin{frame}
+\frametitle{Introducci\'on}
+\begin{block}{Gu\'ia}
+1. Definiciones iniciales.\\
+2. Idea general.\\
+3. Primeros intentos.\\
+4. Definiciones finales.\\
+5. Sem\'antica del newvar con stack discipline.\\
+6. Sem\'antica del newvar sin stack discipline.\\
+7. Ejemplo, con SD vs sin SD.
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Definiciones iniciales}
+\framesubtitle{Lenguaje}
+
+\begin{block}{Gram\'atica}
+$\lrangles{Phrase} ::=$ $\lrangles{PBool}$ $|$ $\lrangles{PInt}$ $|$ $\lrangles{PReal}$ \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $|$ 
+$\odot \lrangles{Phrase}$ $|$ $\lrangles{Phrase} \otimes \lrangles{Phrase} $ \\ 
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $|$ 
+$\assig{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$ $\cskip$ $|$ $\seq{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $|$ 
+$\cifthenelse{\lrangles{Phrase}}{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $|$ 
+$\cwhiledo{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $|$ 
+$\newdeltavar{\lrangles{Id}}{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $|$ 
+$\lrangles{Id}$ $|$ $\lrangles{Phrase}\lrangles{Phrase}$ \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $|$ 
+$\clambda{\lrangles{Id}}{\theta}{\lrangles{Phrase}} $ \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $|$ 
+$\rec{\lrangles{Phrase}}$\\
+\
+
+donde $\delta \in \lrangles{Data \ types}$, $\odot \in \{-, \neg\}$ y 
+$\otimes \in \{+,-,*,/,\div,\rem,\wedge,\vee,\Rightarrow,\Leftrightarrow, =,\neq,<,>,\leq,\geq\}$\\
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Definiciones iniciales}
+\framesubtitle{Tipos}
+
+\begin{block}{Gram\'atica de tipos}
+$\lrangles{data \ type} ::=$ $\intt$ $|$ $\realt$ $|$ $\boolt$\\
+\
+
+$\lrangles{phrase \ type}::=$ $\deltavar$ $|$ $\deltaexp$ $|$ $\deltaacc$ $|$ $\commt$\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+$|$ $\lrangles{phrase \ type} \rightarrow \lrangles{phrase \ type}$ \\
+\
+
+con $\delta \in \lrangles{data \ type}$\\
+\end{block}
+
+\begin{block}{Categor\'ia de tipos}
+$\Theta_0$ $=$ $\{\theta \ | \ \theta \ \in \lrangles{Phrase \ types} \}$\\
+$\Theta_1$ $=$ $\{\theta \rTo \theta' \ | \ \theta,\theta' \ \in \lrangles{Phrase \ types} \wedge \theta \leq \theta' \}$\\
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Definiciones iniciales}
+\framesubtitle{Contextos}
+
+\begin{block}{Gram\'atica de contextos}
+$\lrangles{Context}::=$ $\varnothing$ $|$ $\lrangles{Context}, \lrangles{Pattern}:\lrangles{Phrase \ type}$
+\end{block}
+
+\begin{block}{Categor\'ia de contextos}
+Sean $\pi$ y $\pi'$ dos contextos cualquiera, decimos que 
+$\pi \leq \pi'$ cuando $dom(\pi)$ $=$ $dom(\pi')$ y $\forall \iota \in dom(\pi)$ 
+$\pi \iota \leq \pi' \iota$. \\
+\
+
+$\Pi_0$ $=$ $\{\pi \ | \ \pi \ \in \lrangles{Context} \}$\\
+$\Pi_1$ $=$ $\{\pi \rTo \pi' \ | \ \pi,\pi' \ \in \lrangles{Context} \wedge \pi \leq \pi' \}$\\
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Definiciones iniciales}
+\framesubtitle{Categor\'ia de formas.}
+
+\begin{block}{Categor\'ia de formas}
+$\C_0$ $=$ colecci\'on de conjuntos de "determinada forma"\\
+$\C_1$ $=$ $\{(h,s): C \rTo C' $ $|$  C y C' objetos de $\C_0 \}$ \\
+\
+
+donde $h : C' \rTo C$ y $s : (C \rTo C_\bot) \rTo (C' \rTo C'_\bot)$.\\
+\end{block}
+
+\end{frame}
+
+\begin{frame}\small
+\frametitle{Definiciones iniciales}
+\framesubtitle{Sem\'antica de tipos}
+
+\begin{block}{Funtor sobre tipos, $\semBrcks{ \ }$ $:$ $\Theta \rTo \DC$}
+$\semBrcks{ \deltaexp }C$ $=$ $C \longrightarrow (S_{ \delta })_\bot$\\
+$\semBrcks{ \deltaexp }(h,s)$ $:$ $\semBrcks{ \deltaexp }C \rTo \semBrcks{ \deltaexp }C'$\\
+$\semBrcks{ \deltaexp }(h,s)e$ $=$ $e \circ h$ \\
+\
+
+$\semBrcks{ \deltaacc }C$ $=$ $S_{\delta} \longrightarrow \semBrcks{ \commt }C$\\
+$\semBrcks{ \deltaacc }(h,s)$ $:$ $\semBrcks{ \deltaacc }C \rTo \semBrcks{ \deltaacc }C'$\\
+$\semBrcks{ \deltaacc }(h,s)a$ $=$ $a \circ s$\\
+\
+
+$\semBrcks{ \commt }C$ $=$ $C \longrightarrow C_\bot$\\
+$\semBrcks{ \commt }(h,s)$ $:$ $\semBrcks{ \commt }C \rTo \semBrcks{ \commt }C'$\\
+$\semBrcks{ \commt }(h,s)$ $=$ $s$\\
+\
+
+$\semBrcks{ \deltavar }C$ $=$ $\semBrcks{ \deltaacc }C \times  \semBrcks{ \deltaexp }C$\\
+
+\end{block}
+con $\delta$ un $\lrangles{data \ type}$
+
+\end{frame}
+
+\begin{frame}\small
+\frametitle{Definiciones iniciales}
+\framesubtitle{Sem\'antica de tipos}
+
+\begin{block}{Funtor sobre tipos, $\semBrcks{ \ }$ $:$ $\Theta \rTo \DC$}
+$\semBrcks{ \theta \rightarrow \theta' }C$ $=$
+$\prod\limits_{\widehat{C} \ en \ \C_0} 
+(\semBrcks{ \theta }(C \concat \widehat{C}) \rightarrow  \semBrcks{ \theta' }(C \concat \widehat{C}))$ \\
+\
+
+$\semBrcks{ \theta \rightarrow \theta' }(h,s)$ 
+$:$ $\semBrcks{ \theta \rightarrow \theta' }C \rTo \semBrcks{ \theta \rightarrow \theta' }C'$\\
+$\semBrcks{ \theta \rightarrow \theta' }(h,s)f\widehat{C}$ $=$ $f(C' \concat \widehat{C})$\\
+\
+
+$\semBrcks{\intexp \leq \realexp}$ $:$ $\semBrcks{\intexp} \rTo \semBrcks{\realexp}$\\
+$\semBrcks{\intexp \leq \realexp}C$ $=$ $\semBrcks{\intexp}C \rTo \semBrcks{\realexp}C$\\
+$\semBrcks{\intexp \leq \realexp}Ce$ $=$ $\J \circ e$ \\
+\
+
+$\semBrcks{\realacc \leq \intacc}$ $:$ $\semBrcks{\realacc} \rTo \semBrcks{\intacc}$\\
+$\semBrcks{\realacc \leq \intacc}C$ $=$ $\semBrcks{\realacc}C \rTo \semBrcks{\intacc}C$\\
+$\semBrcks{\realacc \leq \intacc}Ca$ $=$ $a \circ \J$ \\
+\
+
+donde $\J$ es la inyecci\'on de enteros en reales.\\
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Definiciones iniciales}
+\framesubtitle{Sem\'antica de contextos}
+
+\begin{block}{Funtor sobre contextos}
+$\semBrcks{ \ }$ $:$ $\Pi \rTo \DC$\\
+\
+
+$\semBrcks{\pi}C$ $=$ $\prod\limits_{\iota \in dom(\pi)} \semBrcks{\pi \iota}C$\\
+\
+
+$\semBrcks{\pi}(h,s)$ $:$ $\semBrcks{\pi}C \rTo \semBrcks{\pi'}C'$\\
+$\semBrcks{\pi}(h,s)\eta\iota$ $=$ $\semBrcks{\pi \iota}(h,s)(\eta\iota)$ $\forall \iota \in dom(\pi)$\\
+
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Definiciones iniciales}
+\framesubtitle{Sem\'antica de phrases}
+
+\begin{block}{Transformaci\'on natural sobre phrases}
+
+$\semBrcks{\pi \vdash p : \theta}$ $:$ $\semBrcks{\pi} \rTo \semBrcks{\theta}$
+
+\end{block}
+
+\begin{block}{Sem\'antica de algunos comandos}\small
+$\semBrcks{ \pi \vdash \cskip : \comm }C\eta\sigma$ 
+$=$ $\iotabot \sigma$\\
+\
+			
+$\semBrcks{ \pi \vdash \assig{e}{e'} : \comm }C\eta\sigma$ 
+$=$ $(\lambda x . \semBrcks{\pi \vdash e : \deltaacc}C\eta x)_{\dbot}
+(\semBrcks{ \pi \vdash e : \deltaexp }C\eta\sigma)$\\
+
+
+$\semBrcks{ \pi \vdash \seq{e}{e'} : \comm }C\eta\sigma$ 
+$=$ $(\lambda \sigmahat . \semBrcks{\pi \vdash e : \comm}C\eta\sigmahat)_{\dbot}
+(\semBrcks{ \pi \vdash e : \comm}C\eta\sigma)$\\
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\begin{block}{Idea general}
+$\semBrcks{\pi \vdash c : comm}C\eta\sigma$ $=$ $\lrangles{ \ }$
+$\semBrcks{\pi \vdash c : comm}C\eta\sigma$ $=$ $\sigma'$
+\end{block}
+\end{frame}
+
+\section{No se todav\'ia}
+\end{document}
