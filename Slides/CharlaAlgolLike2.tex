@@ -25,9 +25,8 @@
 1. Definiciones iniciales.\\
 2. Idea general.\\
 3. Definiciones finales.\\
-4. Sem\'antica del newvar con stack discipline.\\
-5. Sem\'antica del newvar sin stack discipline.\\
-6. Ejemplo, con SD vs sin SD.
+4. Sem\'antica del newvar.\\
+5. Ejemplo, con SD vs sin SD.
 \end{block}
 \end{frame}
 
@@ -241,7 +240,6 @@ $\semBrcks{ \vdash \newvar{\intvar}{x}{1}{\cskip} : \commt}\lrangles{\ }[]\lrang
 
 \begin{frame}\small
 \frametitle{Definiciones finales}
-\framesubtitle{Categor\'ias de formas}
 
 \begin{block}{Categor\'ia de formas hasta ahora}
 $\C_0$ $=$ colecci\'on de conjuntos de "determinada forma"\\
@@ -266,7 +264,6 @@ $s \ c$ $=$ $\lambda \sigma' . (\lambda \sigma . \sigma \concat tail_{C''}\sigma
 
 \begin{frame}
 \frametitle{Definiciones finales}
-\framesubtitle{Categor\'ias de formas}
 
 \begin{block}{Categor\'ia de formas hasta ahora}
 $\C_0$ $=$ colecci\'on de conjuntos de "determinada forma"\\
@@ -288,7 +285,7 @@ $s \ c$ $=$ $c$
 \end{block}
 \end{frame}
 
-\begin{frame}
+\begin{frame}\small
 \frametitle{Sem\'antica del newvar con stack discipline}
 
 \begin{block}{Comando newvar}
@@ -297,7 +294,8 @@ $(\lambda \sigma' . \ H \sigma')_{\dbot}$\\
 $(\lambda \ v . \semBrcks{\pi,x:\deltavar \vdash c : \commt}(C\concat\lrangles{S_\delta})$\\
 \ \ \ \ \ \ \ \ \ \ \ $[\semBrcks{\pi}(h,s)\eta \ | \ x:\lrangles{a_\sigma,e_\sigma}]$
 							$(\sigma \concat \lrangles{v}))$
-$(\semBrcks{\pi \vdash p : \deltaexp}C\eta\sigma)$
+$(\semBrcks{\pi \vdash p : \deltaexp}C\eta\sigma)$\\
+$(h,s)$ $:$ $C \rTo (C \concat \lrangles{S_\delta})$
 \end{block}
 
 \begin{block}{Con stack discipline}
@@ -306,15 +304,36 @@ $a_\sigma$ $=$ $\lambda x. \ \lambda \sigmahat . \ \iotabot ((head_{C} \sigmahat
 $e_\sigma$ $=$ $ \iotabot \circ last_{S_\delta}$
 \end{block}
 
-'''''''''''''''''''''
+\begin{block}{Sin stack discipline}
+$H = 1_C$\\
+$a_\sigma \ v \ \sigmahat$ $=$ $ \lrangles{\sigmahat \ | \ (newRef \ \sigma):v} $\\
+$e_\sigma \ \sigmahat$ $=$ $\sigmahat(newRef \ \sigma)$
+\end{block}
 
 \end{frame}
 
 \section{Ejemplo}
 
 \begin{frame}
-\frametitle{Definiciones finales}
-\framesubtitle{Categor\'ias de formas}
+\frametitle{Ejemplo}
+
+\begin{block}{Programa ejemplo, p}
+$\cnew$ $\intvar$ $\assig{x}{1}$ $\cin$\\
+\ \ \ \ $\cskip$\\
+$\cend$ $\textbf{;}$\\
+$\cnew$ $\intvar$ $\assig{y}{2}$ $\cin$\\
+\ \ \ \ $\assig{y}{0}$\\
+$\cend$ 
+\end{block}
+
+\begin{block}{Ejecuci\'on con stack discipline}
+$\semBrcks{\vdash p : \commt}\lrangles{}[]\lrangles{}$ $=$ $\lrangles{}$
+\end{block}
+
+\begin{block}{Ejecuci\'on sin stack discipline}
+$\semBrcks{\vdash p : \commt}\lrangles{}[]\lrangles{}$ $=$ $\lrangles{r_0:1,r_1:0}$
+\end{block}
+
 
 \end{frame}
 
