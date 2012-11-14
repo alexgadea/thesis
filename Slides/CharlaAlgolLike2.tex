@@ -87,7 +87,8 @@ $\Theta_1$ $=$ $\{\theta \rTo \theta' \ | \ \theta,\theta' \ \in \lrangles{Phras
 \framesubtitle{Contextos}
 
 \begin{block}{Gram\'atica de contextos}
-$\lrangles{Context}::=$ $\varnothing$ $|$ $\lrangles{Context}, \lrangles{Pattern}:\lrangles{Phrase \ type}$
+$\lrangles{Context}::=$ $\varnothing$ $|$ $\lrangles{Context}, \lrangles{Pattern}:\lrangles{Phrase \ type}$\\
+con $\lrangles{Pattern}$ $=$ $\lrangles{Phrase}$
 \end{block}
 
 \begin{block}{Categor\'ia de contextos}
@@ -204,13 +205,14 @@ $=$ $\iotabot \sigma$\\
 \
 			
 $\semBrcks{ \pi \vdash \assig{e}{e'} : \commt }C\eta\sigma$ 
-$=$ $(\lambda x . \semBrcks{\pi \vdash e : \deltaacc}C\eta x)_{\dbot}
+$=$ \\
+\ \ \ \ \ \ \ \ $(\lambda x . \semBrcks{\pi \vdash e : \deltaacc}C\eta x \sigma)_{\dbot}
 (\semBrcks{ \pi \vdash e : \deltaexp }C\eta\sigma)$\\
 \
 
 $\semBrcks{ \pi \vdash \seq{e}{e'} : \commt }C\eta\sigma$ 
 $=$ \\
-\ \ \ \ $(\lambda \sigmahat . \semBrcks{\pi \vdash e : \commt}C\eta\sigmahat)_{\dbot}
+\ \ \ \ \ \ \ \ $(\lambda \sigmahat . \semBrcks{\pi \vdash e : \commt}C\eta\sigmahat)_{\dbot}
 (\semBrcks{ \pi \vdash e : \commt}C\eta\sigma)$\\
 \end{block}
 
@@ -222,11 +224,13 @@ $=$ \\
 \frametitle{Idea general}
 
 \begin{block}{Comportamiento que buscamos}
-$\semBrcks{\pi \vdash \newvar{\deltavar}{x}{p}{c} : \commt}C\eta\sigma$ $=$ $\sigma'$
+$\semBrcks{\pi \vdash \newvar{\deltavar}{x}{p}{c} : \commt}C\eta\sigma$ $=$ $\sigma'$\\
+con $\sigma \in \ C$ y $\sigma' \in (C \concat \lrangles{ \ldots })$.
 
 contra
 
-$\semBrcks{\pi \vdash \newvar{\deltavar}{x}{p}{c} : \commt}C\eta\sigma$ $=$ $\sigma$
+$\semBrcks{\pi \vdash \newvar{\deltavar}{x}{p}{c} : \commt}C\eta\sigma$ $=$ $\sigma'$\\
+con $\sigma$ y $\sigma'$ elementos de $C$.
 \end{block}
 
 \begin{block}{En particular}
