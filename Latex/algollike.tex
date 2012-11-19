@@ -24,9 +24,9 @@ algunas pocas modificaciones de nuestra sem\'antica podemos capturar
 o no.\\
 
 \noindent
-$\note{ Creo deber\'ia de estudiar un poco Essence of algol para contar
+\mnote{ Creo deber\'ia de estudiar un poco Essence of algol para contar
 cosas un poco mas interesantes.
- }$\\
+ }\\
 
 Presentamos de nuevo la gram\'atica de nuestro lenguaje,\\
 
@@ -88,7 +88,7 @@ alcance de una variable, respectivamente.\\
 Definamos los objetos de $\C$, un objeto $C$ sera un conjunto de secuencias 
 pertenecientes a $S_1 \times \ldots \times S_n$, con $0 \leq n$ y $S_i$ conjunto, 
 luego entonces, diremos que $C$ tiene forma $<S_1,\ldots,S_n>$. Por otro lado
-la definici\'ion de las flechas las dejamos para mas adelante cuando definamos 
+la definici\'on de las flechas las dejamos para mas adelante cuando definamos 
 la sem\'antica del la declaraci\'on de variables imperativas ya que, en parte,
 variando la definici\'on de las flechas obtenemos stack discipline o no.\\
 
@@ -250,7 +250,7 @@ $\Y_{\semBrcks{\theta}C}
 
 \section{Comandos}
 
-$\semBrcks{ \pi \vdash \cskip : \comm }C\eta\sigma$ 
+$\semBrcks{ \pi \vdash \cskip : \commt }C\eta\sigma$ 
 $=$ $\iotabot sigma$\\
 
 \noindent
@@ -264,24 +264,24 @@ $else \semBrcks{ \pi \vdash e' : \theta}C\eta\sigma)_{\dbot}$\\
 $(\semBrcks{ \pi \vdash b : \boolexp}C\eta\sigma)$\\
 
 \noindent
-$\semBrcks{ \pi \vdash \assig{e}{e'} : \comm }C\eta\sigma$ 
+$\semBrcks{ \pi \vdash \assig{e}{e'} : \commt }C\eta\sigma$ 
 $=$ 
 $(\lambda x . \semBrcks{\pi \vdash e : \deltaacc}C\eta x)_{\dbot}
 (\semBrcks{ \pi \vdash e : \deltaexp }C\eta\sigma)$\\
 
 \noindent
-$\semBrcks{ \pi \vdash \seq{e}{e'} : \comm }C\eta\sigma$ 
+$\semBrcks{ \pi \vdash \seq{e}{e'} : \commt }C\eta\sigma$ 
 $=$ 
-$(\lambda \sigmahat . \semBrcks{\pi \vdash e : \comm}C\eta\sigmahat)_{\dbot}
-(\semBrcks{ \pi \vdash e : \comm}C\eta\sigma)$\\
+$(\lambda \sigmahat . \semBrcks{\pi \vdash e : \commt}C\eta\sigmahat)_{\dbot}
+(\semBrcks{ \pi \vdash e : \commt}C\eta\sigma)$\\
 
 \noindent
-$\semBrcks{ \pi \vdash \cwhiledo{b}{e'} : \comm }C\eta$ 
+$\semBrcks{ \pi \vdash \cwhiledo{b}{e'} : \commt }C\eta$ 
 $=$ \\
 \indent 
-$\Y_{\semBrcks{\comm}C}$ $(\lambda c . \lambda \sigma .$\\
+$\Y_{\semBrcks{\commt}C}$ $(\lambda c . \lambda \sigma .$\\
 \indent \indent \indent
-$(\lambda b . if \ b $ $then \ c_{\dbot} \semBrcks{\pi \vdash e : \comm}C\eta\sigma$\\
+$(\lambda b . if \ b $ $then \ c_{\dbot} \semBrcks{\pi \vdash e : \commt}C\eta\sigma$\\
 \indent \indent \indent \indent \indent \ \ 
 $else \ \iotabot \sigma)_{\dbot}$\\
 \indent \indent \indent \indent \indent \indent
