@@ -4,3 +4,16 @@ cabal-dev
 *.hi
 *.chi
 *.chs.h
+
+*.pdf
+*.log
+*.nav
+*.toc
+*.dvi
+*.out
+*.aux
+*.snm
+*.gz
+
+*.ibc
+
