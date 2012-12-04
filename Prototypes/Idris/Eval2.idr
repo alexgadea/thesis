@@ -134,6 +134,9 @@ evalCtxM {ctx=(Identifier,PhraseType):>ctx'} ((i,t):>ctx') m ((i,etai),eta) = ((
 liftEta : (C:Shp) -> (Dt:DataType) -> (Pi:Ctx) -> evalCtxO Pi C -> evalCtxO Pi (C ~: Dt)
 liftEta c dt p eta = evalCtxM p (c >>> (dt :~ ShpUnit)) eta
 
+liftEta' : (C:Shp) -> (C':Shp) -> (Pi:Ctx) -> evalCtxO Pi C -> evalCtxO Pi (C ++ C')
+liftEta' c c' p eta = evalCtxM p (c >>> c') eta
+
 (<:++:>) : {Pi:Ctx} -> {Pi':Ctx} -> {C:Shp} -> 
            evalCtxO Pi C -> evalCtxO Pi' C -> evalCtxO (Pi :++: Pi') C
 (<:++:>) {Pi=CtxUnit} () p' = p'
@@ -221,7 +224,7 @@ evalPhrase (CBool b) c eta = \sigma => b
 -- evalPhrase (BinOp Add x y) c eta = \sigma => ((evalPhrase x c eta sigma) + (evalPhrase y c eta sigma))
 -- evalPhrase (BinOp Subs x y) c eta = \sigma => ((evalPhrase x c eta sigma) - (evalPhrase y c eta sigma))
 -- evalPhrase (UnOp Neg x) s eta = \sigma => not (evalPhrase x s eta sigma)
--- evalPhrase {Theta=t} {Pi=pi} (Lam (Var i) b) c eta c' z = evalPhrase b (c++c') (appendCtx t (liftEta c ... pi eta) i z)
+-- evalPhrase {Theta=(t :-> t')} {Pi=pi} (Lam (Var i) b) c eta = \c' => \z => evalPhrase b (c++c') (appendCtx t (liftEta' c c' pi eta) i z)
 -- evalPhrase (App e e') c eta = (evalPhrase e c eta ShpUnit) (evalPhrase e' c eta)
 evalPhrase {Pi=pi} (NewIntVar (Var i) vInit comm) c eta = 
         \sigma => head c intdt (evalComm (append sigma (evalInit sigma)))
