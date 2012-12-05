@@ -155,16 +155,20 @@ evalTyO (Theta :-> Theta') C = (C':Shp) ->
 -- Semántica para los phrase types aplicada a morfismos entre objetos.
 evalTyM : {C:Shp} -> {C':Shp} -> 
           PhraseType -> C <= C' -> evalTyO t C -> evalTyO t C'
-evalTyM {t=IntExp}  t (morp (h,s)) e = e . h
-evalTyM {t=RealExp} t (morp (h,s)) e = e . h
-evalTyM {t=BoolExp} t (morp (h,s)) e = e . h
-evalTyM {t=IntAcc}  t (morp (h,s)) a = s . a
-evalTyM {t=RealAcc} t (morp (h,s)) a = s . a
-evalTyM {t=BoolAcc} t (morp (h,s)) a = s . a
-evalTyM {t=IntVar}  t (morp (h,s)) (a,e) = (s . a, e . h)
-evalTyM {t=RealVar} t (morp (h,s)) (a,e) = (s . a, e . h)
-evalTyM {t=BoolVar} t (morp (h,s)) (a,e) = (s . a, e . h)
-evalTyM {t=Comm}    t (morp (h,s)) c = s c
+evalTyM {t=IntExp}           t (morp (h,s)) e     = e . h
+evalTyM {t=RealExp}          t (morp (h,s)) e     = e . h
+evalTyM {t=BoolExp}          t (morp (h,s)) e     = e . h
+evalTyM {t=IntAcc}           t (morp (h,s)) a     = s . a
+evalTyM {t=RealAcc}          t (morp (h,s)) a     = s . a
+evalTyM {t=BoolAcc}          t (morp (h,s)) a     = s . a
+evalTyM {t=IntVar}           t (morp (h,s)) (a,e) = (s . a, e . h)
+evalTyM {t=RealVar}          t (morp (h,s)) (a,e) = (s . a, e . h)
+evalTyM {t=BoolVar}          t (morp (h,s)) (a,e) = (s . a, e . h)
+evalTyM {t=Comm}             t (morp (h,s)) c     = s c
+-- evalTyM {C=c} {C'=c++c'} {t=Theta :-> Theta'} t (morp (h,s)) f = app (c++c')
+--     where
+--         app : (C':Shp) -> (C'':Shp) -> evalTyO Theta (C' ++ C'') -> evalTyO Theta' (C' ++ C'')
+--         app c' c'' = f(c'++c'')
 
 -- Eval2.idr:340:Can't unify evalTyO Theta c with evalTyO Theta (Main.++ c ShpUnit)
 
@@ -299,8 +303,8 @@ using (Pi:Ctx,Theta:PhraseType,Theta':PhraseType)
         BinOp : BOp a b c -> Phrase Pi a -> Phrase Pi b -> Phrase Pi c
         UnOp  : UOp a b -> Phrase Pi a -> Phrase Pi b
 
-        Lam    : Phrase Pi Theta -> Phrase ((i,Theta):>Pi) Theta' -> 
-                 Phrase Pi (Theta :-> Theta')
+        Lam    : {j:Identifier} -> Phrase Pi Theta -> 
+                 Phrase (Pi <: (j,Theta)) Theta' -> Phrase Pi (Theta :-> Theta')
         App    : Phrase Pi (Theta :-> Theta') -> Phrase Pi Theta -> 
                  Phrase Pi Theta'
 
@@ -312,6 +316,23 @@ data (<~) : PhraseType -> PhraseType -> Set where
     IntExpToRealExp : IntExp <~ RealExp
     RealAccToIntAcc : RealAcc <~ IntAcc
 
+-- /////////////// Ejemplos ///////////////
+idX : Identifier
+idX = Id "x"
+
+val2 : Phrase CtxUnit IntExp
+val2 = CInt 2
+
+val3 : Phrase CtxUnit IntExp
+val3 = CInt 3
+
+test : Phrase CtxUnit Comm
+test = NewIntVar {j=idX} (Var idX) val2 Skip
+
+-- test2 : Phrase ((idX,IntExp):>CtxUnit) IntExp
+-- test2 = App (Lam (Var idX) val2) val3
+-- /////////////// Ejemplos ///////////////
+    
 -- Semántica del subtipado.
 evalLeq : {C:Shp} -> t <~ t' -> evalTyO t C -> evalTyO t' C
 evalLeq (VarToAcc) (a,e) = a
@@ -337,7 +358,14 @@ evalPhrase (CBool b) c eta = \sigma => b
 -- evalPhrase (BinOp Plus x y) c eta = \sigma => ((evalPhrase x c eta sigma) + (evalPhrase y c eta sigma))
 -- evalPhrase (BinOp Subs x y) c eta = \sigma => ((evalPhrase x c eta sigma) - (evalPhrase y c eta sigma))
 -- evalPhrase (UnOp Not x) s eta = \sigma => not (evalPhrase x s eta sigma)
---evalPhrase {Theta=(t :-> t')} {Pi=pi} (Lam (Var i) b) c eta = \c' => \z => evalPhrase b (c++c') (prependCtx t (liftEta' c c' pi eta) i z)
+
+evalPhrase {Theta=(t :-> t')} {Pi=pi} (Lam {j=i} (Var i) b) c eta = evalLambda
+    where
+        newLeta : (C':Shp) -> evalTyO t (c ++ C') -> evalCtxO (pi <: (i,t)) (c ++ C')
+        newLeta c' z = prependCtx t (liftEta' c c' pi eta) i z
+        evalLambda : (C':Shp) -> evalTyO t (c ++ C') -> evalTyO t' (c ++ C')
+        evalLambda c' z = evalPhrase b (c++c') (newLeta c' z)
+
 evalPhrase (App e e') c eta = convR $ (evalPhrase e c eta ShpUnit) (convL $ evalPhrase e' c eta)
 evalPhrase {Theta=Comm} (If b e e') c eta = \sigma => 
                                             if evalPhrase b c eta sigma 
@@ -357,24 +385,7 @@ evalPhrase {Pi=pi} (NewIntVar (Var i) vInit comm) c eta =
         evalInit : evalTyO IntExp c
         evalInit sigma = evalPhrase vInit c eta sigma
         
-        eta' : {j:Identifier} -> evalCtxO (pi <: (j,IntVar)) (c ~: IntDT)
-        eta' {j=i} = prependCtx IntVar (liftEta c IntDT pi eta) i (a,e)
+        newAeta : {j:Identifier} -> evalCtxO (pi <: (j,IntVar)) (c ~: IntDT)
+        newAeta {j=i} = prependCtx IntVar (liftEta c IntDT pi eta) i (a,e)
         evalComm : evalTyO Comm (c ~: IntDT)
-        evalComm = evalPhrase comm (c ~: IntDT) eta'
-
--- /////////////// Ejemplos ///////////////
-idX : Identifier
-idX = Id "x"
-
-val2 : Phrase CtxUnit IntExp
-val2 = CInt 2
-
-val3 : Phrase CtxUnit IntExp
-val3 = CInt 3
-
-test : Phrase CtxUnit Comm
-test = NewIntVar {j=idX} (Var idX) val2 Skip
-
-test2 : Phrase CtxUnit Comm
-test2 = NewIntVar {j=idX} (Var idX) val2 Skip
--- /////////////// Ejemplos ///////////////
+        evalComm = evalPhrase comm (c ~: IntDT) newAeta
