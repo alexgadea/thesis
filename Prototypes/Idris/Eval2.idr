@@ -133,6 +133,7 @@ c >>> c' = morp (head c c', sim)
         sim : (shapes c -> shapes c) -> (shapes (c ++ c') -> shapes (c ++ c'))
         sim f sigma' = f (head c c' sigma') <++> tail c c' sigma'
 
+
 -- ######################### Objetos con forma #########################
 
 -- Semántica para los phrase types aplicada a objetos con forma.
@@ -164,6 +165,31 @@ evalTyM {t=IntVar}  t (morp (h,s)) (a,e) = (s . a, e . h)
 evalTyM {t=RealVar} t (morp (h,s)) (a,e) = (s . a, e . h)
 evalTyM {t=BoolVar} t (morp (h,s)) (a,e) = (s . a, e . h)
 evalTyM {t=Comm}    t (morp (h,s)) c = s c
+
+-- Eval2.idr:340:Can't unify evalTyO Theta c with evalTyO Theta (Main.++ c ShpUnit)
+
+symmShp : {C : Shp} -> {C' : Shp} -> C = C' -> C' = C
+symmShp cEqc' = sym cEqc'
+
+cong : (C:Shp) -> (C':Shp) -> (C=C') -> (dt :~ C = dt :~ C')
+cong c c refl = refl
+
+neutDShp : (C:Shp) -> C = (C ++ ShpUnit)
+neutDShp ShpUnit = refl
+neutDShp (dt :~ C) = cong C (C ++ ShpUnit) (neutDShp C)
+
+neutLShp : (C:Shp) -> (C ++ ShpUnit) = C
+neutLShp ShpUnit = refl
+neutLShp (dt :~ C) = cong (C ++ ShpUnit) C (neutLShp C)
+
+convEvTyCtx : {Pt : PhraseType} -> (C : Shp) -> (C' : Shp) -> C = C' -> evalTyO Pt C -> evalTyO Pt C'
+convEvTyCtx c c refl eval = eval
+
+convL : {Pt : PhraseType} -> {C : Shp} -> evalTyO Pt C -> evalTyO Pt (C ++ ShpUnit)
+convL {C=c} eval = convEvTyCtx c (c++ShpUnit) (neutDShp c) eval
+
+convR : {Pt : PhraseType} -> {C : Shp} -> evalTyO Pt (C ++ ShpUnit) -> evalTyO Pt C
+convR {C=c} eval = convEvTyCtx (c++ShpUnit) c (neutLShp c) eval
 
 -- ######################### Contextos #########################
 
@@ -311,8 +337,8 @@ evalPhrase (CBool b) c eta = \sigma => b
 -- evalPhrase (BinOp Plus x y) c eta = \sigma => ((evalPhrase x c eta sigma) + (evalPhrase y c eta sigma))
 -- evalPhrase (BinOp Subs x y) c eta = \sigma => ((evalPhrase x c eta sigma) - (evalPhrase y c eta sigma))
 -- evalPhrase (UnOp Not x) s eta = \sigma => not (evalPhrase x s eta sigma)
--- evalPhrase {Theta=(t :-> t')} {Pi=pi} (Lam (Var i) b) c eta = \c' => \z => evalPhrase b (c++c') (prependCtx t (liftEta' c c' pi eta) i z)
--- evalPhrase (App e e') c eta = (evalPhrase e c eta ShpUnit) (evalPhrase e' c eta)
+--evalPhrase {Theta=(t :-> t')} {Pi=pi} (Lam (Var i) b) c eta = \c' => \z => evalPhrase b (c++c') (prependCtx t (liftEta' c c' pi eta) i z)
+evalPhrase (App e e') c eta = convR $ (evalPhrase e c eta ShpUnit) (convL $ evalPhrase e' c eta)
 evalPhrase {Theta=Comm} (If b e e') c eta = \sigma => 
                                             if evalPhrase b c eta sigma 
                                                 then evalPhrase e c eta sigma 
