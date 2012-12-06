@@ -45,30 +45,39 @@ evalTyO (Theta :-> Theta') C = (C':Shp) ->
                                evalTyO Theta (C ++ C') -> 
                                evalTyO Theta' (C ++ C')
 
--- Semántica para los phrase types aplicada a morfismos entre objetos.
-evalTyM : {C:Shp} -> {C':Shp} -> 
-          PhraseType -> C <= C' -> evalTyO t C -> evalTyO t C'
-evalTyM {t=IntExp}           t (morp (h,s)) e     = e . h
-evalTyM {t=RealExp}          t (morp (h,s)) e     = e . h
-evalTyM {t=BoolExp}          t (morp (h,s)) e     = e . h
-evalTyM {t=IntAcc}           t (morp (h,s)) a     = s . a
-evalTyM {t=RealAcc}          t (morp (h,s)) a     = s . a
-evalTyM {t=BoolAcc}          t (morp (h,s)) a     = s . a
-evalTyM {t=IntVar}           t (morp (h,s)) (a,e) = (s . a, e . h)
-evalTyM {t=RealVar}          t (morp (h,s)) (a,e) = (s . a, e . h)
-evalTyM {t=BoolVar}          t (morp (h,s)) (a,e) = (s . a, e . h)
-evalTyM {t=Comm}             t (morp (h,s)) c     = s c
--- evalTyM {C=c} {C'=c++c'} {t=Theta :-> Theta'} t (morp (h,s)) f = app (c++c')
---     where
---         app : (C':Shp) -> (C'':Shp) -> evalTyO Theta (C' ++ C'') -> evalTyO Theta' (C' ++ C'')
---         app c' c'' = f(c'++c'')
-
--- Eval2.idr:340:Can't unify evalTyO Theta c with evalTyO Theta (Main.++ c ShpUnit)
-
 -- Transforma la semántica de un tipo en un cierto objeto c, en la semántica
 -- de un tipo en otro objeto c', pero mientras c=c' .
 convEvTyCtx : {Pt : PhraseType} -> (C : Shp) -> (C' : Shp) -> C = C' -> evalTyO Pt C -> evalTyO Pt C'
 convEvTyCtx c c refl eval = eval
+
+-- Semántica para los phrase types aplicada a morfismos entre objetos.
+evalTyM : {C:Shp} -> {C':Shp} -> 
+          (t:PhraseType) -> C <= C' -> evalTyO t C -> evalTyO t C'
+evalTyM IntExp             (morp (h,s,_)) e         = e . h
+evalTyM RealExp            (morp (h,s,_)) e         = e . h
+evalTyM BoolExp            (morp (h,s,_)) e         = e . h
+evalTyM IntAcc             (morp (h,s,_)) a         = s . a
+evalTyM RealAcc            (morp (h,s,_)) a         = s . a
+evalTyM BoolAcc            (morp (h,s,_)) a         = s . a
+evalTyM IntVar             (morp (h,s,_)) (a,e)     = (s . a, e . h)
+evalTyM BoolVar            (morp (h,s,_)) (a,e)     = (s . a, e . h)
+evalTyM RealVar            (morp (h,s,_)) (a,e)     = (s . a, e . h)
+evalTyM Comm               (morp (h,s,_)) c         = s c
+evalTyM {C=c} {C'=c'} (Theta :-> Theta') (morp (h,s,(c1 ** p))) f = 
+                    \c'' => \v => contract c'' (f (c1++c'') (expand c'' v))
+    where
+        p' : (c'':Shp) -> c' ++ c'' = (c++c1) ++ c''
+        p' c'' = eqConcat c' (c++c1) c'' p
+        p'' : (c'':Shp) -> (c++c1)++c'' = c++(c1++c'')
+        p'' c'' = assocR c c1 c''
+        p''' : (c'':Shp) -> c' ++ c'' = c ++ (c1 ++ c'')
+        p''' c'' = trans (p' c'') (p'' c'')
+        p'''' : (c'':Shp) -> c ++ (c1 ++ c'') = c' ++ c''
+        p'''' c'' = symmShp (p''' c'')
+        expand : (c'':Shp) -> evalTyO Theta (c'++c'') -> evalTyO Theta (c++(c1++c''))
+        expand c'' v = convEvTyCtx (c'++c'') (c ++ (c1 ++ c'')) (p''' c'') v
+        contract : (c'':Shp) -> evalTyO Theta' (c++(c1++c'')) -> evalTyO Theta' (c'++c'')
+        contract c'' v = convEvTyCtx (c ++ (c1 ++ c'')) (c'++c'') (p'''' c'') v
 
 -- Propiedad de que la semántica de un tipo en un objeto c, es la semántica
 -- de ese tipo en el objeto c++ShpUnit.

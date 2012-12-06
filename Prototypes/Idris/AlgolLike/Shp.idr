@@ -38,13 +38,27 @@ ShpUnit ++ C' = C'
 (~:) : Shp -> DataType -> Shp
 C ~: dt = C ++ (dt :~ ShpUnit)
 
+-- Establece la igualdad cuando pegamos por delante a objetos con forma.
+cong : (C:Shp) -> (C':Shp) -> (C=C') -> (dt :~ C = dt :~ C')
+cong c c refl = refl
+
 -- Propiedad de simetria para los objetos con forma.
 symmShp : {C : Shp} -> {C' : Shp} -> C = C' -> C' = C
 symmShp cEqc' = sym cEqc'
 
--- Establece la igualdad cuando pegamos por delante a objetos con forma.
-cong : (C:Shp) -> (C':Shp) -> (C=C') -> (dt :~ C = dt :~ C')
-cong c c refl = refl
+eqConcat : (C : Shp) -> (C' : Shp) -> (C'':Shp) -> C = C' -> C++C'' = C'++C''
+eqConcat c c c'' refl = refl
+
+trans : {C : Shp} -> {C' : Shp} -> {C'' : Shp} -> C = C' -> C' = C'' -> C = C''
+trans refl refl = refl
+
+assocL : (C : Shp) -> (C' : Shp) -> (C'' : Shp) -> C ++ (C' ++ C'') = (C ++ C') ++ C''
+assocL ShpUnit c' c'' = refl
+assocL (dt :~ c) c' c'' = cong (c++(c'++c'')) ((c++c')++c'') (assocL c c' c'')
+
+assocR : (C : Shp) -> (C' : Shp) -> (C'' : Shp) -> (C ++ C') ++ C'' = C ++ (C' ++ C'')
+assocR ShpUnit c' c'' = refl
+assocR (dt :~ c) c' c'' = cong ((c++c')++c'') (c++(c'++c'')) (assocR c c' c'')
 
 -- Propiedad de neutro a derecha.
 neutDShp : (C:Shp) -> C = (C ++ ShpUnit)
@@ -81,16 +95,20 @@ prependShp : {c:Shp} -> {dt:DataType} ->
             shapes c -> evalDTy dt -> shapes (c ~: dt)
 prependShp s i = s <++> (i,())
 
+eqShape : Shp -> Shp -> Shp -> Set
+eqShape c c' c'' = c' = c ++ c''
+
 -- Representa un morfismo entre dos objetos con forma.
 data (<=) : Shp -> Shp -> Set where 
         morp : {C:Shp} -> {C':Shp} -> 
                ( shapes C' -> shapes C
                , (shapes C -> shapes C) -> (shapes C' -> shapes C')
+               , ( c'' : Shp ** eqShape C C' c'')
                ) -> C <= C'
 
 -- Constructor de un morfismo entre dos objetos.
 (>>>) : (C : Shp) -> (C' : Shp) -> C <= (C ++ C')
-c >>> c' = morp (head c c', sim)
+c >>> c' = morp (head c c', sim, (c' ** refl))
     where
         sim : (shapes c -> shapes c) -> (shapes (c ++ c') -> shapes (c ++ c'))
         sim f sigma' = f (head c c' sigma') <++> tail c c' sigma'

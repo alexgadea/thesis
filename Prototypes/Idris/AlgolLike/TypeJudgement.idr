@@ -1,5 +1,5 @@
 -- Módulo que representa los juicios de tipado del lenguaje.
-module Judge
+module TypeJudgement
 
 import Ctx
 import Shp
@@ -42,6 +42,14 @@ data UOp : PhraseType -> PhraseType -> Set where
     INeg : UOp IntExp IntExp
     Not  : UOp BoolExp BoolExp
 
+-- Representa el jucio de tipado para el subtipado.
+data (<~) : PhraseType -> PhraseType -> Set where
+    VarToAcc : IntVar <~ IntAcc
+    VarToExp : IntVar <~ IntExp
+    
+    IntExpToRealExp : IntExp <~ RealExp
+    RealAccToIntAcc : RealAcc <~ IntAcc
+    
 -- Representa las frases del lenguaje.
 using (Pi:Ctx,Theta:PhraseType,Theta':PhraseType)
     data Phrase : Ctx -> PhraseType -> Set where
@@ -67,14 +75,8 @@ using (Pi:Ctx,Theta:PhraseType,Theta':PhraseType)
                  Phrase (Pi <: (j,Theta)) Theta' -> Phrase Pi (Theta :-> Theta')
         App    : Phrase Pi (Theta :-> Theta') -> Phrase Pi Theta -> 
                  Phrase Pi Theta'
-
--- Representa el jucio de tipado para el subtipado.
-data (<~) : PhraseType -> PhraseType -> Set where
-    VarToAcc : IntVar <~ IntAcc
-    VarToExp : IntVar <~ IntExp
-    
-    IntExpToRealExp : IntExp <~ RealExp
-    RealAccToIntAcc : RealAcc <~ IntAcc
+        
+        Subs   : t <~ t' -> Phrase Pi t -> Phrase Pi t'
 
 -- Semántica del subtipado.
 evalLeq : {C:Shp} -> t <~ t' -> evalTyO t C -> evalTyO t' C
@@ -85,6 +87,7 @@ evalLeq (VarToExp) (a,e) = e
 -- [[\pi |-- e : \theta]]C : [[\pi]]*C -> [[\theta]]]C
 evalPhrase : {Pi:Ctx} -> {Theta:PhraseType} ->
              Phrase Pi Theta -> (C:Shp) -> evalCtxO Pi C -> evalTyO Theta C
+evalPhrase (Subs leq var) c eta = evalLeq leq (evalPhrase var c eta)
 -- Semántica para los comandos.
 evalPhrase (Assig a e) c eta = \sigma => ((\x => (evalPhrase a c eta) x sigma) (evalPhrase e c eta sigma))
 evalPhrase Skip c eta = \sigma => sigma
@@ -98,10 +101,8 @@ evalPhrase (Var i) c eta = search i eta
 evalPhrase (CInt i) c eta = \sigma => i
 evalPhrase (CFloat r) c eta = \sigma => r
 evalPhrase (CBool b) c eta = \sigma => b
--- evalPhrase (BinOp Plus x y) c eta = \sigma => ((evalPhrase x c eta sigma) + (evalPhrase y c eta sigma))
--- evalPhrase (BinOp Subs x y) c eta = \sigma => ((evalPhrase x c eta sigma) - (evalPhrase y c eta sigma))
--- evalPhrase (UnOp Not x) s eta = \sigma => not (evalPhrase x s eta sigma)
-
+--evalPhrase (BinOp IPlus x y) c eta = \sigma => ((evalPhrase x c eta sigma) + (evalPhrase y c eta sigma))
+--evalPhrase (UnOp Not x) s eta = \sigma => not (evalPhrase x s eta sigma)
 evalPhrase {Theta=(t :-> t')} {Pi=pi} (Lam {j=i} (Var i) b) c eta = evalLambda
     where
         newLeta : (C':Shp) -> evalTyO t (c ++ C') -> evalCtxO (pi <: (i,t)) (c ++ C')
