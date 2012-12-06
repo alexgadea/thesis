@@ -1,3 +1,4 @@
+-- Módulo que representa el contexto de variables.
 module Ctx
 
 import Shp
@@ -62,12 +63,3 @@ search {Pi=(a,t):>ctxs} {Theta=t} i' ((i,e),etas) =
 prependCtx : {C:Shp} -> {Pi:Ctx} -> (pt:PhraseType) -> 
             evalCtxO Pi C -> (i:Identifier) -> evalTyO pt C -> evalCtxO (Pi <: (i,pt)) C
 prependCtx pt eta j z = eta <:++:> ((j,z),())
-
-convEvTyCtx : {Pt : PhraseType} -> (C : Shp) -> (C' : Shp) -> C = C' -> evalTyO Pt C -> evalTyO Pt C'
-convEvTyCtx c c refl eval = eval
-
-convL : {Pt : PhraseType} -> {C : Shp} -> evalTyO Pt C -> evalTyO Pt (C ++ ShpUnit)
-convL {C=c} eval = convEvTyCtx c (c++ShpUnit) (neutDShp c) eval
-
-convR : {Pt : PhraseType} -> {C : Shp} -> evalTyO Pt (C ++ ShpUnit) -> evalTyO Pt C
-convR {C=c} eval = convEvTyCtx (c++ShpUnit) c (neutLShp c) eval

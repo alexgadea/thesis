@@ -1,3 +1,4 @@
+-- Módulo de ejemplos.
 -- Tercer prototipo de un evaluador de un lenguaje funcional con imperativo
 -- considerando shapes.
 module Eval
@@ -6,7 +7,7 @@ import Ctx
 import Shp
 import DataType
 import PhraseType
-import Judges
+import Judge
 
 idX : Identifier
 idX = Id "x"

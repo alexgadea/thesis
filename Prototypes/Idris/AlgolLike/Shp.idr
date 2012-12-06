@@ -1,3 +1,5 @@
+-- Módulo que representa los objetos con forma y los morfismos entre
+-- esos objetos.
 module Shp
 
 import DataType
@@ -36,16 +38,20 @@ ShpUnit ++ C' = C'
 (~:) : Shp -> DataType -> Shp
 C ~: dt = C ++ (dt :~ ShpUnit)
 
+-- Propiedad de simetria para los objetos con forma.
 symmShp : {C : Shp} -> {C' : Shp} -> C = C' -> C' = C
 symmShp cEqc' = sym cEqc'
 
+-- Establece la igualdad cuando pegamos por delante a objetos con forma.
 cong : (C:Shp) -> (C':Shp) -> (C=C') -> (dt :~ C = dt :~ C')
 cong c c refl = refl
 
+-- Propiedad de neutro a derecha.
 neutDShp : (C:Shp) -> C = (C ++ ShpUnit)
 neutDShp ShpUnit = refl
 neutDShp (dt :~ C) = cong C (C ++ ShpUnit) (neutDShp C)
 
+-- Propiedad de neutro a izquierda.
 neutLShp : (C:Shp) -> (C ++ ShpUnit) = C
 neutLShp ShpUnit = refl
 neutLShp (dt :~ C) = cong (C ++ ShpUnit) C (neutLShp C)

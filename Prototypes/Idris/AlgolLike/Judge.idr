@@ -1,4 +1,5 @@
-module Judges
+-- Módulo que representa los juicios de tipado del lenguaje.
+module Judge
 
 import Ctx
 import Shp

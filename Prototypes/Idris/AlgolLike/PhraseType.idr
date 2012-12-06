@@ -1,3 +1,5 @@
+-- Módulo que representa los tipos de dato básicos para las frases del
+-- lenguaje.
 module PhraseType
 
 import Shp
@@ -62,3 +64,18 @@ evalTyM {t=Comm}             t (morp (h,s)) c     = s c
 --         app c' c'' = f(c'++c'')
 
 -- Eval2.idr:340:Can't unify evalTyO Theta c with evalTyO Theta (Main.++ c ShpUnit)
+
+-- Transforma la semántica de un tipo en un cierto objeto c, en la semántica
+-- de un tipo en otro objeto c', pero mientras c=c' .
+convEvTyCtx : {Pt : PhraseType} -> (C : Shp) -> (C' : Shp) -> C = C' -> evalTyO Pt C -> evalTyO Pt C'
+convEvTyCtx c c refl eval = eval
+
+-- Propiedad de que la semántica de un tipo en un objeto c, es la semántica
+-- de ese tipo en el objeto c++ShpUnit.
+convL : {Pt : PhraseType} -> {C : Shp} -> evalTyO Pt C -> evalTyO Pt (C ++ ShpUnit)
+convL {C=c} eval = convEvTyCtx c (c++ShpUnit) (neutDShp c) eval
+
+-- Propiedad de que la semántica de un tipo en un objeto c++ShpUnit, es la semántica
+-- de ese tipo en el objeto c.
+convR : {Pt : PhraseType} -> {C : Shp} -> evalTyO Pt (C ++ ShpUnit) -> evalTyO Pt C
+convR {C=c} eval = convEvTyCtx (c++ShpUnit) c (neutLShp c) eval

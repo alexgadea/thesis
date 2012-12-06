@@ -1,3 +1,4 @@
+-- Módulo que representa los tipos de dato básicos del lenguaje.
 module DataType
 
 -- Gramática de los tipos básicos.
