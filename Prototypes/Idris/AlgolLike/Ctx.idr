@@ -32,10 +32,9 @@ evalCtxO ((i,t):>ctxs) C = ((Identifier,evalTyO t C), evalCtxO ctxs C)
 
 -- Semántica de un contexto aplicado a morfismos entre objetos.
 evalCtxM : {C:Shp} -> {C':Shp} -> 
-           Ctx -> C <= C' -> evalCtxO ctx C -> evalCtxO ctx C'
-evalCtxM {ctx=CtxUnit} ctx m () = ()
-evalCtxM {ctx=(Identifier,PhraseType):>ctx'} ((i,t):>ctx') m ((i,etai),eta) = 
-                                ((i,evalTyM t m etai),evalCtxM ctx' m eta)
+           (ctx:Ctx) -> C <= C' -> evalCtxO ctx C -> evalCtxO ctx C'
+evalCtxM CtxUnit m () = ()
+evalCtxM ((i,t):>ctx') m ((i,etai),eta) = ((i,evalTyM t m etai),evalCtxM ctx' m eta)
 
 -- Transforma un environment con forma C, en uno con forma C ~: Dt
 liftEta : (C:Shp) -> (Dt:DataType) -> (Pi:Ctx) -> evalCtxO Pi C -> 
