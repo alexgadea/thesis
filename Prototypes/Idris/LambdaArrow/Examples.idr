@@ -13,41 +13,52 @@ idJ = Id "j"
 idN : Identifier
 idN = Id "n"
 
-varI : {Pi:Ctx} -> Phrase Pi IntExp
+varI : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
 varI = Var idI
 
-varJ : {Pi:Ctx} -> Phrase Pi IntExp
+varJ : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
 varJ = Var idJ
 
-varN : {Pi:Ctx} -> Phrase Pi IntExp
+varN : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
 varN = Var idN
 
-varBI : {Pi:Ctx} -> Phrase Pi BoolExp
+varBI : {Pi:Ctx} -> TypeJugdmnt Pi BoolExp
 varBI = Var idI
 
-varBJ : {Pi:Ctx} -> Phrase Pi BoolExp
+varBJ : {Pi:Ctx} -> TypeJugdmnt Pi BoolExp
 varBJ = Var idJ
 
-id' : {Pi:Ctx} -> Phrase Pi (IntExp :-> IntExp)
+id' : {Pi:Ctx} -> TypeJugdmnt Pi (IntExp :-> IntExp)
 id'= Lam {j=idJ} varI varI
 
-add : {Pi:Ctx} -> Phrase Pi (IntExp :-> IntExp :-> IntExp)
+add : {Pi:Ctx} -> TypeJugdmnt Pi (IntExp :-> IntExp :-> IntExp)
 add = Lam {j=idJ} varJ (Lam {j=idI} varI (BinOp (+) varJ varI))
 
-andt : {Pi:Ctx} -> Phrase Pi (BoolExp :-> BoolExp :-> BoolExp)
+andt : {Pi:Ctx} -> TypeJugdmnt Pi (BoolExp :-> BoolExp :-> BoolExp)
 andt = Lam {j=idJ} varBJ (Lam {j=idI} varBI (BinOp (&&) varBJ varBI))
 
-add' : {Pi:Ctx} -> Phrase Pi IntExp
+add' : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
 add' = App (App add (ValI 0)) (ValI 1)
 
-and' : {Pi:Ctx} -> Phrase Pi BoolExp
+and' : {Pi:Ctx} -> TypeJugdmnt Pi BoolExp
 and' = App (App andt (ValB True)) (ValB False)
 
-fact : {Pi:Ctx} -> Phrase Pi (IntExp :-> IntExp)
+fact : {Pi:Ctx} -> TypeJugdmnt Pi (IntExp :-> IntExp)
 fact = Lam {j=idN} varN 
             ({-If -} If (BinOp (==) varN (ValI 0)) 
                 {-Then-} (ValI 1) 
                 {-Else-} (BinOp (*) (App fact (BinOp (-) varN (ValI 1))) varN))
+
+varN' : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
+varN' = BinOp (-) varN (ValI 1)
+
+ifZero : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
+ifZero = If (BinOp (>=) varN (ValI 0))
+            (ValI 0)
+            (ValI 0)
                 
-appFact : {Pi:Ctx} -> Phrase Pi IntExp
-appFact = App fact $ ValI 1
+recFact : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
+recFact =  Rec (Lam {j=idN} varN ifZero)
+
+appFact : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
+appFact = App fact $ ValI 3
