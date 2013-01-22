@@ -52,11 +52,12 @@ fact = Lam {j=idN} varN
 varN' : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
 varN' = BinOp (-) varN (ValI 1)
 
+valT : {Pi:Ctx} -> TypeJugdmnt Pi BoolExp 
+valT = ValB True
+
 ifZero : {Pi:Ctx} -> TypeJugdmnt (Pi<:(idN,IntExp)) IntExp
-ifZero = If (BinOp (>=) varN (ValI 0))
-            (ValI 0)
-            (ValI 0)
-                
+ifZero = If valT (ValI 0) (ValI 0)
+
 recFact : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
 recFact =  Rec (Lam {j=idN} varN ifZero)
 

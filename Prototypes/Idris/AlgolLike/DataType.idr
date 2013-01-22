@@ -18,5 +18,5 @@ instance Eq DataType where
 -}
 evalDTy : DataType -> Set
 evalDTy IntDT  = Int
-evalDTy RealDT = Bool
-evalDTy BoolDT = Float
+evalDTy RealDT = Float
+evalDTy BoolDT = Bool

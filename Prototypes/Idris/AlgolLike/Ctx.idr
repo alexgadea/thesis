@@ -55,9 +55,14 @@ liftEta' c c' p eta = evalCtxM p (c >>> c') eta
 -- Buscar un valor en un environment en base a un identificador.
 search : {Pi:Ctx} -> {C:Shp} -> {Theta:PhraseType} -> 
          Identifier -> evalCtxO Pi C -> evalTyO Theta C
-search {Pi=(a,t):>ctxs} {Theta=t} i' ((i,e),etas) = 
-        if i == i' then e else search i' etas
-
+search {Pi=(a,t):>ctxs} {Theta=t} i' ((i,e),etas) = search' e i' etas
+    where
+        search' : {Pi:Ctx} -> {C:Shp} -> {Theta:PhraseType} -> 
+                  evalTyO Theta C -> Identifier -> evalCtxO Pi C -> evalTyO Theta C
+        search' {Pi=CtxUnit} {Theta=t} e' i' () = e'
+        search' {Pi=(a,t):>ctxs} {Theta=t} e' i' ((i,e),etas) = 
+                    if i == i' then search' e i' etas else search' e' i' etas
+        
 -- Agregar un valor por detras al environment.
 prependCtx : {C:Shp} -> {Pi:Ctx} -> (pt:PhraseType) -> 
             evalCtxO Pi C -> (i:Identifier) -> evalTyO pt C -> evalCtxO (Pi <: (i,pt)) C
