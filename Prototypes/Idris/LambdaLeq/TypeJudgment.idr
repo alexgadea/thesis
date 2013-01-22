@@ -1,4 +1,4 @@
--- Primer prototipo de evaluador para un lenguaje con tipos simples.
+-- Primer prototipo de evaluador para un lenguaje con tipos simples + subtipado.
 module TypeJudgment
 
 import Ctx
@@ -27,11 +27,18 @@ data (<~) : PhraseType -> PhraseType -> Set where
               {t1:PhraseType} -> {t1':PhraseType} -> 
               t0 <~ t0' -> t1 <~ t1' -> (t0' :-> t1) <~ (t0 :-> t1')
 
+-- Definimos la semántica para los juicios de subtipado del lenguaje.
 evalLeq : {t:PhraseType} -> {t':PhraseType} -> t <~ t' -> evalTy t -> evalTy t'
+-- [[Int <~ Real]] = J, con J inyección de enteros en reales.
 evalLeq IntExpToRealExp    = prim__intToFloat
+-- [[Bool <~ Int]] = if True then 0 else 1.
 evalLeq BoolExpToIntExp    = prim__boolToInt
+-- [[theta <~ theta]] = id_[[Theta]]
 evalLeq {t'=t} (Reflx t)   = id
+-- [[theta <~ theta'']] = [[theta' <~ theta'']] . [[theta <~ theta']]
 evalLeq (Trans leq leq')   = evalLeq leq' . evalLeq leq
+-- [[theta0' :-> theta1 <~ theta0 <~ theta1']] = 
+-- \f : [[theta0']] -> [[theta1]] => [[theta1 <~ theta1']] . f . [[theta0 <~ theta0']]
 evalLeq (SubsFun leq leq') = \f => evalLeq leq' . f . evalLeq leq
 
 using (Pi:Ctx, Theta:PhraseType, Theta':PhraseType)
@@ -60,7 +67,7 @@ using (Pi:Ctx, Theta:PhraseType, Theta':PhraseType)
         UnOp  : (evalTy a -> evalTy b) -> TypeJugdmnt Pi a -> TypeJugdmnt Pi b
         
         Subs    : t <~ t' -> TypeJugdmnt Pi t -> TypeJugdmnt Pi t'
-    
+
 -- Definimos la semántica para los juicios de tipado del lenguaje.
 eval : {Pi:Ctx} -> {Theta:PhraseType} ->
        TypeJugdmnt Pi Theta -> evalCtx Pi -> evalTy Theta
