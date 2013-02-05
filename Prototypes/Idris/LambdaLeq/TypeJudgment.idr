@@ -48,14 +48,16 @@ using (Pi:Ctx, Theta:PhraseType, Theta':PhraseType)
     -- pi |-- e : theta
     -- Donde e son las frases del lenguaje.
     data TypeJugdmnt : Ctx -> PhraseType -> Set where
-        Var   : Identifier -> TypeJugdmnt Pi Theta
+        I     : Identifier -> TypeJugdmnt Pi Theta
+        
         ValI  : Int   -> TypeJugdmnt Pi IntExp
         ValB  : Bool  -> TypeJugdmnt Pi BoolExp
         ValR  : Float -> TypeJugdmnt Pi RealExp
         
-        Lam   : {j:Identifier} -> TypeJugdmnt Pi Theta -> 
-                 TypeJugdmnt (Pi <: (j,Theta)) Theta' -> 
-                 TypeJugdmnt Pi (Theta :-> Theta')
+        Lam   : (j:Identifier) -> (t:PhraseType) -> 
+                TypeJugdmnt (Pi <: (j,t)) Theta' -> 
+                TypeJugdmnt Pi (t :-> Theta')
+        
         App   : TypeJugdmnt Pi (theta :-> theta') -> TypeJugdmnt Pi theta -> 
                 TypeJugdmnt Pi theta'
         Rec   : TypeJugdmnt Pi (theta :-> theta) -> TypeJugdmnt Pi theta
@@ -74,7 +76,7 @@ eval : {Pi:Ctx} -> {Theta:PhraseType} ->
 -- [[Pi |--  : theta]]eta = eta i
 eval (Subs leq p) eta = evalLeq leq $ eval p eta
 -- [[Pi |-- Var i : theta]]eta = eta i
-eval (Var i)     eta = search i eta
+eval (I i)     eta = search i eta
 -- [[Pi |-- ValI x : IntExp]]eta = x
 eval (ValI x)    eta = x
 -- [[Pi |-- ValB x : IntExp]]eta = x
@@ -82,7 +84,7 @@ eval (ValB x)    eta = x
 -- [[Pi |-- ValR x : IntExp]]eta = x
 eval (ValR x)    eta = x
 -- [[Pi |-- \-> b : theta :-> theta']]eta = \x -> [[Pi,x:theta |-- b : theta']](x|eta)
-eval (Lam {j=i} (Var i) b) eta = \z => eval b (prependCtx eta i z)
+eval (Lam i t b) eta = \z => eval b (prependCtx eta i z)
 -- [[Pi |-- ee' : theta']]eta = ([[Pi |-- e: theta :-> theta']]eta)([[Pi |-- e:theta]]eta)
 eval (App e e')   eta = (eval e eta) (eval e' eta)
 -- [[Pi |-- x op y : theta]]eta = [[Pi |-- x:theta]]eta op [[Pi |-- y:theta]]eta
