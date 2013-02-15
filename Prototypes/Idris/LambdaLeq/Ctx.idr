@@ -1,74 +1,61 @@
--- Módulo que representa el contexto de variables.
+{- Módulo que representa el contexto de identificadores.
+
+Los contextos los vamos a separar en dos "versiones" la sintactica
+y la semántica, la idea es implementar los contextos sintacticos de
+forma que no haya repetición de nombres de identificador. Es decir,
+un contexto va a ser una lista de identificadores y phrase types;
+
+i_0:pt_0, ... , i_n:pt_n
+
+para contextos semánticos simplemente es una lista de la siguiente manera,
+
+evalTy pt_0, ... , evalTy pt_n
+
+y tenemos una correspondencia lugar a lugar con el contexto sintáctico para
+buscar el valor.
+
+-}
 module Ctx
 
 import PhraseType
 
--- Pegar por delante para contextos
-infixr 10 :>
--- Pegar por detras para contextos
-infixr 10 <:
--- Concatenar contextos.
-infixr 10 :++:
--- Concatenar contextos semánticos.
-infixr 10 <:++:>
+-- ################## Versión sintácticas ##################
+mutual
+    -- Representación de un contexto sintáctico.
+    data Ctx : Type where
+        CtxUnit : Ctx
+        Prepend : (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) -> 
+                  Fresh p i -> Ctx
+    
+    -- Representa si un identificador es fresco para un contexto.
+    data Fresh : Ctx -> Identifier -> Type where
+        FUnit : (i:Identifier) -> Fresh CtxUnit i
+        FCons : (i:Identifier) -> (pt':PhraseType) -> (i':Identifier) -> 
+                (p:Ctx) -> (fi':Fresh p i') -> so (i/=i') -> (Fresh p i) -> 
+                Fresh (Prepend p i' pt' fi') i
 
--- Representa los contextos de los juicios de tipado del lenguaje.
-data Ctx = CtxUnit | (:>) (Identifier,PhraseType) Ctx
+-- Representa la pertenencia de un identificador en un contexto.
+data InCtx : Ctx -> Identifier -> Type where
+    InHead : (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) -> 
+             (fi:Fresh p i) -> InCtx (Prepend p i pt fi) i
+    InTail : (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) -> 
+             (j:Identifier) -> (fj:Fresh p j) -> 
+             InCtx p i -> InCtx (Prepend p j pt fj) i
 
--- Concatena contextos.
-(:++:) : Ctx -> Ctx -> Ctx
-(:++:) CtxUnit ctx' = ctx'
-(:++:) (e:>ctx) ctx' = e:> (ctx :++:ctx')
+-- ################## Versión semánticas ##################
 
--- Pegar por detras
-(<:) : Ctx -> (Identifier,PhraseType) -> Ctx
-ctx <: e = ctx :++: (e:>CtxUnit)
-
--- Semántica de un contexto.
-evalCtx : Ctx -> Set
+-- Representación de un contexto semántico.
+evalCtx : Ctx -> Type
 evalCtx CtxUnit = ()
-evalCtx ((i,t):>ctxs) = ((Identifier,evalTy t), evalCtx ctxs)
+evalCtx (Prepend p _ pt _) = (evalCtx p, evalTy pt)
 
--- Concatenar environments.
-(<:++:>) : {Pi:Ctx} -> {Pi':Ctx} -> 
-           evalCtx Pi -> evalCtx Pi' -> evalCtx (Pi :++: Pi')
-(<:++:>) {Pi=CtxUnit} () p' = p'
-(<:++:>) {Pi=(i,pt):>pi} (e,p) p' = (e, p <:++:> p')
+-- Buscar el valor de un identificador en un contexto semántico.
+search : (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) ->
+         InCtx p i -> evalCtx p -> evalTy pt
+search (Prepend _ i pt _) i pt (InHead _ i pt fi) (eta,v) = v
+search (Prepend ctx j pt _) i pt (InTail _ _ pt j _ inc) (eta,_) = search ctx i pt inc eta
 
--- Buscar un valor en un environment en base a un identificador.
-search : {Pi:Ctx} -> {Theta:PhraseType} -> 
-         Identifier -> evalCtx Pi -> evalTy Theta
-search {Pi=(a,t):>ctxs} {Theta=t} i' ((i,e),etas) = search' e i' etas
-    where
-        search' : {Pi:Ctx} -> {Theta:PhraseType} -> 
-                  evalTy Theta -> Identifier -> evalCtx Pi -> evalTy Theta
-        search' {Pi=CtxUnit} {Theta=t} e' i' () = e'
-        search' {Pi=(a,t):>ctxs} {Theta=t} e' i' ((i,e),etas) = 
-                    if i == i' then search' e i' etas else search' e' i' etas
-
-hasI : Identifier -> PhraseType -> Ctx -> Ctx
-hasI i pt CtxUnit = (i,pt) :> CtxUnit
-hasI i pt ((i',pt') :> ctx) = if i == i'
-                                then ((i',pt') :> ctx)
-                                else (i',pt') :> hasI i pt ctx
-
-map : {Pi:Ctx} -> {pt:PhraseType} -> 
-      ((Identifier,evalTy pt) -> (Identifier,evalTy pt)) -> 
-      evalCtx Pi -> evalCtx Pi
-map {Pi=CtxUnit} _ () = ()
-map {Pi=(i,t):>pi'} {pt=t} f ((i,e),etas) = (f (i,e), etas)
-                                
--- Agregar un valor por detras al environment.
--- Estaría bueno poder hacer un prepend que no deje valores 
--- basura, pero tengo problema con los tipos.
-prependCtx : {Pi:Ctx} -> {pt:PhraseType} -> evalCtx Pi -> 
-             (i:Identifier) -> evalTy pt -> evalCtx (Pi <: (i,pt))--(hasI i pt Pi)
--- prependCtx etas i z = map replace etas
---     where
---         replace : {pt1:PhraseType} -> (Identifier,evalTy pt1) -> (Identifier,evalTy pt1)
---         replace (i',e) = if i == i' then (i',e) else (i',e)
--- prependCtx {Pi=CtxUnit} () i z = ((i,z),())
--- prependCtx {Pi=(i',t):>ctxs} ((i',e),etas) i z = if i == i'
---                                                     then ((i',z),etas)
---                                                     else ((i',e),prependCtx etas i z)
-prependCtx eta j z = eta <:++:> ((j,z),())
+-- Actualizar el valor de un identificador.
+update : (p:Ctx) -> evalCtx p -> (i:Identifier) -> 
+         (pt:PhraseType) -> evalTy pt -> (fi:Fresh p i) -> evalCtx (Prepend p i pt fi)
+update p eta i pt z fi = (eta,z)
