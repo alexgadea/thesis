@@ -4,61 +4,85 @@ import Ctx
 import PhraseType
 import TypeJudgment
 
+eq : {a:PhraseType} -> evalTy a -> evalTy a -> evalTy BoolExp
+eq {a=IntExp} i i' = i == i'
+eq {a=RealExp} i i' = i == i'
+eq {a=BoolExp} True False = False
+eq {a=BoolExp} False True = False
+eq {a=BoolExp} i i = True
+
+syntax "\\" [x] ":" [pt] "=>" [b] "|" [fx] = Lam x pt fx b
+syntax "rec" [e] =  Rec e
+syntax [e] "@" [e'] = App e e'
+
+syntax [x] "+" [y]  = BinOp (+) x y
+syntax [x] "-" [y]  = BinOp (-) x y
+syntax [x] "*" [y]  = BinOp (*) x y
+syntax [x] "==" [y] = BinOp eq x y
+syntax [x] ".and." [y] = BinOp (&&) x y
+
+syntax "if" [b] "then" [e] "else" [e'] = If b e e'
+
 idI : Identifier
 idI = Id "i"
 
 idJ : Identifier
 idJ = Id "j"
 
-idN : Identifier
-idN = Id "n"
+freshI : Fresh CtxUnit idI
+freshI = FUnit idI
 
-varI : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
-varI = Var idI
+ctxI : PhraseType -> Ctx
+ctxI pt = Prepend CtxUnit idI pt freshI
 
-varJ : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
-varJ = Var idJ
+freshIJ : (pti:PhraseType) -> Fresh (ctxI pti) idJ
+freshIJ pti = FCons idJ pti idI CtxUnit (FUnit idI) oh (FUnit idJ)
 
-varN : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
-varN = Var idN
+ctxIJ : PhraseType -> PhraseType -> Ctx
+ctxIJ pti ptj = Prepend (ctxI pti) idJ ptj (freshIJ pti)
 
-varBI : {Pi:Ctx} -> TypeJugdmnt Pi BoolExp
-varBI = Var idI
+id' : TypeJugdmnt CtxUnit (IntExp :-> IntExp)
+--id' = Lam idI IntExp freshI varI
+id' = \idI : IntExp => varI | freshI 
+    where
+        varI : TypeJugdmnt (ctxI IntExp) IntExp
+        varI = I idI (InHead CtxUnit idI IntExp (FUnit idI))
 
-varBJ : {Pi:Ctx} -> TypeJugdmnt Pi BoolExp
-varBJ = Var idJ
+add : TypeJugdmnt CtxUnit (IntExp :-> IntExp :-> IntExp)
+--add = Lam idI IntExp freshI (Lam idJ IntExp freshIJ (BinOp (-) varI varJ))
+add = \idI : IntExp => (\idJ : IntExp => varI + varJ | (freshIJ IntExp)) | freshI 
+    where
+        varI : TypeJugdmnt (ctxIJ IntExp IntExp) IntExp
+        varI = I idI (InTail (ctxI IntExp) idI IntExp idJ (freshIJ IntExp) (InHead CtxUnit idI IntExp (FUnit idI)))
+        varJ : TypeJugdmnt (ctxIJ IntExp IntExp) IntExp
+        varJ = I idJ (InHead (ctxI IntExp) idJ IntExp (freshIJ IntExp))
 
-id' : {Pi:Ctx} -> TypeJugdmnt Pi (IntExp :-> IntExp)
-id'= Lam {j=idJ} varI varI
+ceroPluSone : TypeJugdmnt CtxUnit IntExp
+ceroPluSone = (add @ (CInt 0)) @ (CInt 1)
 
-add : {Pi:Ctx} -> TypeJugdmnt Pi (IntExp :-> IntExp :-> IntExp)
-add = Lam {j=idJ} varJ (Lam {j=idI} varI (BinOp (+) varJ varI))
+andt : TypeJugdmnt CtxUnit (BoolExp :-> BoolExp :-> BoolExp)
+andt = \idI : BoolExp => (\idJ : BoolExp => varI .and. varJ | (freshIJ BoolExp)) | freshI 
+    where
+        varI : TypeJugdmnt (ctxIJ BoolExp BoolExp) BoolExp
+        varI = I idI (InTail (ctxI BoolExp) idI BoolExp idJ (freshIJ BoolExp) (InHead CtxUnit idI BoolExp (FUnit idI)))
+        varJ : TypeJugdmnt (ctxIJ BoolExp BoolExp) BoolExp
+        varJ = I idJ (InHead (ctxI BoolExp) idJ BoolExp (freshIJ BoolExp))
 
-andt : {Pi:Ctx} -> TypeJugdmnt Pi (BoolExp :-> BoolExp :-> BoolExp)
-andt = Lam {j=idJ} varBJ (Lam {j=idI} varBI (BinOp (&&) varBJ varBI))
+trueAnDfalse : TypeJugdmnt CtxUnit BoolExp
+trueAnDfalse = (andt@(CBool True))@(CBool False)
 
-add' : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
-add' = App (App add (ValI 0)) (ValI 1)
-
-and' : {Pi:Ctx} -> TypeJugdmnt Pi BoolExp
-and' = App (App andt (ValB True)) (ValB False)
-
-fact : {Pi:Ctx} -> TypeJugdmnt Pi (IntExp :-> IntExp)
-fact = Lam {j=idN} varN 
-            ({-If -} If (BinOp (==) varN (ValI 0)) 
-                {-Then-} (ValI 1) 
-                {-Else-} (BinOp (*) (App fact (BinOp (-) varN (ValI 1))) varN))
-
-varN' : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
-varN' = BinOp (-) varN (ValI 1)
-
-ifZero : {Pi:Ctx} -> TypeJugdmnt (Pi<:(idN,IntExp)) IntExp
-ifZero = If (BinOp (>=) varN (ValI 0))
-            (ValI 0)
-            (ValI 0)
-                
-recFact : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
-recFact =  Rec (Lam {j=idN} varN ifZero)
-
-appFact : {Pi:Ctx} -> TypeJugdmnt Pi IntExp
-appFact = App fact $ ValI 3
+recFact : TypeJugdmnt CtxUnit (IntExp :-> IntExp)
+recFact = rec (\idI : IntExp :-> IntExp => 
+                    (\idJ : IntExp => if (CInt 0) == varJ
+                                        then CInt 1
+                                        else varJ * (varI @ (varJ - (CInt 1)))
+                    | (freshIJ intint)) 
+                    | freshI
+              )
+    where
+        intint : PhraseType
+        intint = IntExp :-> IntExp
+        varI : TypeJugdmnt (ctxIJ intint IntExp) (IntExp :-> IntExp)
+        varI = I idI (InTail (ctxI intint) idI IntExp idJ (freshIJ intint) (InHead CtxUnit idI intint (FUnit idI)))
+        varJ : TypeJugdmnt (ctxIJ intint IntExp) IntExp
+        varJ = I idJ (InHead (ctxI intint) idJ IntExp (freshIJ intint))

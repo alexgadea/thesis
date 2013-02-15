@@ -24,7 +24,7 @@ Semántica para los tipos
     [[BoolExp]] = bool
     [[Theta :-> Theta]] = [[Theta]] -> [[Theta]]
 -}
-evalTy : PhraseType -> Set
+evalTy : PhraseType -> Type
 evalTy IntExp    = Int
 evalTy RealExp   = Float
 evalTy BoolExp   = Bool
