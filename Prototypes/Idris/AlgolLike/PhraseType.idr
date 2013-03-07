@@ -28,9 +28,34 @@ data PhraseType = IntExp | RealExp | BoolExp
                 | IntVar | RealVar | BoolVar
                 | (:->) PhraseType PhraseType
                 | Comm
-    
+
+dtTOacc : DataType -> PhraseType
+dtTOacc IntDT  = IntAcc
+dtTOacc RealDT = RealAcc
+dtTOacc BoolDT = BoolAcc
+
+dtTOexp : DataType -> PhraseType
+dtTOexp IntDT  = IntExp
+dtTOexp RealDT = RealExp
+dtTOexp BoolDT = BoolExp
+
+dtTOvar : DataType -> PhraseType
+dtTOvar IntDT  = IntVar
+dtTOvar RealDT = RealVar
+dtTOvar BoolDT = BoolVar
+
+evalTyArgs : PhraseType -> Type
+evalTyArgs IntExp  = Int
+evalTyArgs RealExp = Float
+evalTyArgs BoolExp = Bool
+
+ptToDt : PhraseType -> DataType
+ptToDt IntExp  = IntDT
+ptToDt RealExp = RealDT
+ptToDt BoolExp = BoolDT
+
 -- Semántica para los phrase types aplicada a objetos con forma.
-evalTyO : PhraseType -> Shp -> Set
+evalTyO : PhraseType -> Shp -> Type
 evalTyO IntExp             C = shapes C -> Int
 evalTyO RealExp            C = shapes C -> Float
 evalTyO BoolExp            C = shapes C -> Bool
@@ -47,7 +72,8 @@ evalTyO (Theta :-> Theta') C = (C':Shp) ->
 
 -- Transforma la semántica de un tipo en un cierto objeto c, en la semántica
 -- de un tipo en otro objeto c', pero mientras c=c' .
-convEvTyCtx : {Pt : PhraseType} -> (C : Shp) -> (C' : Shp) -> C = C' -> evalTyO Pt C -> evalTyO Pt C'
+convEvTyCtx : {Pt : PhraseType} -> (C : Shp) -> (C' : Shp) -> C = C' -> 
+              evalTyO Pt C -> evalTyO Pt C'
 convEvTyCtx c c refl eval = eval
 
 -- Semántica para los phrase types aplicada a morfismos entre objetos.
@@ -88,3 +114,42 @@ convL {C=c} eval = convEvTyCtx c (c++ShpUnit) (neutDShp c) eval
 -- de ese tipo en el objeto c.
 convR : {Pt : PhraseType} -> {C : Shp} -> evalTyO Pt (C ++ ShpUnit) -> evalTyO Pt C
 convR {C=c} eval = convEvTyCtx (c++ShpUnit) c (neutLShp c) eval
+
+toAcc : {c:Shp} -> {pt:PhraseType} -> 
+        (d:DataType) -> evalTyO pt c -> evalDTy d -> shapes c -> shapes c
+toAcc {pt=IntAcc}  IntDT  p = p
+toAcc {pt=RealAcc} RealDT p = p
+toAcc {pt=BoolAcc} BoolDT p = p
+
+toExp : {c:Shp} -> {pt:PhraseType} -> 
+        (d:DataType) -> evalTyO pt c -> shapes c -> evalDTy d
+toExp {pt=IntExp}  IntDT  p = p
+toExp {pt=RealExp} RealDT p = p
+toExp {pt=BoolExp} BoolDT p = p
+
+toComm : {c:Shp} -> {pt:PhraseType} -> evalTyO pt c -> shapes c -> shapes c
+toComm {pt=Comm} p = p
+
+fromAcc : {c:Shp} -> {pt:PhraseType} -> 
+          (d:DataType) -> (evalDTy d -> shapes c -> shapes c) -> evalTyO pt c
+fromAcc {pt=IntAcc}  IntDT  p = p
+fromAcc {pt=RealAcc} RealDT p = p
+fromAcc {pt=BoolAcc} BoolDT p = p
+
+fromExp : {c:Shp} -> {pt:PhraseType} -> 
+        (d:DataType) -> (shapes c -> evalDTy d) -> evalTyO pt c
+fromExp {pt=IntExp}  IntDT  p = p
+fromExp {pt=RealExp} RealDT p = p
+fromExp {pt=BoolExp} BoolDT p = p
+
+fromFun : {c:Shp} -> (pt,pt',pt'':PhraseType) -> 
+          ((c':Shp) -> evalTyO pt (c++c') -> evalTyO pt' (c++c')) -> evalTyO pt'' c
+fromFun pt pt' (pt:->pt') p = p
+
+fromVar : {c:Shp} -> {pt:PhraseType} -> 
+        (d:DataType) -> ( evalDTy d -> shapes c -> shapes c
+                        , shapes c -> evalDTy d
+                        ) -> evalTyO pt c
+fromVar {pt=IntVar}  IntDT  p = p
+fromVar {pt=RealVar} RealDT p = p
+fromVar {pt=BoolVar} BoolDT p = p

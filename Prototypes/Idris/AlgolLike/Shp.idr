@@ -6,40 +6,34 @@ import DataType
 
 -- Constructor de morfismo entre dos objetos con forma.
 infixr 10 >>>
--- Pegar por delante para objetos con forma.
-infixr 10 :~
 -- Pegar por detras para objetos con forma.
 infixr 10 ~:
 -- Concatenar objetos con forma.
-infixr 10 ++
+infixl 8 ++
 -- Concatenar shapes.
-infixr 10 <++>
+infixl 8 <++>
 
 -- Representa la forma del estado de la parte imperativa.
-data Shp = ShpUnit | (:~) DataType Shp
+data Shp = ShpUnit | (~:) Shp DataType
 
 instance Eq Shp where
     ShpUnit == ShpUnit = True
-    (dt:~c) == (dt':~c') = dt == dt' && c == c'
+    (c~:dt) == (c'~:dt') = dt == dt' && c == c'
     _ == _ = False
 
 -- Transformación de un objeto con forma a la representación
 -- de un conjunto de estados con esa forma.
-shapes : Shp -> Set
+shapes : Shp -> Type
 shapes ShpUnit = ()
-shapes (d:~s) = (evalDTy d,shapes s)
+shapes (c~:dt) = (shapes c,evalDTy dt)
 
 -- Concatena objetos con forma.
 (++) : Shp -> Shp -> Shp
-ShpUnit ++ C' = C'
-(dt:~s) ++ C' = dt :~ (s ++ C')
-
--- Pegar por dentras.
-(~:) : Shp -> DataType -> Shp
-C ~: dt = C ++ (dt :~ ShpUnit)
+C' ++ ShpUnit = C'
+C' ++ (c ~: dt) = (C' ++ c) ~: dt
 
 -- Establece la igualdad cuando pegamos por delante a objetos con forma.
-cong : (C:Shp) -> (C':Shp) -> (C=C') -> (dt :~ C = dt :~ C')
+cong : (C:Shp) -> (C':Shp) -> (C=C') -> (C ~: dt = C' ~: dt)
 cong c c refl = refl
 
 -- Propiedad de simetria para los objetos con forma.
@@ -53,53 +47,52 @@ trans : {C : Shp} -> {C' : Shp} -> {C'' : Shp} -> C = C' -> C' = C'' -> C = C''
 trans refl refl = refl
 
 assocL : (C : Shp) -> (C' : Shp) -> (C'' : Shp) -> C ++ (C' ++ C'') = (C ++ C') ++ C''
-assocL ShpUnit c' c'' = refl
-assocL (dt :~ c) c' c'' = cong (c++(c'++c'')) ((c++c')++c'') (assocL c c' c'')
+assocL c c' ShpUnit = refl
+assocL c c' (c'' ~: dt) = cong (c++(c'++c'')) ((c++c')++c'') (assocL c c' c'')
 
 assocR : (C : Shp) -> (C' : Shp) -> (C'' : Shp) -> (C ++ C') ++ C'' = C ++ (C' ++ C'')
-assocR ShpUnit c' c'' = refl
-assocR (dt :~ c) c' c'' = cong ((c++c')++c'') (c++(c'++c'')) (assocR c c' c'')
+assocR c c' ShpUnit = refl
+assocR c c' (c'' ~: dt) = cong ((c++c')++c'') (c++(c'++c'')) (assocR c c' c'')
 
 -- Propiedad de neutro a derecha.
 neutDShp : (C:Shp) -> C = (C ++ ShpUnit)
 neutDShp ShpUnit = refl
-neutDShp (dt :~ C) = cong C (C ++ ShpUnit) (neutDShp C)
+neutDShp (c ~: dt) = cong c (c ++ ShpUnit) (neutDShp c)
 
 -- Propiedad de neutro a izquierda.
 neutLShp : (C:Shp) -> (C ++ ShpUnit) = C
 neutLShp ShpUnit = refl
-neutLShp (dt :~ C) = cong (C ++ ShpUnit) C (neutLShp C)
+neutLShp (c ~: dt) = cong (c ++ ShpUnit) c (neutLShp c)
 
 -- Toma el tramo inicial con forma C, de un estado con forma C++C'
 head : (C : Shp) -> (C' : Shp) -> shapes (C ++ C') -> shapes C
-head ShpUnit c' shp = ()
-head (dt :~ c) c' (d',s) = (d' , head c c' s)
+head c ShpUnit shp = shp
+head c (c' ~: dt) (s,d') = head c c' s
 
 -- Toma el tramo final con forma C', de un estado con forma C++C'
 tail : (C : Shp) -> (C' : Shp) -> shapes (C ++ C') -> shapes C'
-tail ShpUnit c' shp = shp
-tail (dt :~ c) c' (d',s)  = tail c c' s
+tail c ShpUnit shp = ()
+tail c (c' ~: dt) (s,d')  = (tail c c' s,d')
 
 -- Toma el ultimo elemento de tipo Dt del estado con forma C.
 last : (C : Shp) -> (Dt:DataType) -> shapes C -> evalDTy Dt
-last (dt :~ ShpUnit) dt (v,()) = v
-last (dt' :~ c) dt (v,s) = last c dt s
+last (c ~: dt) dt (s,v) = v
 
 -- Concatena shapes.
 (<++>) : {C:Shp} -> {C' : Shp} -> shapes C -> shapes C' -> shapes (C ++ C')
-(<++>) {C=ShpUnit} () s' = s'
-(<++>) {C=dt:~c} (d,s) s' = (d,s <++> s')
+(<++>) {C'=ShpUnit} s _ = s
+(<++>) {C'=c~:dt} s (s',d) = (s <++> s',d)
 
 -- Agrega un valor por detras al estado.
 prependShp : {c:Shp} -> {dt:DataType} -> 
             shapes c -> evalDTy dt -> shapes (c ~: dt)
-prependShp s i = s <++> (i,())
+prependShp s z = (s,z)
 
-eqShape : Shp -> Shp -> Shp -> Set
+eqShape : Shp -> Shp -> Shp -> Type
 eqShape c c' c'' = c' = c ++ c''
 
 -- Representa un morfismo entre dos objetos con forma.
-data (<=) : Shp -> Shp -> Set where 
+data (<=) : Shp -> Shp -> Type where 
         morp : {C:Shp} -> {C':Shp} -> 
                ( shapes C' -> shapes C
                , (shapes C -> shapes C) -> (shapes C' -> shapes C')

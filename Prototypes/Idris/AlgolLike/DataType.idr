@@ -16,7 +16,7 @@ instance Eq DataType where
     [[Real]] = \R
     [[Bool]] = {true,false}
 -}
-evalDTy : DataType -> Set
+evalDTy : DataType -> Type
 evalDTy IntDT  = Int
 evalDTy RealDT = Float
 evalDTy BoolDT = Bool

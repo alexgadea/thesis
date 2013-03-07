@@ -1,7 +1,7 @@
 -- Módulo de ejemplos.
 -- Tercer prototipo de un evaluador de un lenguaje funcional con imperativo
 -- considerando shapes.
-module Eval
+module Examples
 
 import Ctx
 import Shp
@@ -9,60 +9,109 @@ import DataType
 import PhraseType
 import TypeJudgment
 
-idX : Identifier
-idX = Id "x"
+syntax "\\" [x] ":" [pt] "=>" [b] "|" [fx] = Lam x pt fx b
+syntax "rec" [e] =  Rec e
+syntax [e] "@" [e'] = App e e'
 
-idN : Identifier
-idN = Id "n"
+syntax [x] "+" [y]     = BinOp {a=IntDT} {b=IntDT} {d=IntDT} (+) x y
+syntax [x] "-" [y]     = BinOp {a=IntDT} {b=IntDT} {d=IntDT} (-) x y
+syntax [x] "*" [y]     = BinOp {a=IntDT} {b=IntDT} {d=IntDT} (*) x y
+syntax [x] "==" [y]    = BinOp {a=IntDT} {b=IntDT} {d=BoolDT} (==) x y
+syntax [x] ".and." [y] = BinOp {a=BoolDT} {b=BoolDT} {d=BoolDT} (&&) x y
 
-idF : Identifier
-idF = Id "f"
+syntax "if" [b] "then" [e] "else" [e'] = If b e e'
 
-val1 : Phrase ((idX,IntVar) :> CtxUnit) IntExp
-val1 = CInt 1
+syntax "while" [b] "do" [c] = While b c
+syntax "new boolvar" [x] "<::" [vInit] "|" [fx] "in" [comm] = NewVar BoolDT x vInit fx comm
+syntax "new intvar"  [x] "<::" [vInit] "|" [fx] "in" [comm] = NewVar IntDT x vInit fx comm
+syntax "new realvar" [x] "<::" [vInit] "|" [fx] "in" [comm] = NewVar RealDT x vInit fx comm
+syntax [x] ":=b" [v] = Assig BoolDT x v
+syntax [x] ":=i" [v] = Assig IntDT x v
+syntax [x] ":=r" [v] = Assig RealDT x v
+syntax "skip" = Skip
 
-val2 : Phrase CtxUnit IntExp
-val2 = CInt 2
+idI : Identifier
+idI = Id "i"
 
-val3 : Phrase ((idX,IntVar) :> CtxUnit) IntExp
-val3 = CInt 3
+idJ : Identifier
+idJ = Id "j"
 
-valT : Phrase CtxUnit BoolExp
-valT = CBool True
+freshI : Fresh CtxUnit idI
+freshI = FUnit idI
 
-valF : Phrase ((idX,BoolVar) :> CtxUnit) BoolExp
-valF = CBool False
+ctxI : PhraseType -> Ctx
+ctxI pt = Prepend CtxUnit idI pt freshI
 
--- test : Phrase CtxUnit Comm
--- test = NewIntVar {j=idX} (Var idX) val2 Skip
+freshIJ : (pti:PhraseType) -> Fresh (ctxI pti) idJ
+freshIJ pti = FCons idJ pti idI CtxUnit (FUnit idI) oh (FUnit idJ)
 
--- sumOne : Phrase ((idX,IntVar) :> CtxUnit) IntExp
--- sumOne = BinOp IPlus (Subs VarToExp $ Var idX) val1
+ctxIJ : PhraseType -> PhraseType -> Ctx
+ctxIJ pti ptj = Prepend (ctxI pti) idJ ptj (freshIJ pti)
 
-assig : Phrase ((idX,BoolVar) :> CtxUnit) Comm
-assig = Assig (Subs VarToAcc $ I idX) valF
+testIfLam : Phrase CtxUnit (BoolExp :-> IntExp)
+testIfLam = \idI : BoolExp => (if varI then (CInt 1) else (CInt 2)) | freshI
+    where
+        varI : Phrase (ctxI BoolExp) BoolExp
+        varI = I idI (InHead CtxUnit idI BoolExp (FUnit idI))
+        
 
--- evalPhrase while (BoolDT :~ ShpUnit) ((idX,(\x => \s => s,\s => False)),()) (False,())
-while : Phrase ((idX,BoolVar) :> CtxUnit) Comm
-while = While (Subs VarToExp $ I idX) Skip
+id' : Phrase CtxUnit (IntExp :-> IntExp)
+--id' = Lam idI IntExp freshI varI
+id' = \idI : IntExp => varI | freshI 
+    where
+        varI : Phrase (ctxI IntExp) IntExp
+        varI = I idI (InHead CtxUnit idI IntExp (FUnit idI))
 
-while' : Phrase CtxUnit Comm
-while' = While (CBool False) Skip
+add : Phrase CtxUnit (IntExp :-> IntExp :-> IntExp)
+--add = Lam idI IntExp freshI (Lam idJ IntExp freshIJ (BinOp (-) varI varJ))
+add = \idI : IntExp => (\idJ : IntExp => (BinOp {d=IntDT} (+) varI varJ) | (freshIJ IntExp)) | freshI 
+    where
+        varI : Phrase (ctxIJ IntExp IntExp) IntExp
+        varI = I idI (InTail (ctxI IntExp) idI IntExp idJ (freshIJ IntExp) (InHead CtxUnit idI IntExp (FUnit idI)))
+        varJ : Phrase (ctxIJ IntExp IntExp) IntExp
+        varJ = I idJ (InHead (ctxI IntExp) idJ IntExp (freshIJ IntExp))
 
-test2 : Phrase CtxUnit Comm
-test2 = NewBoolVar idX valT while
+ceroPluSone : Phrase CtxUnit IntExp
+ceroPluSone = (add @ (CInt 0)) @ (CInt 1)
 
-test3 : Phrase CtxUnit (BoolExp :-> BoolExp)
-test3 = Lam idX BoolExp (I idX)
+andt : Phrase CtxUnit (BoolExp :-> BoolExp :-> BoolExp)
+andt = \idI : BoolExp => (\idJ : BoolExp => varI .and. varJ | (freshIJ BoolExp)) | freshI 
+    where
+        varI : Phrase (ctxIJ BoolExp BoolExp) BoolExp
+        varI = I idI (InTail (ctxI BoolExp) idI BoolExp idJ (freshIJ BoolExp) (InHead CtxUnit idI BoolExp (FUnit idI)))
+        varJ : Phrase (ctxIJ BoolExp BoolExp) BoolExp
+        varJ = I idJ (InHead (ctxI BoolExp) idJ BoolExp (freshIJ BoolExp))
 
-test4 : Phrase CtxUnit BoolExp
-test4 = App test3 (CBool True)
+trueAnDfalse : Phrase CtxUnit BoolExp
+trueAnDfalse = (andt@(CBool True))@(CBool False)
 
 recFact : Phrase CtxUnit (IntExp :-> IntExp)
-recFact = Rec (Lam idF (IntExp:->IntExp) 
-                (Lam idN IntExp (If (BinOp Equal (CInt 0) (I idN))
-                                    (CInt 1) 
-                                    (BinOp ITimes (I idN) (I idF))
-                                )
-                )
+recFact = rec (\idI : IntExp :-> IntExp => 
+                    (\idJ : IntExp => if (CInt 0) == varJ
+                                        then CInt 1
+                                        else varJ * (varI @ (varJ - (CInt 1)))
+                    | (freshIJ intint)) 
+                    | freshI
               )
+    where
+        intint : PhraseType
+        intint = IntExp :-> IntExp
+        varI : Phrase (ctxIJ intint IntExp) (IntExp :-> IntExp)
+        varI = I idI (InTail (ctxI intint) idI IntExp idJ (freshIJ intint) (InHead CtxUnit idI intint (FUnit idI)))
+        varJ : Phrase (ctxIJ intint IntExp) IntExp
+        varJ = I idJ (InHead (ctxI intint) idJ IntExp (freshIJ intint))
+
+testLamWhile : Phrase CtxUnit (BoolExp :-> Comm)
+testLamWhile = \idI : BoolExp => (while varI do skip) | freshI
+    where
+        varI : Phrase (ctxI BoolExp) BoolExp
+        varI = I idI (InHead CtxUnit idI BoolExp (FUnit idI))
+
+testwhile: Phrase CtxUnit Comm
+testwhile = new boolvar idI <:: (CBool True) | freshI in
+                (while (Subs VarToExp varI) do 
+                    ((Subs VarToAcc varI) :=b (CBool False)) 
+                )
+    where
+        varI : Phrase (ctxI BoolVar) BoolVar
+        varI = I idI (InHead CtxUnit idI BoolVar (FUnit idI))

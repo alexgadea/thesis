@@ -10,40 +10,8 @@ import PhraseType
 fix : (a -> a) -> a
 fix f = f (fix f)
 
--- Representa los nombres de operadores binarios.
-data BOp : PhraseType -> PhraseType -> PhraseType -> Set where
-    IPlus  : BOp IntExp IntExp IntExp
-    ISubs  : BOp IntExp IntExp IntExp
-    ITimes : BOp IntExp IntExp IntExp
-    
-    RPlus  : BOp RealExp RealExp RealExp
-    RSubs  : BOp RealExp RealExp RealExp
-    RTimes : BOp RealExp RealExp RealExp
-    
-    Div    : BOp IntExp IntExp IntExp
-    Rem    : BOp IntExp IntExp IntExp
-    RDiv   : BOp RealExp RealExp RealExp
-    
-    Equal  : {a:PhraseType} -> BOp a a BoolExp
-    NEqual : {a:PhraseType} -> BOp a a BoolExp
-    Lt     : BOp RealExp RealExp BoolExp
-    LtEq   : BOp RealExp RealExp BoolExp
-    Gt     : BOp RealExp RealExp BoolExp
-    GtEq   : BOp RealExp RealExp BoolExp
-    
-    And    : BOp BoolExp BoolExp BoolExp
-    Or     : BOp BoolExp BoolExp BoolExp
-    Impl   : BOp BoolExp BoolExp BoolExp
-    Iff    : BOp BoolExp BoolExp BoolExp
-    
--- Representa los nombres de operadores unarios.
-data UOp : PhraseType -> PhraseType -> Set where
-    RNeg : UOp RealExp RealExp
-    INeg : UOp IntExp IntExp
-    Not  : UOp BoolExp BoolExp
-
 -- Representa el jucio de tipado para el subtipado.
-data (<~) : PhraseType -> PhraseType -> Set where
+data (<~) : PhraseType -> PhraseType -> Type where
     VarToAcc : BoolVar <~ BoolAcc
     VarToExp : BoolVar <~ BoolExp
     
@@ -53,43 +21,50 @@ data (<~) : PhraseType -> PhraseType -> Set where
     Reflx : (t:PhraseType) -> t <~ t
     Trans : {t:PhraseType} -> {t':PhraseType} -> {t'':PhraseType} -> 
             t <~ t' -> t' <~ t'' -> t <~ t''
-            
+    
     SubsFun : {t0:PhraseType} -> {t0':PhraseType} -> 
               {t1:PhraseType} -> {t1':PhraseType} -> 
               t0 <~ t0' -> t1 <~ t1' -> (t0' :-> t1) <~ (t0 :-> t1')
 
 -- Definimos la semántica para los juicios de subtipado del lenguaje.
--- evalLeq : t <~ t' -> (C:Shp) -> evalTyO t C -> evalTyO t' C
--- evalLeq VarToAcc c (a,e)    = a
--- evalLeq VarToExp c (a,e)    = e
--- evalLeq IntExpToRealExp c f = prim__intToFloat . f
--- evalLeq {t'=t} (Reflx t) c f = f
--- evalLeq (Trans leq leq') c f = evalLeq leq' c $ evalLeq leq c f
--- evalLeq (SubsFun leq leq') c f = \c' => evalLeq leq' (c ++ c') . (f c') . evalLeq leq (c ++ c')
+evalLeq : t <~ t' -> (C:Shp) -> evalTyO t C -> evalTyO t' C
+evalLeq VarToAcc c (a,e)    = a
+evalLeq VarToExp c (a,e)    = e
+evalLeq IntExpToRealExp c f = prim__intToFloat . f
+evalLeq {t'=t} (Reflx t) c f = f
+evalLeq (Trans leq leq') c f = evalLeq leq' c $ evalLeq leq c f
+evalLeq (SubsFun leq leq') c f = \c' => evalLeq leq' (c ++ c') . (f c') . evalLeq leq (c ++ c')
 
 -- Representa las frases del lenguaje.
 using (Pi:Ctx,Theta:PhraseType,Theta':PhraseType)
-    data Phrase : Ctx -> PhraseType -> Set where
-        Skip      : Phrase Pi Comm
-        Seq       : Phrase Pi Comm -> Phrase Pi Comm -> Phrase Pi Comm
-        While     : Phrase Pi BoolExp -> Phrase Pi Comm -> Phrase Pi Comm
-        If        : Phrase Pi BoolExp -> Phrase Pi Theta -> Phrase Pi Theta -> 
-                    Phrase Pi Theta
+    data Phrase : Ctx -> PhraseType -> Type where
+        Skip    : Phrase Pi Comm
+        Seq     : Phrase Pi Comm -> Phrase Pi Comm -> Phrase Pi Comm
+        While   : Phrase Pi BoolExp -> Phrase Pi Comm -> Phrase Pi Comm
+        If      : {pt :PhraseType} -> Phrase Pi BoolExp -> 
+                  Phrase Pi pt -> Phrase Pi pt -> Phrase Pi pt
         
-        I         : Identifier -> Phrase Pi Theta
-        Assig     : Phrase Pi BoolAcc -> Phrase Pi BoolExp -> Phrase Pi Comm
-        NewBoolVar : (j:Identifier) -> Phrase Pi BoolExp -> 
-                     Phrase (Pi<:(j,BoolVar)) Comm -> Phrase Pi Comm
+        I       : (i:Identifier) -> InCtx Pi i -> Phrase Pi Theta
+        Assig   : (d:DataType) -> Phrase Pi (dtTOacc d) -> 
+                  Phrase Pi (dtTOexp d) -> Phrase Pi Comm
+        NewVar : (d:DataType) -> (i:Identifier) -> Phrase Pi (dtTOexp d) -> 
+                 (fi:Fresh Pi i) -> Phrase (Prepend Pi i (dtTOvar d) fi) Comm -> 
+                 Phrase Pi Comm
         
         CInt    : Int   -> Phrase Pi IntExp
         CFloat  : Float -> Phrase Pi RealExp
         CBool   : Bool  -> Phrase Pi BoolExp
         
-        BinOp : BOp a b c -> Phrase Pi a -> Phrase Pi b -> Phrase Pi c
-        UnOp  : UOp a b -> Phrase Pi a -> Phrase Pi b
+        BinOp : {a : DataType} -> {b : DataType} -> {d : DataType} -> 
+                (evalDTy a -> evalDTy b -> evalDTy d) -> 
+                Phrase Pi (dtTOexp a) -> Phrase Pi (dtTOexp b) -> Phrase Pi (dtTOexp d)
+        UnOp  : {a:DataType} -> {b:DataType} -> 
+                (evalDTy a -> evalDTy b) -> 
+                Phrase Pi (dtTOexp a)  -> Phrase Pi (dtTOexp b) 
 
-        Lam    : (j:Identifier) -> (t:PhraseType) -> 
-                 Phrase (Pi <: (j,t)) Theta' -> Phrase Pi (t :-> Theta')
+        Lam   : (i:Identifier) -> (pt:PhraseType) -> (fi:Fresh Pi i) ->
+                Phrase (Prepend Pi i pt fi) Theta' -> 
+                Phrase Pi (pt :-> Theta')
         App    : Phrase Pi (Theta :-> Theta') -> Phrase Pi Theta -> 
                  Phrase Pi Theta'
         Rec    : Phrase Pi (Theta :-> Theta) -> Phrase Pi Theta
@@ -100,51 +75,94 @@ using (Pi:Ctx,Theta:PhraseType,Theta':PhraseType)
 -- [[\pi |-- e : \theta]]C : [[\pi]]*C -> [[\theta]]]C
 evalPhrase : {Pi:Ctx} -> {Theta:PhraseType} ->
              Phrase Pi Theta -> (C:Shp) -> evalCtxO Pi C -> evalTyO Theta C
---evalPhrase (Subs leq var) c eta = evalLeq leq c (evalPhrase var c eta)
+evalPhrase (Subs leq var) c eta = evalLeq leq c (evalPhrase var c eta)
 -- Semántica para los comandos.
-evalPhrase (Assig a e) c eta = \sigma => ((\x => (evalPhrase a c eta) x sigma) (evalPhrase e c eta sigma))
+evalPhrase (Assig d a e) c eta = \sigma => (\x => evalAcc x sigma) (evalExp sigma)
+    where
+        evalAcc : evalDTy d -> shapes c -> shapes c
+        evalAcc = toAcc d $ evalPhrase a c eta
+        evalExp : shapes c -> evalDTy d
+        evalExp = toExp d $ evalPhrase e c eta
 evalPhrase Skip c eta = \sigma => sigma
 evalPhrase (Seq comm comm') c eta = \sigma => evalPhrase comm' c eta (evalPhrase comm c eta sigma)
 evalPhrase (While b comm) c eta = fix (\f => \sigma => 
                                             if evalPhrase b c eta sigma 
                                                 then f (evalPhrase comm c eta sigma)
                                                 else sigma)
-evalPhrase (I i) c eta = search i eta
+evalPhrase {Pi=p} {Theta=pt} (I i iIn) c eta = search c p i pt iIn eta
 -- Semántica para los valores constantes.
-evalPhrase (CInt i) c eta = \sigma => i
+evalPhrase (CInt i)   c eta = \sigma => i
 evalPhrase (CFloat r) c eta = \sigma => r
-evalPhrase (CBool b) c eta = \sigma => b
---evalPhrase (BinOp IPlus x y) c eta = \sigma => ((evalPhrase x c eta sigma) + (evalPhrase y c eta sigma))
---evalPhrase (UnOp Not x) s eta = \sigma => not (evalPhrase x s eta sigma)
-evalPhrase {Theta=(t :-> t')} {Pi=pi} (Lam i t b) c eta = evalLambda
+evalPhrase (CBool b)  c eta = \sigma => b
+evalPhrase (BinOp {a} {b} {d} op x y) c eta = fromExp d (\sigma => (op (z sigma) (z' sigma)))
+    where z : shapes c -> evalDTy a
+          z = toExp a $ evalPhrase x c eta
+          z' : shapes c -> evalDTy b
+          z' = toExp b $ evalPhrase y c eta
+evalPhrase (UnOp {a} {b} op x) c eta = fromExp b (\sigma => op (z sigma))
     where
-        newLeta : (C':Shp) -> evalTyO t (c ++ C') -> evalCtxO (pi <: (i,t)) (c ++ C')
-        newLeta c' z = prependCtx t (liftEta' c c' pi eta) i z
-        evalLambda : (C':Shp) -> evalTyO t (c ++ C') -> evalTyO t' (c ++ C')
+        z : shapes c -> evalDTy a
+        z = toExp a $ evalPhrase x c eta
+evalPhrase {Theta=(pt :-> t')} {Pi=p} (Lam i pt fi b) c eta = evalLambda
+    where
+        newLeta : (C':Shp) -> evalTyO pt (c ++ C') -> evalCtxO (Prepend p i pt fi) (c ++ C')
+        newLeta c' z = update (c++c') p (liftEta' c c' p eta) i pt z fi
+        
+        evalLambda : (C':Shp) -> evalTyO pt (c ++ C') -> evalTyO t' (c ++ C')
         evalLambda c' z = evalPhrase b (c++c') (newLeta c' z)
-
 evalPhrase (App e e') c eta = convR $ (evalPhrase e c eta ShpUnit) (convL $ evalPhrase e' c eta)
 evalPhrase (Rec e) c eta = fix $ convR . (evalPhrase e c eta ShpUnit) . convL
-evalPhrase {Theta=Comm} (If b e e') c eta = \sigma => 
-                                            if evalPhrase b c eta sigma 
-                                                then evalPhrase e c eta sigma 
-                                                else evalPhrase e' c eta sigma
-evalPhrase {Pi=pi} (NewBoolVar i vInit comm) c eta = 
-        \sigma => head c intdt (evalComm (prependShp sigma (evalInit sigma)))
+evalPhrase {Theta=pt} (If {pt} b e e') c eta =
+            case pt of
+                --lpt :-> rpt => makeFun c (lpt :-> rpt)
+                Comm        => makeComm Comm
+                IntExp      => makeExp IntDT
+                RealExp     => makeExp RealDT
+                BoolExp     => makeExp BoolDT
+                IntAcc      => makeAcc IntDT
+                RealAcc     => makeAcc RealDT
+                BoolAcc     => makeAcc BoolDT
     where
-        intdt : Shp
-        intdt = BoolDT :~ ShpUnit
+        makeComm : (pt:PhraseType) -> evalTyO pt c
+        makeComm Comm = \sigma => if evalPhrase b c eta sigma
+                                    then toComm (evalPhrase e c eta) sigma
+                                    else toComm (evalPhrase e' c eta) sigma
+        makeAcc : DataType -> evalTyO pt c
+        makeAcc dt = fromAcc dt (\z => \sigma => if evalPhrase b c eta sigma
+                                                    then toAcc dt (evalPhrase e c eta) z sigma
+                                                    else toAcc dt (evalPhrase e' c eta) z sigma)
+        makeExp : DataType -> evalTyO pt c
+        makeExp dt = fromExp dt (\sigma => if evalPhrase b c eta sigma
+                                                then toExp dt (evalPhrase e c eta) sigma
+                                                else toExp dt (evalPhrase e' c eta) sigma)
         
-        a : evalTyO BoolAcc (c ~: BoolDT)
-        a = \x => \sigma' => prependShp (head c intdt sigma') x
-        e : evalTyO BoolExp (c ~: BoolDT)
-        e = last (c ~: BoolDT) BoolDT
+--         makeFun : {cc:Shp} -> (fpt:PhraseType) -> evalTyO fpt cc
+--         makeFun (lpt :-> Comm) = \c' => \z => 
+--                                  (\sigma => if evalPhrase b c eta sigma
+--                                                 then toComm (evalPhrase e c eta c' z) sigma
+--                                                 else toComm (evalPhrase e' c eta c' z) sigma)
+--         makeFun cc (lpt :-> RealExp) = \c' => makeExp (cc++c') (ptToDt lpt)
+--         makeFun cc (lpt :-> BoolExp) = \c' => makeExp (cc++c') (ptToDt lpt)
+--         makeFun cc (lpt :-> rpt) = (\c' => \sigma => makeFun (c++c') rpt)
+evalPhrase {Pi=p} (NewVar d i vInit fi comm) c eta = 
+        \sigma => head c shpDT (evalComm (prependShp {dt=d} sigma (evalInit sigma)))
+    where
+        shpDT : Shp
+        shpDT = ShpUnit ~: d
         
-        evalInit : evalTyO BoolExp c
-        evalInit sigma = evalPhrase vInit c eta sigma
+        a : evalDTy d -> shapes (c ~: d) -> shapes (c ~: d)
+        a = \x => \sigma' => prependShp (head c shpDT sigma') x
+        e : shapes (c ~: d) -> evalDTy d
+        e = last (c ~: d) d
         
-        newAeta : {j:Identifier} -> evalCtxO (pi <: (j,BoolVar)) (c ~: BoolDT)
-        newAeta {j=i} = prependCtx BoolVar (liftEta c BoolDT pi eta) i (a,e)
-        evalComm : evalTyO Comm (c ~: BoolDT)
-        evalComm = evalPhrase comm (c ~: BoolDT) newAeta
-
+        evalInit : shapes c -> evalDTy d
+        evalInit = toExp d $ evalPhrase vInit c eta
+        
+        zvar : evalTyO (dtTOvar d) (c ~: d)
+        zvar = fromVar d (a,e)
+        
+        newAeta : evalCtxO (Prepend p i (dtTOvar d) fi) (c ~: d)
+        newAeta = update (c ~: d) p (liftEta c d p eta) i (dtTOvar d) zvar fi
+        
+        evalComm : evalTyO Comm (c ~: d)
+        evalComm = evalPhrase comm (c ~: d) newAeta

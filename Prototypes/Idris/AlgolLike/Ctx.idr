@@ -4,66 +4,59 @@ module Ctx
 import Shp
 import PhraseType
 
--- Pegar por delante para contextos
-infixr 10 :>
--- Pegar por detras para contextos
-infixr 10 <:
--- Concatenar contextos.
-infixr 10 :++:
--- Concatenar contextos semánticos.
-infixr 10 <:++:>
+-- ################## Versión sintácticas ##################
+mutual
+    -- Representación de un contexto sintáctico.
+    data Ctx : Type where
+        CtxUnit : Ctx
+        Prepend : (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) -> 
+                  Fresh p i -> Ctx
+    -- Representa si un identificador es fresco para un contexto.
+    data Fresh : Ctx -> Identifier -> Type where
+        FUnit : (i:Identifier) -> Fresh CtxUnit i
+        FCons : (i:Identifier) -> (pt':PhraseType) -> (i':Identifier) -> 
+                (p:Ctx) -> (fi':Fresh p i') -> so (i/=i') -> (Fresh p i) -> 
+                Fresh (Prepend p i' pt' fi') i
 
--- Representa los contextos de los juicios de tipado del lenguaje.
-data Ctx = CtxUnit | (:>) (Identifier,PhraseType) Ctx
+-- Representa la pertenencia de un identificador en un contexto.
+data InCtx : Ctx -> Identifier -> Type where
+    InHead : (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) -> 
+             (fi:Fresh p i) -> InCtx (Prepend p i pt fi) i
+    InTail : (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) -> 
+             (j:Identifier) -> (fj:Fresh p j) -> 
+             InCtx p i -> InCtx (Prepend p j pt fj) i
 
--- Concatena contextos.
-(:++:) : Ctx -> Ctx -> Ctx
-(:++:) CtxUnit ctx' = ctx'
-(:++:) (e:>ctx) ctx' = e:> (ctx :++:ctx')
-
--- Pegar por detras
-(<:) : Ctx -> (Identifier,PhraseType) -> Ctx
-ctx <: e = ctx :++: (e:>CtxUnit)
+-- ################## Versión semánticas ##################
 
 -- Semántica de un contexto en un objeto con forma.
-evalCtxO : Ctx -> Shp -> Set
+-- Representación de un contexto semántico.
+evalCtxO : Ctx -> Shp -> Type
 evalCtxO CtxUnit C = ()
-evalCtxO ((i,t):>ctxs) C = ((Identifier,evalTyO t C), evalCtxO ctxs C)
+evalCtxO (Prepend p _ pt _) C = (evalCtxO p C, evalTyO pt C)
 
 -- Semántica de un contexto aplicado a morfismos entre objetos.
 evalCtxM : {C:Shp} -> {C':Shp} -> 
-           (ctx:Ctx) -> C <= C' -> evalCtxO ctx C -> evalCtxO ctx C'
-evalCtxM CtxUnit m () = ()
-evalCtxM ((i,t):>ctx') m ((i,etai),eta) = ((i,evalTyM t m etai),evalCtxM ctx' m eta)
+           (p:Ctx) -> C <= C' -> evalCtxO p C -> evalCtxO p C'
+evalCtxM CtxUnit m _ = ()
+evalCtxM (Prepend p i pt _) m (eta,etai) = (evalCtxM p m eta, evalTyM pt m etai)
 
 -- Transforma un environment con forma C, en uno con forma C ~: Dt
-liftEta : (C:Shp) -> (Dt:DataType) -> (Pi:Ctx) -> evalCtxO Pi C -> 
-          evalCtxO Pi (C ~: Dt)
-liftEta c dt p eta = evalCtxM p (c >>> (dt :~ ShpUnit)) eta
+liftEta : (c:Shp) -> (dt:DataType) -> (p:Ctx) -> 
+          evalCtxO p c -> evalCtxO p (c ~: dt)
+liftEta c dt p eta = evalCtxM p (c >>> (ShpUnit ~: dt)) eta
 
 -- Transforma un environment con forma C, en uno con forma C++C'
-liftEta' : (C:Shp) -> (C':Shp) -> (Pi:Ctx) -> evalCtxO Pi C -> 
-           evalCtxO Pi (C ++ C')
+liftEta' : (c:Shp) -> (c':Shp) -> (p:Ctx) -> evalCtxO p c -> 
+           evalCtxO p (c ++ c')
 liftEta' c c' p eta = evalCtxM p (c >>> c') eta
 
--- Concatenar environments.
-(<:++:>) : {Pi:Ctx} -> {Pi':Ctx} -> {C:Shp} -> 
-           evalCtxO Pi C -> evalCtxO Pi' C -> evalCtxO (Pi :++: Pi') C
-(<:++:>) {Pi=CtxUnit} () p' = p'
-(<:++:>) {Pi=(i,pt):>pi} (e,p) p' = (e, p <:++:> p')
+-- Buscar el valor de un identificador en un contexto semántico.
+search : (c:Shp) -> (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) ->
+         InCtx p i -> evalCtxO p c -> evalTyO pt c
+search _ (Prepend _ i pt _) i pt (InHead _ i pt fi) (eta,v) = v
+search c (Prepend ctx j pt _) i pt (InTail _ _ pt j _ inc) (eta,_) = search c ctx i pt inc eta
 
--- Buscar un valor en un environment en base a un identificador.
-search : {Pi:Ctx} -> {C:Shp} -> {Theta:PhraseType} -> 
-         Identifier -> evalCtxO Pi C -> evalTyO Theta C
-search {Pi=(a,t):>ctxs} {Theta=t} i' ((i,e),etas) = search' e i' etas
-    where
-        search' : {Pi:Ctx} -> {C:Shp} -> {Theta:PhraseType} -> 
-                  evalTyO Theta C -> Identifier -> evalCtxO Pi C -> evalTyO Theta C
-        search' {Pi=CtxUnit} {Theta=t} e' i' () = e'
-        search' {Pi=(a,t):>ctxs} {Theta=t} e' i' ((i,e),etas) = 
-                    if i == i' then search' e i' etas else search' e' i' etas
-        
--- Agregar un valor por detras al environment.
-prependCtx : {C:Shp} -> {Pi:Ctx} -> (pt:PhraseType) -> 
-            evalCtxO Pi C -> (i:Identifier) -> evalTyO pt C -> evalCtxO (Pi <: (i,pt)) C
-prependCtx pt eta j z = eta <:++:> ((j,z),())
+-- Actualizar el valor de un identificador.
+update : (c:Shp) -> (p:Ctx) -> evalCtxO p c -> (i:Identifier) -> 
+         (pt:PhraseType) -> evalTyO pt c -> (fi:Fresh p i) -> evalCtxO (Prepend p i pt fi) c
+update _ p eta i pt z fi = (eta,z)
