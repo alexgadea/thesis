@@ -5,30 +5,30 @@ Como lo sugiere el titulo de la tesis, esta tratara sobre el estudio
 de las sem\'anticas para el lenguaje Forsythe propuesto por John C. Reynolds
 (ref ac\'a). B\'asicamente cuando hablamos de estudiar las sem\'anticas del 
 lenguaje a lo que nos referimos es, dada la sintaxis definida por Reynolds
-queremos intepretar las frases o palabras que se forman en base a esta.\
+queremos interpretar las palabras que se forman en base a esta. Para interpretar
+las palabras vamos necesitar un modelo matem\'atico de manera de que
+cada palabra del lenguaje se corresponda con un elemento de este modelo, 
+en general vamos a hacer uso de dos modelos, el categ\'orico y el conjuntista.
 
-En las siguientes secciones vamos a introducir algunos conceptos b\'asicos
-sobre el lenguaje y relacionados.
+Para llegar a definir la sem\'antica de Forsythe vamos a definir tres lenguajes
+mas simples, empezando con un lenguaje funcional con tipado simple el cual 
+llamaremos Lambda arrow, luego extenderemos \'unicamente el sistema de tipos para 
+que soporte ahora subtipado, este se llamara Lambda leq y finalmente extenderemos 
+el lenguaje y los tipos con el fin de obtener un lenguaje funcional e imperativo 
+cuyo nombre sera Algol-like, este ultimo ya bastante cercano a Forsythe. 
 
-\section{Forsythe}
-Est\'e es un lenguaje Algol-like \'el cual Reynolds pretende, segun menciona 
-en (ref ac\'a), sea lo mas uniforme y general posible. El lenguaje es tipado,
-incluyendo subtipos e intersección, su paradigma ademas es imperativo y 
-funcional y forma de evaluaci\'on normal.
+Por otro lado ademas de las definiciones teoricas de los lenguajes, vamos a 
+implementar los evaluadores correspondientes para cada uno, para esto nos va a 
+hacer falta usar un lenguaje de programación con soporte para tipos dependientes.
 
-\section{Tipado}
-Se podr\'ia decir que programar en un cierto lenguaje termina estando intimamente
-relacionado con quitar comportamientos no deseados, esta tarea no siempre es
-sencilla ya que para eliminar estos comportamientos uno primero debe ubicar la
-fuente que lo produce. Aqu\'i es donde el tipado juega un rol importante ya que
-en la etapa de compilaci\'on de nuetro programa el tipado nos ayuda a detectar
-errores de codificaci\'on de manera temprana.
+El segundo cap\'itulo de la tesis va a incluir la definici\'on de los lenguajes
+lambda arrow y lambda leq, esto ser\'a presentar la sint\'axis y las ecuaciones
+sem\'anticas, ademas vamos a introducir todos los conceptos relacionados al 
+sistemas de tipo simple y con subtipado.
 
-\section{Sem\'antica denotacional}
-Antes mencionamos vagamente la interpretaci\'on de frases sintacticamente 
-correctas, veamos de manera un poco mas precisa a que nos referimos. 
-La manera de dar sem\'antica que vamos a utilizar en general va a ser 
-denotacional, esta b\'asicamente nos define ecuaciones de manera de que
-elementos sintacticos se correspondan con elementos sem\'anticos, algo que
-surge es entonces es definir la correcta colecci\'on de elementos sem\'anticos,
-con el fin de poder dar a cada elemento sintactico al menos un elementos sem\'antico.
+El tercer cap\'itulo tratar\'a sobre el lenguaje Algol-like, como en el segundo
+cap\'itulo, vamos a presentar la sint\'axis y las ecuaciones sem\'anticas, ademas
+con la base de tipos del cap\'itulo anterior vamos a actualizar la sint\'axis y
+sem\'antica de estos tipos.
+
+¿El cuarto trata de Forsythe?

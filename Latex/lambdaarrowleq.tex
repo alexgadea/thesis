@@ -1,0 +1,762 @@
+\chapter{Lambda arrow ($\lambdaarrow$) y Lambda leq ($\lambdaleq$)}
+\label{chap:lambdaarrow}
+
+En este cap\'itulo presentamos dos lenguajes, el primer lenguaje, es un
+lenguaje funcional con tipado explicito simple. La idea de comenzar con 
+este lenguaje, \'el cual ya tiene sem\'antica bien conocida, es introducir
+conceptos principales sobre los sistemas de tipado simple, as\'i
+como de la sem\'antica denot\'acional del lenguaje, ademas es lo 
+suficientemente simple como para no eclipsar el aprendizaje de 
+conceptos sobre la implementaci\'on utilizando tipos dependientes.
+El segundo lenguaje mantiene las mismas expresiones que el primero
+pero vamos a extender los tipos para que soporten subtipado.\\
+
+El c\'apitulo va a estar separado en dos secciones, implementaci\'on 
+de lambda arrow e implementaci\'on de lambda leq. A su vez, en cada
+una estar\'an las definiciones sint\'acticas, sem\'anticas y de tipos
+relacionadas a cada lenguaje.
+
+\section{Lambda arrow}
+
+\subsection{Sint\'axis}
+
+En esta secci\'on vamos a introducir la sint\'axis de dos lenguajes, 
+la de $\lambdaarrow$ y la del lenguaje de los tipos.
+Con este ultimo vamos a querer representar los conjuntos de booleanos, enteros
+y reales, ademas del conjunto de funciones que tiene como dominio
+e imagen a cualquiera de los conjuntos anteriores.
+
+Empezamos introduciendo la sint\'axis abstracta de los tipos simples.
+
+\setlength{\grammarindent}{6em}
+\begin{grammar}
+
+<Type> ::= $\boolt$ | $\intt$ | $\realt$
+\alt <Type> $\rightarrow$ <Type>
+
+\end{grammar}
+
+Como mencion\'abamos antes, $\boolt$, $\intt$ y $\realt$ representaran 
+los conjuntos de booleanos, enteros y reales respectivamente, y el
+$\theta \rightarrow \theta'$ sera la representaci\'on del conjunto
+de funciones que acepta valores de tipo $\theta$ y retorna valores
+de tipo $\theta'$. Hay que mencionar que $\rightarrow$ asocia a derecha.\\
+
+Ahora que tenemos el lenguaje de los tipos podemos dar la sint\'axis
+abstracta del lenguaje.
+
+\setlength{\grammarindent}{6em}
+\begin{grammar}
+
+<Phrase> ::= <PBool> | <PInt> | <PReal>
+\alt $\odot$ <Phrase> | <Phrase> $\otimes$ <Phrase>
+\alt \textbf{if} <Phrase> \textbf{then} <Phrase> \textbf{else} <Phrase>
+\alt <Id> 
+\alt <Phrase> <Phrase>
+\alt $\lambda$ <Id>$_\theta$ . <Phrase>
+\alt \textbf{rec} <Phrase>
+
+<Id>    ::= Pensar cuales quiero.
+
+<PBool> ::= True | False
+
+<PNat>  ::= 0 | 1 | 2 | ...
+
+<PInt>  ::= ... | -2 | -1 | <PNat> 
+
+<PReal> ::= <PNat>.\{<PNat>\}+ 
+\alt - <PNat>.\{<PNat>\}+
+
+\end{grammar}
+
+\noindent
+donde \ 
+
+$\theta \in \lrangles{Type}$ \
+
+$\odot \in \{-, \neg\}$ y \
+
+$\otimes \in \{+,-,*,/,\div,\rem,\wedge,\vee,\Rightarrow,\Leftrightarrow, =,\neq,<,>,\leq,\geq\}$
+
+\subsection{Tipos simples}
+
+Antes de continuar con la sem\'antica del lenguaje del c\'apitulo
+vamos a introducir contextos, juicio de tipado, reglas de inferencia de tipos y
+sem\'antica de los tipos.\\
+
+Un contexto ser\'a una lista de pares que relacionan un identificador 
+con un tipo, con la restricci\'on de que no pueden
+existir identificadores repetidos. En particular, para
+definir los contextos usamos una gram\'atica, esta elecci\'on 
+nos va a permitir tener una versi\'on sint\'actica de los contextos
+y ademas una sem\'antica la cual, un poco mas adelante, vamos a
+necesitar para definir la sem\'antica del lenguaje.
+
+\begin{definition}\label{lambdaa:context}
+
+Un contexto estar\'a definido por la siguiente gram\'atica,\
+
+\begin{grammar}
+
+<Context> ::= $\varnothing$ | <Context>,<Id>:<Type>
+
+\end{grammar}
+
+\end{definition}
+
+Ahora que tenemos definido los contextos, podemos definir que es un juicio de 
+tipado. 
+
+\begin{definition}\label{lambdaa:typejugment}
+
+Un juicio de tipado sera una relaci\'on entre un contexto $\pi$, una
+expresi\'on del lenguaje $e$ y un tipo $\theta$ que establecer\'a que
+bajo el contexto $\pi$ la expresi\'on $e$ tiene tipo $\theta$.\\
+
+Lo denotaremos como  $\pi \vdash e : \theta$.
+
+\end{definition}
+
+\subsubsection{Reglas de inferencia}
+
+Antes definimos los contextos como listas de pares y dimos restricciones 
+en el sentido de que no cualquier lista de pares era una contexto valido,
+ahora necesitamos algo parecido para los juicios de tipado, queremos
+una manera de decidir que juicios son validos y cuales no, para esto
+vamos a definir las reglas de inferencia, pero antes establezcamos algunas
+metavariables generales:
+
+\begin{center}
+\begin{tabular}{ l r }
+	$\theta$ $\lrangles{Type}$ & $\pi$ $\lrangles{Context}$ \\
+	$\delta$ $\{ \boolt,\intt,\realt \}$ & \\
+	$e$ $\lrangles{Phrase}$ & $x$ $\lrangles{Id}$ \\
+	$n$, $m$ \ \ $\N$ & $b$ \ \ $\B$ \\
+	$i$ \ \ $\Z$ & $r$ \ \ $\R$ 
+\end{tabular}
+\end{center}
+
+\noindent 
+Ahora s\'i presentamos las reglas de inferencia:
+
+\
+
+\
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Constantes.
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\pi \vdash b : \boolt$}
+\DisplayProof
+\quad
+\AxiomC{}
+\UnaryInfC{$\pi \vdash i : \intt$}
+\DisplayProof
+\quad
+\AxiomC{}
+\UnaryInfC{$\pi \vdash r : \realt$}
+\DisplayProof
+\end{center}
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Operadores b\'asicos.
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \intt$}
+\UnaryInfC{$\pi \vdash -e : \intt$}
+\DisplayProof
+\quad
+\AxiomC{$\pi \vdash e : \realt$}
+\UnaryInfC{$\pi \vdash -e : \realt$}
+\DisplayProof
+\end{center}
+
+\
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \boolt$}
+\UnaryInfC{$\pi \vdash \neg e : \boolt$}
+\DisplayProof
+\end{center}
+
+\
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \intt$}
+\AxiomC{$\pi \vdash e' : \intt$}
+\RightLabel{$\otimes \in \{+,-,*,/\ , \textbf{rem}\}$}
+\BinaryInfC{$\pi \vdash e \otimes e' : \intt$}
+\DisplayProof
+
+\quad
+
+\quad
+
+\AxiomC{$\pi \vdash e : \realt$}
+\AxiomC{$\pi \vdash e' : \realt$}
+\RightLabel{$\otimes \in \{+,-,*\}$}
+\BinaryInfC{$\pi \vdash e \otimes e' : \realt$}
+\DisplayProof
+\end{center}
+
+\
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \boolt$}
+\AxiomC{$\pi \vdash e' : \boolt$}
+\RightLabel{$\otimes \in \{\wedge,\vee,\Rightarrow,\Leftrightarrow\}$}
+\BinaryInfC{$\pi \vdash e \otimes e' : \boolt$}
+\DisplayProof
+\end{center}
+
+\
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \delta$}
+\AxiomC{$\pi \vdash e' : \delta$}
+\RightLabel{$\delta \in \{\intt, \realt \}, \otimes \in \{<,>,\leq,\geq\}$}
+\BinaryInfC{$\pi \vdash e \otimes e' : \boolt$}
+\DisplayProof
+\end{center}
+
+\
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \delta$}
+\AxiomC{$\pi \vdash e' : \delta$}
+\RightLabel{$\otimes \in \{=,\neq\}$}
+\BinaryInfC{$\pi \vdash e \otimes e' : \boolt$}
+\DisplayProof
+\end{center}
+
+Hasta aqu\'i hemos definido las reglas de inferencia para las constantes y
+operadores b\'asicos, algo particular en relaci\'on a estas reglas es que,
+por la clase de expresiones el tipado es implicito, en contraste como veremos
+a continuaci\'on con la regla para la abstracci\'on lambda. Ademas el contexto
+no juega ning\'un papel para determinar la valides de un juicio.\\
+
+Veamos ahora las reglas referentes a la parte del calculo lambda simplemente tipado, 
+ademas de la regla para el tipado de un identificador.
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Aplicaci\'on.
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \theta \rightarrow \theta'$}
+\AxiomC{$\pi \vdash e': \theta$}
+\BinaryInfC{$\pi \vdash ee' : \theta'$}
+\DisplayProof
+\end{center}
+
+\
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Operador de punto fijo.
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \theta \rightarrow \theta$}
+\UnaryInfC{$\pi \vdash \rec{e} : \theta$}
+\DisplayProof
+\end{center}
+
+En la regla de tipado de un identificador se observa como hace falta
+consultar el contexto para determinar el tipo del identificador. Esta
+consulta ayuda a chequear, por supuesto el tipo, pero ademas que el
+identificador no este libre.
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Identificador.
+
+\begin{center}
+\AxiomC{}
+\RightLabel{$v:\theta \in \pi$}
+\UnaryInfC{$\pi \vdash v : \theta$}
+\DisplayProof
+\end{center}
+
+En la regla anterior consult\'abamos el contexto, en la regla para
+la abstracci\'on lambda vamos a agregar un identificador con su respectivo 
+tipo. La abstracci\'on lambda la podr\'iamos haber definido de dos maneras bien distintas,
+con tipado explicito o tipado impl\'icito, la diferencia esta en si especificamos
+el tipo del identificador o no. La elecci\'on final fue utilizar tipado explicito
+ya que no hace falta inferir el tipo del identificador, el cual para este lenguaje
+pequeño puede realizarse utilizando el algoritmo Hindley-Milner pero que es
+extremadamente ineficiente. Ademas como el plan es ir extendiendo este lenguaje,
+para formar nuevos, ya no va a ser cierto que se pueda inferir el tipo de un 
+identificador algoritmicamente.
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Abstracci\'on lambda.
+
+\begin{center}
+\AxiomC{$\pi,\iota:\theta \vdash e : \theta'$}
+\UnaryInfC{$\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'$}
+\DisplayProof
+\end{center}
+
+Para terminar con la reglas de inferencia de este lenguaje tenemos la regla de la
+expresi\'on condicional.
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Expresi\'on condicional.
+
+\begin{center}
+\AxiomC{$\pi \vdash b  : \boolt$}
+\AxiomC{$\pi \vdash e  : \theta$}
+\AxiomC{$\pi \vdash e' : \theta$}
+\TrinaryInfC{$\pi \vdash \cifthenelse{b}{e}{e'} : \theta$}
+\DisplayProof
+\end{center}
+
+\subsubsection{Sem\'antica}
+
+Ahora vamos a definir la sem\'antica de los tipos y los contextos, para esto vamos a
+definir los dominios sem\'anticos usando categor\'ias y las ecuaciones
+sem\'anticas usando sem\'antica denotacional. 
+
+Vamos a necesitar de tres categor\'ias, una sera de los tipos ($\lrangles{Type}$),
+otra de contextos ($\lrangles{Context}$) y una para el significado de los tipos, 
+las dos primeras vamos a definirlas concretamente y la ultima vamos a hacer lo 
+contrario y vamos a dejarla lo mas general posible.
+
+\begin{definition}\label{lambdaa:typescategory}
+La categor\'ia de tipos, que nombraremos $\Theta$, sera una categor\'ia discreta tal que 
+la colecci\'on de objetos esta definida como,
+
+$\Theta_0$ $=$ $\{\theta \ | \ \theta \ \in \lrangles{Type} \}$\\
+
+\end{definition}
+
+\begin{definition}\label{lambdaa:contextcategory}
+La categor\'ia de contextos, que nombraremos $\Pi$, sera una categor\'ia discreta tal que 
+la colecci\'on de objetos esta definida como,
+
+$\Pi_0$ $=$ $\{\pi \ | \ \pi \ \in \lrangles{Context} \}$\\
+
+\end{definition}
+
+\begin{definition}\label{lambdaa:semtypescategory}
+La categor\'ia sem\'antica de tipos, la nombraremos $\CD$, sera una categor\'ia cartesiana 
+cerrada.
+
+\end{definition}
+
+Ahora que tenemos los dominios necesarios, podemos definir dos funtores, 
+uno entre $\Theta$ y $\CD$, y otro entre $\Pi$ y $\CD$. Esto implica definir 
+funciones, que mapee objetos en objetos y flechas en flechas, ahora como $\Theta$ y $\Pi$ 
+son discreta, la definici\'on de estas ultimas funciones es directa, por lo 
+tanto vamos a definir el mapeo de objetos en objetos.
+
+\begin{definition}\label{lambdaa:typesemfunctor}
+Sea $\semBrcks{ \ } : \Theta \rightarrow \CD$ un funtor, tal que
+
+$\semBrcks{\delta}_0$ $=$ $(S_\delta)_\bot$\\
+\indent
+$\semBrcks{\theta \rightarrow \theta'}_0$ $=$ $\semBrcks{\theta'}_0^{\semBrcks{\theta}_0}$
+
+\end{definition}
+
+Notar que como $\CD$ es $\mathcal{CCC}$ entonces podemos asegurar que existe el objeto exponencial.
+
+\begin{definition}\label{lambdaa:contextsemfunctor}
+Sea $\semBrcks{ \ } : \Pi \rightarrow \CD$ un funtor, tal que
+
+$\semBrcks{\pi}_0$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}$
+
+\end{definition}
+
+Notar que como $\CD$ es $\mathcal{CCC}$ entonces tenemos productos finitos, como los
+contextos son siempre finitos, la definici\'on es correcta.
+
+\subsection{Sem\'antica}
+
+Estamos en condiciones de definir las ecuaciones sem\'anticas, para quien este
+familiarizado con la definici\'on de sem\'antica denotacional de lenguajes sin tipado
+podemos comentar que las ecuaciones sem\'anticas se definen sobre un juicio 
+de tipado y no sobre las expresiones en s\'i. Esto implica entonces, que para evaluar
+un programa este antes debe haber typecheckeado correctamente.
+
+Una ecuaci\'on sem\'antica entonces tomara un juicio de tipado valido, un elemento 
+perteneciente a un objeto de la categor\'ia $\CD$ y retornara otro elemento perteneciente
+a un objeto de $\CD$, es decir, dado un juicio $\pi \vdash e : \theta$, tendremos 
+objetos $\semBrcks{\pi}$ y $\semBrcks{\theta}$ tal que la la ecuaci\'on sem\'antica 
+de este juicio tiene tipo $\semBrcks{\pi \vdash e : \theta} : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$.
+
+Agregamos a nuestra lista de metavariables, $\eta$ con tipo $\semBrcks{\pi}$.
+
+\
+
+\noindent
+$\texttt{Denotal Sem:}$ Constantes.\
+
+\begin{center}
+$\semBrcks{\pi \vdash b : \boolt} \eta$ $=$ $b$\\
+
+\
+
+$\semBrcks{\pi \vdash i : \intt} \eta$  $=$ $i$\\
+
+\
+
+$\semBrcks{\pi \vdash r : \realt} \eta$ $=$ $r$
+\end{center}
+
+\
+
+\
+
+\
+
+\
+
+\noindent
+$\texttt{Denotal Sem:}$ Operadores b\'asicos.\
+
+\begin{center}
+
+$\semBrcks{\pi \vdash -e : \intt}\eta$ $=$ $(\lambda x \in S_\intt . -x)_{\dbot}\semBrcks{\pi \vdash e : \intt}\eta$\\
+
+\
+
+$\semBrcks{\pi \vdash -e : \realt}\eta$ $=$ $(\lambda x \in S_\realt . -x)_{\dbot}\semBrcks{\pi \vdash e : \realt}\eta$\\
+
+\
+
+$\semBrcks{\pi \vdash \neg e : \boolt}\eta$ $=$ $(\lambda x \in S_\boolt . \neg x)_{\dbot}\semBrcks{\pi \vdash e : \boolt}\eta$
+
+\end{center}
+
+\noindent
+$\semBrcks{\pi \vdash e \otimes e' : \intt}\eta$ $=$ \\
+				\indent \indent \indent $(\lambda x \in S_\intt . 
+											(\lambda x' \in S_\intt . x \otimes x')_{\dbot}
+													\semBrcks{\pi \vdash e' : \intt}\eta)_{\dbot}
+														\semBrcks{\pi \vdash e : \intt}\eta$
+
+\begin{center}
+con $\otimes \in \{+,-,*,/\ , \textbf{rem}\}$
+\end{center}
+
+\noindent
+$\semBrcks{\pi \vdash e \otimes e' : \realt}\eta$ $=$ \\
+				\indent \indent \indent $(\lambda x \in S_\realt . 
+											(\lambda x' \in S_\realt . x \otimes x')_{\dbot}
+													\semBrcks{\pi \vdash e' : \realt}\eta)_{\dbot}
+														\semBrcks{\pi \vdash e : \realt}\eta$
+
+\begin{center}
+con $\otimes \in \{+,-,*\}$
+\end{center}
+
+\noindent
+$\semBrcks{\pi \vdash e \otimes e' : \boolt}\eta$ $=$ \\
+				\indent \indent \indent $(\lambda x \in S_\boolt . 
+											(\lambda x' \in S_\boolt . x \otimes x')_{\dbot}
+													\semBrcks{\pi \vdash e' : \boolt}\eta)_{\dbot}
+														\semBrcks{\pi \vdash e : \boolt}\eta$
+
+\begin{center}
+con $\otimes \in \{\wedge,\vee,\Rightarrow,\Leftrightarrow\}$
+\end{center}
+
+\begin{center}
+
+$\semBrcks{\pi \vdash e \otimes e' : \boolt}\eta$ $=$ $(\lambda x \in S_\delta . 
+											(\lambda x' \in S_\delta . x \otimes x')_{\dbot}
+													\semBrcks{\pi \vdash e' : \delta}\eta)_{\dbot}
+														\semBrcks{\pi \vdash e : \delta}\eta$
+
+\
+
+con $\delta \in \{\intt, \realt \}, \otimes \in \{<,>,\leq,\geq\}$
+\end{center}
+
+\begin{center}
+
+$\semBrcks{\pi \vdash e \otimes e' : \boolt}\eta$ $=$ $(\lambda x \in S_\delta . 
+											(\lambda x' \in S_\delta . x \otimes x')_{\dbot}
+													\semBrcks{\pi \vdash e' : \delta}\eta)_{\dbot}
+														\semBrcks{\pi \vdash e : \delta}\eta$
+
+\
+
+con $\otimes \in \{=,\neq\}$
+\end{center}
+
+Hasta aqu\'i tenemos definida la sem\'antica para las expresiones enteras,
+reales y booleanas. Definamos ahora la parte interesante del lenguaje, esto 
+sera, la expresi\'on condicional, aplicaci\'on, abstracci\'on lambda, operador
+de punto fijo e identificador.
+
+\
+
+\noindent
+$\texttt{Denotal Sem:}$ Expresi\'on condicional.\
+
+\
+
+$\semBrcks{\pi \vdash \cifthenelse{b}{e}{e'} : \theta}\eta$ $=$\\
+		\indent \indent \indent $(\lambda b \in S_{\boolt} .$ if $b$ \\
+		\indent \indent \indent \indent \indent \indent \indent 
+											then $\semBrcks{\pi \vdash e : \theta}\eta$\\
+		\indent \indent \indent \indent \indent \indent \indent 
+											else $\semBrcks{\pi \vdash e' : \theta}\eta)_{\dbot}\semBrcks{\pi \vdash b : \boolt}\eta$
+
+\
+
+\noindent
+$\texttt{Denotal Sem:}$ Aplicaci\'on.\
+
+\
+
+$\semBrcks{\pi \vdash ee' : \theta'}\eta$ $=$ $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta
+														  (\semBrcks{\pi \vdash e' : \theta}\eta)$
+
+\
+
+\noindent
+$\texttt{Denotal Sem:}$ Abstracci\'on lambda.\
+
+\
+
+$\semBrcks{\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'}\eta$ $=$
+						$\lambda x \in \semBrcks{\theta}$ . $\semBrcks{\pi \vdash e : \theta'}[\ \eta \ , \ \iota:x \ ]$
+						
+\
+
+\noindent
+$\texttt{Denotal Sem:}$ Operador de punto fijo.\
+
+\
+
+$\semBrcks{\pi \vdash \rec{e} : \theta}\eta$ $=$ $\Y (\semBrcks{\pi \vdash e : \theta \rightarrow \theta}\eta)$
+
+\
+
+\noindent
+$\texttt{Denotal Sem:}$ Identificador.\
+
+\
+
+$\semBrcks{\pi \vdash \iota : \theta}\eta$ $=$ $\eta \iota$\\
+
+Estas ultimas ecuaciones nos terminan de definir la sem\'antica de nuestro 
+primer lenguaje lambda arrow.
+
+\section{Lambda Leq}
+
+En la secci\'on anterior definimos la sint\'axis y sem\'antica del lenguaje que llamamos
+lambda arrow, para esto en el transcurso introducimos distintos conceptos sobre el tipado.
+Ahora vamos estudiar a lambda leq, el cual tiene como fin introducir conceptos sobre
+el subtipado, por esta raz\'on el lenguaje se mantiene exactamente igual al lenguaje 
+de la secci\'on anterior. La principal diferencia entonces estar\'a en la definici\'on
+de la categor\'ia de tipos y en que vamos a agregar un nuevo juicio de tipado, como
+consecuencia de esto ultimo, tendremos que agregar nuevas reglas de tipado y ecuaciones 
+sem\'anticas.\\
+
+\subsection{Subtipado}
+
+Entre los tipos del lenguaje lambda arrow, y por lo tanto los de lambda leq, tenemos
+a $\intt$ y $\realt$ los cuales representan los conjuntos de enteros y reales matem\'aticos.
+Algo interesante a pensar es que, los enteros forman parte de los reales, es decir,
+$\Z \subseteq \R$, luego surge la pregunta, ¿Existir\'a una forma de expresar esta relaci\'on 
+como una relaci\'on entre los $\lrangles{Type}$?, la respuesta es s\'i y es el subtipado.\\
+
+\subsubsection{Reglas de inferencia}
+
+Comencemos introduciendo el nuevo juicio de tipado, este sera una relaci\'on entre tipos,
+sean $\theta$ y $\theta'$ diremos que $\theta$ es subtipo de $\theta'$ cuando $\theta \leq \theta'$.
+
+Primero veamos reglas de inferencia generales a cualquier tipo, empecemos discutiendo
+una idea intuitiva de las reglas que ser\'ian deseables. Supongamos tenemos que la expresi\'on
+$e$ tiene tipo $\intt$ y adem\'as que $\intt$ es subtipo de $\realt$, luego quisi\'eramos 
+poder decir que $e$ tiene tipo $\realt$, adem\'as si suponemos un tipo $nat$ que es
+subtipo de $int$, entonces deber\'iamos poder decir que $nat$ es subtipo de $\realt$,
+es decir, tener transitividad entre los tipos, cualquier tipo es
+subtipo de \'el mismo, es decir, los tipos son reflexivos. Para finalizar, 
+supongamos tenemos $\theta_0 \leq \theta_0'$ y $\theta_1 \leq \theta_1'$ y adem\'as
+que tenemos una expresi\'on $e$ que tiene tipo $\theta_0' \rightarrow \theta_1$. Luego
+$e$ puede aplicarse a elementos de tipo $\theta_0$ y el resultado de tal aplicaci\'on
+puede ser un elemento de tipo $\theta_1'$.
+
+Empecemos presentando las reglas que representan lo que mencion\'abamos anteriormente.
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Subsumption.
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \theta$}
+\AxiomC{$\theta \leq \theta'$}
+\BinaryInfC{$\pi \vdash e : \theta'$}
+\DisplayProof
+\end{center}
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Trans.
+
+\begin{center}
+\AxiomC{$\theta \leq \theta'$}
+\AxiomC{$\theta' \leq \theta''$}
+\BinaryInfC{$\theta \leq \theta''$}
+\DisplayProof
+\end{center}
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Reflex.
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\theta \leq \theta$}
+\DisplayProof
+\end{center}
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Func.
+
+\begin{center}
+\AxiomC{$\theta_0 \leq \theta_0'$}
+\AxiomC{$\theta_1 \leq \theta_1'$}
+\BinaryInfC{$\theta_0' \rightarrow \theta_1 \leq \theta_0 \rightarrow \theta_1'$}
+\DisplayProof
+\end{center}
+
+Estas reglas que mencionamos tiene la particularidad de ser generales para
+cualquier sistema de tipado, definamos ahora mas reglas en relaci\'on a nuestros
+tipos y lenguaje concreto, esto sera definir la relaci\'on entre enteros y reales
+y vamos a agregar una mas, tal vez no sea lo mas recomendado en cuanto al diseño
+del lenguaje pero es practico considerarla, que es la relaci\'on entre booleanos
+y enteros.
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ boolToint.
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\boolt \leq \intt$}
+\DisplayProof
+\end{center}
+
+\noindent
+$\texttt{Ty Rule:}$ intToreal.
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\intt \leq \realt$}
+\DisplayProof
+\end{center}
+
+\subsubsection{Sem\'antica}
+
+Ahora que tenemos definido el nuevo juicio de tipado y la relaci\'on entre los 
+tipos, vamos a actualizar nuestra categor\'ia de tipos, esta dejara de ser
+una categor\'ia discreta y la clave esta en que ahora nuestra relaci\'on entre
+los tipos determinara las flechas.
+
+\begin{definition}\label{lambdal:typescategory}
+La categor\'ia de tipos, que nombraremos $\Theta$, se define como sigue
+
+$\Theta_0$ $=$ $\{\theta \ | \ \theta \ \in \lrangles{Type} \}$\\
+\indent
+$\Theta_1$ $=$ $\{\theta \rTo \theta' \ | \ \theta,\theta' \ \in \lrangles{Type} \ y \ \theta \leq \theta'\}$\\
+
+\end{definition}
+
+Esta nueva definici\'on de la categor\'ia de tipos nos impacta directamente en el
+funtor sem\'antico $\semBrcks{ \ } : \Theta \rightarrow \CD$, ahora tenemos que 
+definir como actua el funtor con respecto a las flechas.
+
+\begin{definition}\label{lambdal:typesemfunctor}
+Sea $\semBrcks{ \ } : \Theta \rightarrow \CD$ un funtor, tal que
+
+$\semBrcks{\delta}_0$ $=$ $(S_\delta)_\bot$\\
+\indent
+$\semBrcks{\theta \rightarrow \theta'}_0$ $=$ $\semBrcks{\theta'}_0^{\semBrcks{\theta}_0}$\\
+
+\indent
+$\semBrcks{\boolt \leq \intt}_1$ $=$ $\lambda x \in S_\boolt$ . if $x$ then $0$ else $1$\\
+\indent
+$\semBrcks{\intt \leq \realt}_1$ $=$ $\J$\\
+\indent
+$\semBrcks{\theta \leq \theta}_1$ $=$ $1_{\semBrcks{\theta}}$\\
+\indent
+$\semBrcks{\theta \leq \theta''}_1$ $=$ $\semBrcks{\theta' \leq \theta''}_1 \circ \semBrcks{\theta \leq \theta'}_1$\\
+\indent
+$\semBrcks{(\theta_0 \rightarrow \theta'_0) \leq (\theta_1 \rightarrow \theta'_1)}_1$ 
+									$=$ 
+									$\lambda f \in \semBrcks{\theta_0 \rightarrow \theta'_0}_0$ .
+									$\semBrcks{\theta_1 \leq \theta'_1}_1 \circ f \circ \semBrcks{\theta'_0 \leq \theta_0}_1$\\
+
+con $\J$ la inyecci\'on de enteros en reales.
+
+\end{definition}
+
+La definici\'on de la relaci\'on $\leq$ entre tipos nos permite ademas actualizar 
+la definici\'on de la categor\'ia de contexto, de manera tal de definir $\leq$ entre
+contextos para que luego, como pasa con los tipos, esta relaci\'on sea una flecha 
+en la categor\'ia. Dados $\pi$ y $\pi'$ tal que $dom \ \pi$ $=$ $dom \ \pi'$, diremos
+que $\pi \leq \pi'$ cuando para todo $\iota \in dom \ \pi$ se cumple $\pi \iota \leq \pi' \iota$.
+
+\begin{definition}\label{lambdal:contextcategory}
+La categor\'ia de contextos, que nombraremos $\Pi$, se define como sigue
+
+$\Pi_0$ $=$ $\{\pi \ | \ \pi \ \in \lrangles{Context} \}$\\
+\indent
+$\Pi_1$ $=$ $\{ \pi \rTo \pi' \ | \ \pi,\pi' \in \lrangles{Context} \ y \ \pi \leq \pi' \}$
+
+\end{definition}
+
+De igual manera que cuando dimos la nueva definici\'on de $\Theta$, podemos dar
+una actualizaci\'on a la definici\'on de $\Pi$.
+
+\begin{definition}\label{lambdal:contextsemfunctor}
+Sea $\semBrcks{ \ } : \Pi \rightarrow \CD$ un funtor, tal que
+
+$\semBrcks{\pi}_0$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}$\\
+\indent
+$\semBrcks{\pi \leq \pi'}_1$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota \leq \pi'\iota}$
+
+\end{definition}
+
+Esta ultima definici\'on da por terminado el trabajo de acomodar los
+dominios categoricos, ademas de las nuevos jucios de tipado y su 
+sem\'antica respectiva.
+
+\subsection{Sem\'antica}
+
+Para completar la sem\'antica del lenguaje lambda leq, nos falta 
+definir una ecuaci\'on sem\'antica que relacione un juicio de tipado
+con una relaci\'on de orden entre dos tipos, la ecuaci\'on que estamos
+buscando relaci\'on con la regla de inferencia Subsumption.
+
+\noindent
+$\texttt{Denotal Sem:}$ Subsumption.\
+
+\
+
+$\semBrcks{\pi \vdash e : \theta'}$ $=$ $\semBrcks{\theta \leq \theta'} \circ \semBrcks{\pi \vdash e : \theta}$

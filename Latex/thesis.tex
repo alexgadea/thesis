@@ -21,6 +21,7 @@
 \usepackage{syntax}
 
 \usepackage{thesis}
+\usepackage{proof}
 \usepackage{bussproofs}
 
 %% Hyphenation?
@@ -83,6 +84,13 @@ pdflang={es}
 
 \newcommand{\ruleref}[1]{#1}
 
+\newtheorem{definition}{Definici\'on}
+
+\newcounter{myenvcount}
+\setcounter{myenvcount}{0}
+\newenvironment{myenv}[1]{\medskip\stepcounter{myenvcount}{\textbf{#1}\ \arabic{myenvcount}:}}{\medskip}
+\newenvironment{myenv*}[1]{\medskip\textbf{#1}:}{\medskip}
+
 \begin{document}
 
 %\frontmatter
@@ -96,8 +104,9 @@ pdflang={es}
 %\mainmatter
 %\pagestyle{headings}
 \input{intro.tex}
-\input{types.tex}
-\input{algollike.tex}
+\input{lambdaarrowleq.tex}
+%\input{types.tex}
+%\input{algollike.tex}
 
 \backmatter
 
