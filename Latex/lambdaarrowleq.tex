@@ -1,4 +1,4 @@
-\chapter{Lambda arrow ($\lambdaarrow$) y Lambda leq ($\lambdaleq$)}
+\chapter{Calculo lambda simplemente tipado y con subtipos}
 \label{chap:lambdaarrow}
 
 En este cap\'itulo presentamos dos lenguajes, el primer lenguaje, es un
@@ -49,14 +49,12 @@ abstracta del lenguaje.
 \begin{grammar}
 
 <Phrase> ::= <PBool> | <PInt> | <PReal>
-\alt $\odot$ <Phrase> | <Phrase> $\otimes$ <Phrase>
+\alt $\odot$ <Phrase> | <Phrase> $\circledcirc$ <Phrase>
 \alt \textbf{if} <Phrase> \textbf{then} <Phrase> \textbf{else} <Phrase>
 \alt <Id> 
 \alt <Phrase> <Phrase>
 \alt $\lambda$ <Id>$_\theta$ . <Phrase>
 \alt \textbf{rec} <Phrase>
-
-<Id>    ::= Pensar cuales quiero.
 
 <PBool> ::= True | False
 
@@ -72,11 +70,13 @@ abstracta del lenguaje.
 \noindent
 donde \ 
 
+$\lrangles{\textit{Id}}$ es un conjunto numerable.
+
 $\theta \in \lrangles{Type}$ \
 
 $\odot \in \{-, \neg\}$ y \
 
-$\otimes \in \{+,-,*,/,\div,\rem,\wedge,\vee,\Rightarrow,\Leftrightarrow, =,\neq,<,>,\leq,\geq\}$
+$\circledcirc \in \{+,-,*,/,\div,\rem,\wedge,\vee,\Rightarrow,\Leftrightarrow, =,\neq,<,>,\leq,\geq\}$
 
 \subsection{Tipos simples}
 
@@ -210,8 +210,8 @@ $\texttt{Ty Rule:}$ Operadores b\'asicos.
 \begin{center}
 \AxiomC{$\pi \vdash e : \boolt$}
 \AxiomC{$\pi \vdash e' : \boolt$}
-\RightLabel{$\otimes \in \{\wedge,\vee,\Rightarrow,\Leftrightarrow\}$}
-\BinaryInfC{$\pi \vdash e \otimes e' : \boolt$}
+\RightLabel{$\owedge \in \{\wedge,\vee,\Rightarrow,\Leftrightarrow\}$}
+\BinaryInfC{$\pi \vdash e \owedge e' : \boolt$}
 \DisplayProof
 \end{center}
 
@@ -220,8 +220,8 @@ $\texttt{Ty Rule:}$ Operadores b\'asicos.
 \begin{center}
 \AxiomC{$\pi \vdash e : \delta$}
 \AxiomC{$\pi \vdash e' : \delta$}
-\RightLabel{$\delta \in \{\intt, \realt \}, \otimes \in \{<,>,\leq,\geq\}$}
-\BinaryInfC{$\pi \vdash e \otimes e' : \boolt$}
+\RightLabel{$\delta \in \{\intt, \realt \}, \olessthan \in \{<,>,\leq,\geq\}$}
+\BinaryInfC{$\pi \vdash e \olessthan e' : \boolt$}
 \DisplayProof
 \end{center}
 
@@ -230,8 +230,8 @@ $\texttt{Ty Rule:}$ Operadores b\'asicos.
 \begin{center}
 \AxiomC{$\pi \vdash e : \delta$}
 \AxiomC{$\pi \vdash e' : \delta$}
-\RightLabel{$\otimes \in \{=,\neq\}$}
-\BinaryInfC{$\pi \vdash e \otimes e' : \boolt$}
+\RightLabel{$\ominus \in \{=,\neq\}$}
+\BinaryInfC{$\pi \vdash e \ominus e' : \boolt$}
 \DisplayProof
 \end{center}
 
@@ -331,9 +331,8 @@ definir los dominios sem\'anticos usando categor\'ias y las ecuaciones
 sem\'anticas usando sem\'antica denotacional. 
 
 Vamos a necesitar de tres categor\'ias, una sera de los tipos ($\lrangles{Type}$),
-otra de contextos ($\lrangles{Context}$) y una para el significado de los tipos, 
-las dos primeras vamos a definirlas concretamente y la ultima vamos a hacer lo 
-contrario y vamos a dejarla lo mas general posible.
+otra de contextos ($\lrangles{Context}$) y finalmente una para el significado 
+de los juicios de tipado.
 
 \begin{definition}\label{lambdaa:typescategory}
 La categor\'ia de tipos, que nombraremos $\Theta$, sera una categor\'ia discreta tal que 
@@ -351,17 +350,21 @@ $\Pi_0$ $=$ $\{\pi \ | \ \pi \ \in \lrangles{Context} \}$\\
 
 \end{definition}
 
-\begin{definition}\label{lambdaa:semtypescategory}
-La categor\'ia sem\'antica de tipos, la nombraremos $\CD$, sera una categor\'ia cartesiana 
-cerrada.
-
-\end{definition}
+La categor\'ia sem\'antica, que nombraremos $\CD$, sera una categor\'ia cartesiana 
+cerrada, la cual iremos adaptando seg\'un las necesidades de nuestro lenguaje.
+Tanto para $\lambdaarrow$ como para $\lambdaleq$ esta sera $\Dom$, la cual es la
+categor\'ia que tiene por objetos a dominios y por flechas a funciones continuas.
 
 Ahora que tenemos los dominios necesarios, podemos definir dos funtores, 
 uno entre $\Theta$ y $\CD$, y otro entre $\Pi$ y $\CD$. Esto implica definir 
 funciones, que mapee objetos en objetos y flechas en flechas, ahora como $\Theta$ y $\Pi$ 
 son discreta, la definici\'on de estas ultimas funciones es directa, por lo 
 tanto vamos a definir el mapeo de objetos en objetos.
+En general cuando definamos funtores vamos a hacer uso de los indicies, pero luego
+cuando los utilicemos vamos a dejarlos de lado.
+
+Mencionamos adem\'as que con $\bot$ vamos a representar la no terminaci\'on, esto
+va a hacer falta ya que nuestro lenguaje b\'asico incluye operador de punto fijo.
 
 \begin{definition}\label{lambdaa:typesemfunctor}
 Sea $\semBrcks{ \ } : \Theta \rightarrow \CD$ un funtor, tal que
@@ -430,15 +433,15 @@ $\texttt{Denotal Sem:}$ Operadores b\'asicos.\
 
 \begin{center}
 
-$\semBrcks{\pi \vdash -e : \intt}\eta$ $=$ $(\lambda x \in S_\intt . -x)_{\dbot}\semBrcks{\pi \vdash e : \intt}\eta$\\
+$\semBrcks{\pi \vdash -e : \intt}$ $=$ $(\lambda x \in S_\intt . -x)_{\dbot} \circ \semBrcks{\pi \vdash e : \intt}$\\
 
 \
 
-$\semBrcks{\pi \vdash -e : \realt}\eta$ $=$ $(\lambda x \in S_\realt . -x)_{\dbot}\semBrcks{\pi \vdash e : \realt}\eta$\\
+$\semBrcks{\pi \vdash -e : \realt}$ $=$ $(\lambda x \in S_\realt . -x)_{\dbot} \circ \semBrcks{\pi \vdash e : \realt}$\\
 
 \
 
-$\semBrcks{\pi \vdash \neg e : \boolt}\eta$ $=$ $(\lambda x \in S_\boolt . \neg x)_{\dbot}\semBrcks{\pi \vdash e : \boolt}\eta$
+$\semBrcks{\pi \vdash \neg e : \boolt}$ $=$ $(\lambda x \in S_\boolt . \neg x)_{\dbot} \circ \semBrcks{\pi \vdash e : \boolt}$
 
 \end{center}
 
@@ -465,38 +468,38 @@ con $\otimes \in \{+,-,*\}$
 \end{center}
 
 \noindent
-$\semBrcks{\pi \vdash e \otimes e' : \boolt}\eta$ $=$ \\
+$\semBrcks{\pi \vdash e \owedge e' : \boolt}\eta$ $=$ \\
 				\indent \indent \indent $(\lambda x \in S_\boolt . 
-											(\lambda x' \in S_\boolt . x \otimes x')_{\dbot}
+											(\lambda x' \in S_\boolt . x \owedge x')_{\dbot}
 													\semBrcks{\pi \vdash e' : \boolt}\eta)_{\dbot}
 														\semBrcks{\pi \vdash e : \boolt}\eta$
 
 \begin{center}
-con $\otimes \in \{\wedge,\vee,\Rightarrow,\Leftrightarrow\}$
+con $\owedge \in \{\wedge,\vee,\Rightarrow,\Leftrightarrow\}$
 \end{center}
 
 \begin{center}
 
-$\semBrcks{\pi \vdash e \otimes e' : \boolt}\eta$ $=$ $(\lambda x \in S_\delta . 
-											(\lambda x' \in S_\delta . x \otimes x')_{\dbot}
+$\semBrcks{\pi \vdash e \olessthan e' : \boolt}\eta$ $=$ $(\lambda x \in S_\delta . 
+											(\lambda x' \in S_\delta . x \olessthan x')_{\dbot}
 													\semBrcks{\pi \vdash e' : \delta}\eta)_{\dbot}
 														\semBrcks{\pi \vdash e : \delta}\eta$
 
 \
 
-con $\delta \in \{\intt, \realt \}, \otimes \in \{<,>,\leq,\geq\}$
+con $\delta \in \{\intt, \realt \}, \olessthan \in \{<,>,\leq,\geq\}$
 \end{center}
 
 \begin{center}
 
-$\semBrcks{\pi \vdash e \otimes e' : \boolt}\eta$ $=$ $(\lambda x \in S_\delta . 
-											(\lambda x' \in S_\delta . x \otimes x')_{\dbot}
+$\semBrcks{\pi \vdash e \ominus e' : \boolt}\eta$ $=$ $(\lambda x \in S_\delta . 
+											(\lambda x' \in S_\delta . x \ominus x')_{\dbot}
 													\semBrcks{\pi \vdash e' : \delta}\eta)_{\dbot}
 														\semBrcks{\pi \vdash e : \delta}\eta$
 
 \
 
-con $\otimes \in \{=,\neq\}$
+con $\ominus \in \{=,\neq\}$
 \end{center}
 
 Hasta aqu\'i tenemos definida la sem\'antica para las expresiones enteras,
@@ -683,11 +686,15 @@ La categor\'ia de tipos, que nombraremos $\Theta$, se define como sigue
 
 $\Theta_0$ $=$ $\{\theta \ | \ \theta \ \in \lrangles{Type} \}$\\
 \indent
-$\Theta_1$ $=$ $\{\theta \rTo \theta' \ | \ \theta,\theta' \ \in \lrangles{Type} \ y \ \theta \leq \theta'\}$\\
+$\Theta_1(\theta,\theta')$ $=$ $\{\theta \rTo \theta' \ | \ \theta \leq \theta'\}$\\
 
 \end{definition}
 
-Esta nueva definici\'on de la categor\'ia de tipos nos impacta directamente en el
+Esta nueva categor\'ia coincide con el poset de tipos con la relaci\'on de orden
+$\leq$ visto como categor\'ia, por lo tanto se desprende que dados
+dos tipos $\theta$ y $\theta'$, $| \ \Theta_1(\theta,\theta') \ | \leq \ 1$.
+
+Ademas esta nueva definici\'on nos impacta directamente en el
 funtor sem\'antico $\semBrcks{ \ } : \Theta \rightarrow \CD$, ahora tenemos que 
 definir como actua el funtor con respecto a las flechas.
 
