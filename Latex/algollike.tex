@@ -843,7 +843,7 @@ $(\lambda e . (\lambda e' . \iotabot (e \ominus e'))_{\dbot}
 con $\ominus \in \{=,\neq\}$\\
 
 \noindent
-$\texttt{Denotal Sem:}$ Expresi\'on condicional.\\
+$\texttt{Denotal Sem:}$ Expresi\'on condicional. (Este \textbf{if} esta re mal.)\\
 
 $\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \theta }C \ \eta \ \sigma$ 
 $=$ \\
@@ -919,3 +919,58 @@ $=$ \\
 \indent \indent \indent \indent \indent 
 $\semBrcks{ \pi \vdash e : \theta' } \ (C \concat C') \
 [ \ \semBrcks{\pi}(C \rTo^{(h,s)} C')\eta \ | \ \iota:z \ ]$\\
+
+\noindent
+$\texttt{Denotal Sem:}$ Declaraci\'on de variable (Stack discipline).\\
+
+$\semBrcks{\pi \vdash \newdeltavar{\iota}{e}{c} : \commt}C \ \eta \ \sigma$ 
+$=$ \\ \indent \indent
+$(\lambda \sigma' . \ H \sigma')_{\dbot}$\\ \indent \indent \indent
+$(\lambda \ v . \ \semBrcks{\pi,\iota:\deltavar \vdash c : \commt}
+		\ (C\concat\lrangles{S_\delta}) \ \eta_{new} \ \sigma_{new})_{\dbot}$
+\\ \indent \indent  \indent  \indent  \indent \indent  \indent
+\indent \indent \indent \indent \indent \indent \indent
+\indent \indent \indent
+$(\semBrcks{\pi \vdash e : \deltaexp}C \ \eta \ \sigma)$\\
+
+con $(h,s)$ $:$ $C \rTo (C \concat \lrangles{S_\delta})$ \\
+\indent \indent \ \
+$a_\sigma$ $=$ $\lambda x. \ \lambda \sigmahat . \ \iotabot ((head_{C} \sigmahat) \concat \lrangles{x})$\\
+\indent \indent \ \
+$e_\sigma$ $=$ $ \iotabot \circ last_{S_\delta}$\\
+\indent \indent \ \
+$\sigma_{new} = \sigma \concat \lrangles{v} $\\
+\indent \indent \ \
+$\eta_{new} = [ \ \semBrcks{\pi}(h,s) \ \eta \ | \ x:\lrangles{a_\sigma,e_\sigma} \ ]$\\
+\indent \indent \ \
+$H = head_C$\\
+
+\
+
+\
+
+\
+
+\
+
+\
+\noindent
+$\texttt{Denotal Sem:}$ Declaraci\'on de variable (Sin stack discipline).\\
+
+$\semBrcks{\pi \vdash \newdeltavar{\iota}{e}{c} : \commt}C \ \eta \ \sigma$ 
+$=$ \\ \indent \indent
+$(\lambda \sigma' . \ H \sigma')_{\dbot}$\\ \indent \indent \indent
+$(\lambda \ v . \ \semBrcks{\pi,\iota:\deltavar \vdash c : \commt}
+		\ C \ \eta_{new} \ \sigma_{new})_{\dbot}$
+$(\semBrcks{\pi \vdash e : \deltaexp}C \ \eta \ \sigma)$\\
+
+con 
+$a_\sigma \ v \ \sigmahat$ $=$ $ \lrangles{\sigmahat \ | \ (newRef \ \sigma):v} $\\
+\indent \indent \ \
+$e_\sigma \ \sigmahat$ $=$ $\sigmahat(newRef \ \sigma)$\\
+\indent \indent \ \
+$\sigma_{new} = \lrangles{\sigma \ | \ (newRef \ \sigma):v}$\\
+\indent \indent \ \
+$\eta_{new} = [ \ \eta \ | \ x:\lrangles{a_\sigma,e_\sigma} \ ]$\\
+\indent \indent \ \
+$H = 1_C$\\
