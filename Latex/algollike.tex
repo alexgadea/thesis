@@ -1,15 +1,13 @@
-\chapter{Lenguajes Algol-like}
+\chapter{Algol-like}
 \label{chap:algollike}
 
-En el cap\'itulo anterior hicimos dos cosas relevantes 
-para este cap\'itlo, la primera fue definir la gram\'atica
-abstracta de un lenguaje, la cual va a ser exactamente la
-misma, segundo fue definir los tipos necesarios para este 
-lenguaje. \\
+En el final del cap\'itulo anterior terminamos con el estudio
+del lenguaje lambda leq, este era un lenguaje funcional con subtipado.
+En este cap\'itulo vamos a tomar a lambda leq y vamos a agregar
+aspectos imperativos, este nuevo lenguaje lo llamaremos Algol-like.
 
-En este cap\'itulo vamos a darle sem\'antica al lenguaje
-que antes mencion\'abamos, la idea es que este lenguaje 
-pertenece a la clase de lenguajes Algol-like, estos combinan
+Este nuevo lenguaje que vamos a estudiar pertenecer\'a a la clase
+de lenguaje Algol-like estos combinan
 aspectos funcionales con imperativos y se basan en evaluaci\'on
 normal. Una propiedad importante de este tipo de lenguajes es
 la forma en la que se eval\'ua la aplicaci\'on de procedimientos
@@ -17,283 +15,907 @@ en un programa, lo que sucede es que la evaluaci\'on del programa
 ocurre en dos partes, en la primera se reduce el programa hasta que
 la aplicaci\'on del procedimiento desaparece quedando de esta manera 
 la parte imperativa por evaluar y que es exactamente la segunda parte.
-En resumen, primero se reducen las aplicaciones del calculo lambda
-del lenguaje y luego se ejecuta la parte imperativa. Otra propiedad 
-importante es la de stack discipline, la cual veremos que con 
-algunas pocas modificaciones de nuestra sem\'antica podemos capturar
-o no.\\
+
+A continuaci\'on presentamos los cinco principio que (ref de the essence of algol)
+cree que captura la esencia de los lenguajes algol.
+
+\begin{enumerate}
+\item Algol-like se obtiene de un lenguaje imperativo simple imponiendo un
+sistema para los procedimientos basado en el calculo lambda "fully typed" y utilizando
+call-by-name. Donde con "fully typed" se refiere que todos los errores de tipo deben ser
+errores sint\'acticos.
+
+\item Existe dos clases de tipos: Los $\textit{Data Types}$ que representaran los 
+conjuntos de valores para expresiones y variables y los $\textit{Phrase Types}$ que
+representaran los conjuntos de valores para las frases e identificadores.
+
+\item El orden de evaluaci\'on para las partes de una expresi\'on y su
+conversi\'on impl\'icita deber\'ia estar indeterminada, pero el significado
+del lenguaje es independiente de la indeterminaci\'on.
+
+\item La definici\'on de procedimientos, recursiones, expresiones condicionales
+pueden ser de cualquier $\textit{Phrase Types}$.
+
+\item El lenguaje contiene stack discipline y su definici\'on debe hacer esta disciplina
+obvia.
+
+\end{enumerate}
+
+Sobre este ultimo punto vamos a presentar una variante de sem\'antica para el lenguaje
+en la cual no tenemos stack discipline. Lo interesante es que lo vamos a lograr cambiando
+realmente muy poco sobre las ecuaciones sem\'anticas y los dominios originales que
+si contemplan stack discipline.
+
+\section{Sint\'axis}
+
+Como ya mencionamos Algol-like sera una extensi\'on de lambda leq, agregando las
+construcciones para un lenguaje imperativo simple. Pero antes de hacer esta extensi\'on
+hay algo a acomodar en cuantos a los lenguajes de donde se extiende Algol-like y
+esta en el hecho de que el lenguaje de tipos de lambda leq es demasiado simple debemos
+extenderlo seg\'un el punto dos de los principios de algol.
+
+Comencemos entonces acomodando nuestro sistema de tipos, empecemos tomando los tipos
+$\boolt$, $\intt$ y $\realt$ de $\lrangles{Type}$ y separándolos por un lado, para
+introducir la gram\'atica de los  $\textit{Data Types}$.
+
+\setlength{\grammarindent}{6em}
+\begin{grammar}
+
+<Data Types> ::= $\boolt$ | $\intt$ | $\realt$
+
+\end{grammar}
+
+Por otro lado en $\lrangles{Type}$ tenemos el operador funcional $\rightarrow$, este vamos 
+a moverlo a nuestra otra clase de tipos $\textit{Phrase Types}$ y vamos a agregar las
+construcciones de tipos que representan los valores para los comandos, aceptadores, variables y 
+expresiones, este ultimo tipo se lo puede considerar como el nuevo tipo que 
+representa a los tipos como los ten\'iamos antes, es decir, si una frase antes
+ten\'ia tipo $\intt$ ahora tendr\'a tipo $\intt\textbf{exp}$(resi\'on).
+
+\setlength{\grammarindent}{8em}
+\begin{grammar}
+
+<Phrase Types> ::= $\commt$
+\alt $\boolacc$ \ | $\intacc$ \ | $\realacc$
+\alt $\boolexp$ | $\intexp$ | $\realexp$
+\alt $\boolvar$ \ | $\intvar$ \ | $\realvar$
+\alt <Phrase Types> $\rightarrow$ <Phrase Types>
+
+\end{grammar}
+
+Ahora que hemos actualizado el lenguaje de tipos necesario para Algol-like, presentemos
+la gram\'atica, como mencionamos anteriormente este lenguaje va a ser una extensi\'on de lambda leq, agregando los construcciones para un lenguaje imperativo simple. Estas construcciones 
+ser\'an los comandos para la declaraci\'on de variables ($\newdeltavar{}{}{}$), 
+asignaci\'on($\cassig$), comando neutro ($\cskip$), concatenaci\'on de comandos ($\concatdots$)
+y un comando para iteraciones ($\cwhile$).
+
+\setlength{\grammarindent}{6em}
+\begin{grammar}
+
+<Phrase> ::= <PBool> | <PInt> | <PReal>
+\alt $\odot$ <Phrase> | <Phrase> $\circledcirc$ <Phrase>
+\alt \textbf{if} <Phrase> \textbf{then} <Phrase> \textbf{else} <Phrase>
+\alt <Id> 
+\alt <Phrase> <Phrase>
+\alt $\lambda$ <Id>$_\theta$ . <Phrase>
+\alt \textbf{rec} <Phrase>
+\alt $\cnewv$ $\deltavar$ <Id> $\cassig$ <Phrase> $\cin$ <Phrase>
+\alt <Phrase> $\cassig$ <Phrase> | $\cskip$ | <Phrase> $\concatdots$ <Phrase>
+\alt $\cwhile$ <Phrase> $\cdo$ <Phrase>
+
+
+<PBool> ::= True | False
+
+<PNat>  ::= 0 | 1 | 2 | ...
+
+<PInt>  ::= ... | -2 | -1 | <PNat> 
+
+<PReal> ::= <PNat>.\{<PNat>\}+ 
+\alt - <PNat>.\{<PNat>\}+
+
+\end{grammar}
 
 \noindent
-\mnote{ Creo deber\'ia de estudiar un poco Essence of algol para contar
-cosas un poco mas interesantes.
- }\\
+donde \ 
 
-Presentamos de nuevo la gram\'atica de nuestro lenguaje,\\
+$\lrangles{\textit{Id}}$ es un conjunto numerable.
 
-\noindent
-$\lrangles{Phrase} ::=$ $\lrangles{PBool}$ $|$ $\lrangles{PInt}$ $|$ $\lrangles{PReal}$ \\
-\indent \indent \indent $|$ 
-$\odot \lrangles{Phrase}$ $|$ $\lrangles{Phrase} \otimes \lrangles{Phrase} $ \\ 
-\indent \indent \indent $|$ 
-$\assig{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$ $\cskip$ $|$ $\seq{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
-\indent \indent \indent $|$ 
-$\cifthenelse{\lrangles{Phrase}}{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
-\indent \indent \indent $|$ 
-$\cwhiledo{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
-\indent \indent \indent $|$ 
-$\newdeltavar{\lrangles{Id}}{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
-\indent \indent \indent $|$ 
-$\lrangles{Id}$ $|$ $\lrangles{Phrase}\lrangles{Phrase}$ \\
-\indent \indent \indent $|$ 
-$\clambda{\lrangles{Id}}{\theta}{\lrangles{Phrase}} $ \\
-\indent \indent \indent $|$ 
-$\rec{\lrangles{Phrase}}$
-\\
+$\theta \in \phraseTypes$ \
 
-donde $\delta \in \lrangles{Data \ types}$, $\odot \in \{-, \neg\}$ y 
-$\otimes \in \{+,-,*,/,\div,\rem,\wedge,\vee,\Rightarrow,\Leftrightarrow, =,\neq,<,>,\leq,\geq\}$\\
+$\odot \in \{-, \neg\}$ y \
 
-En conclusi\'on, para definir la sem\'antica de este lenguaje vamos 
-a proceder de la siguiente manera, primero vamos a definir una categor\'ia
-de contexto, una vez con esta definida vamos a darle sem\'antica a las frases
-mas simples de nuestro lenguaje, como pueden ser los operadores unarios y binarios
-as\'i como algunos comandos simples y dejando para el final la definici\'on
-de la declaraci\'on de variables imperativas, es interesante que en la 
-b\'usqueda de dos sem\'anticas distintas, una que exprese stack discipline
-y otra que no, lo \'unico que necesitamos es cambiar la sem\'antica \'esta.
+$\circledcirc \in \{+,-,*,/,\div,\rem,\wedge,\vee,\Rightarrow,\Leftrightarrow, =,\neq,<,>,\leq,\geq\}$
 
-\section{Categor\'ias}
+\subsection{Reglas de inferencia}
 
-En el cap\'itulo anterior introducimos tres categor\'ias importantes que
-nos hac\'ian falta para determinar la sem\'antica de los tipos, en su
-momento no terminamos de resolver concretamente varias cuestiones de la
-definici\'on, empecemos entonces repasando estas categor\'ias y resolviendo
-los detalles que hayan quedado libres anteriormente. \\
-Sobre la categor\'ia de los tipos no hay mucho que agregar pero veremos que
-la vamos a necesitar para definir otra categor\'ia mas de la cual hasta el
-momento no hemos mencionado nada, repasemos entonces la definici\'on de la
-categor\'ia $\C$ de "conjuntos con cierta forma". En particular desambiguemos 
-a que nos referimos con esto ultimo y comentemos el fin de esta categor\'ia.\\
+La modificaci\'on de los tipos nos obliga a actualizar las reglas de inferencia 
+concretas del subtipado, ya que ahora como mencion\'abamos antes el tipo de una
+expresi\'on entera no sera $\intt$ si no $\intexp$. Pero antes de acomodar esto
+definamos una nueva relaci\'on de orden para los tipos de $\dataTypes$, en esta
+nueva relaci\'on vamos a retirar $\boolt \leq \intt$, cuyo fin en lambda leq
+era tener casos interesantes de transitividad entre los tipos, luego nos quedara 
+la siguiente relaci\'on entre los tipos,
 
-Lo mejor tal vez sea comenzar explicando el fin de la categor\'ia $\C$, antes
-coment\'abamos la necesidad de expresar stack discipline, para hacer este
-trabajo es que necesitamos de esta categor\'ia, ac\'a la idea sera que los
-objetos de $\C$ sean lo suficientemente generales para representar un secuencia
-de valores, pero que ademas, este relacionada con otras de manera de poder
-expandir o contraer la secuencia. Si pensamos entonces que una secuencia 
-representara un estado, de la evaluaci\'on de nuestro programa, expandir o
-contraer la secuencia representara declarar una variable nueva o perder el
-alcance de una variable, respectivamente.\\
+\begin{diagram}[loose,height=2em]
+   \realt & \\
+   \dLine & \\
+   \intt  & \boolt
+\end{diagram}
 
-Definamos los objetos de $\C$, un objeto $C$ sera un conjunto de secuencias 
-pertenecientes a $S_1 \times \ldots \times S_n$, con $0 \leq n$ y $S_i$ conjunto, 
-luego entonces, diremos que $C$ tiene forma $<S_1,\ldots,S_n>$. Por otro lado
-la definici\'on de las flechas las dejamos para mas adelante cuando definamos 
-la sem\'antica del la declaraci\'on de variables imperativas ya que, en parte,
-variando la definici\'on de las flechas obtenemos stack discipline o no.\\
+Ahora utilizando este diagrama, que b\'asicamente nos dice que $\intt$ es subtipo
+de $\realt$ y que no ocurre nada mas interesante, presentamos la relaci\'on de los
+tipos de $\phraseTypes$,
 
-Definamos ahora la categor\'ia de los contextos, cuando nos referimos a contextos
-pensamos en los que definimos en el cap\'itulo anterior la primera vez que definimos
-inferencia de tipos. Estos ser\'an los objetos de nuestra categor\'ia, analicemos
-como ser\'an las flechas, para esto vamos a tener que definir una relaci\'on
-entre dos contextos, sean $\pi$ y $\pi'$ dos contextos cualquiera, decimos que 
-$\pi \leq \pi'$ cuando $dom(\pi)$ $=$ $dom(\pi')$ y $\forall \iota \in dom(\pi)$ 
-$\pi \iota \leq \pi' \iota$. Ahora estamos en condiciones de definir la 
-categor\'ia de contextos que simbolizaremos con $\Pi$,\\
+\begin{diagram}[loose,height=2em,width=3em]
+   \realexp & & \intacc  & \\
+   \dLine & \rdLine(2,4) \ldLine(2,4) & \dLine   & \\
+   \intexp  & & \realacc & &    \boolexp    &      &    \boolacc  & \\
+   \dLine   & & \dLine   & &        &    \rdLine(1,2)  \ldLine(1,2)     &     & \\
+   \intvar  & & \realvar & &        &       \boolvar   &            & \commt
+\end{diagram}
 
-\noindent 
-$\Pi_0$ $=$ $\{\pi \ | \ \pi \ \in \lrangles{Context} \}$\\
-$\Pi_1$ $=$ $\{\pi \rTo \pi' \ | \ \pi,\pi' \ \in \lrangles{Context} \wedge \pi \leq \pi' \}$\\
 
-Entonces, como pasaba con la categor\'ia de los tipos que defin\'iamos un funtor
-$\semBrcks{ \ } : \Theta \rTo \DC$, ahora vamos a definir un funtor igual pero
-$\semBrcks{ \ } : \Pi \rTo \DC$. Este funtor nos va a permitir acomodar el environment
-cada vez que se declaren varibles. Tomemos $C$, $C'$ objetos de $\C$ y $(h,s): C \rTo C'$
-flecha en $\C$, luego\\
+Expliquemos un poco que estamos viendo, por un lado respetando la idea de que
+$\intt$ es ahora $\intexp$ y $\realt$ es $\realexp$, entonces vamos a tener
+$\intexp \leq \realexp$, esta relaci\'on se da vuelta si pensamos en el tipo
+de los aceptadores y entonces tenemos $\realacc \leq \intacc$. Finalmente 
+si pensamos que una variable puede ser usada tanto como valor o contenedor,
+vamos a tener que, tomando $\delta \in \dataTypes$, $\deltavar \leq \deltaexp$ y
+$\deltavar \leq \deltaacc$.\\
+
+Dicho esto escribamos las nuevas reglas de tipado para estas relaciones nuevas
+y aprovechemos para actualizar nuestras metavaribles en relaci\'on a nuestros
+nuevos tipos.
+
+\begin{center}
+\begin{tabular}{ l r }
+	$\theta$ $\phraseTypes$ & $\delta$ $\dataTypes$
+\end{tabular}
+\end{center}
 
 \noindent
-$\semBrcks{\pi}C$ $=$ $\prod\limits_{\iota \in dom(\pi)} \semBrcks{\pi \iota}C$\\
-$\semBrcks{\pi}(h,s)$ $:$ $\semBrcks{\pi}C \rTo \semBrcks{\pi'}C'$\\
+$\texttt{Ty Rule:}$ intexpTorealexp.
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\intexp \leq \realexp$}
+\DisplayProof
+\end{center}
+
+\
 
 \noindent
-Para definir como act\'ua el funtor para las flechas vamos a tomar un $\eta$ $:$ $\semBrcks{\pi}C$
-cualquiera, luego\\
+$\texttt{Ty Rule:}$ realaccTointacc.
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\realacc \leq \intacc$}
+\DisplayProof
+\end{center}
+
+\
 
 \noindent
-$\semBrcks{\pi}(h,s)\eta$ $:$ $\semBrcks{\pi}C'$\\
+$\texttt{Ty Rule:}$ $\delta$varTo$\delta$exp.
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\deltavar \leq \deltaexp$}
+\DisplayProof
+\end{center}
+
+\
 
 \noindent
-y entonces ahora definimos punto a punto para cualquier $\iota$\\
+$\texttt{Ty Rule:}$ $\delta$varTo$\delta$acc.
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\deltavar \leq \deltaacc$}
+\DisplayProof
+\end{center}
+
+Adem\'as de estas reglas de inferencia para el subtipado, nos van a hacer
+falta actualizar las reglas de inferencia de lambda leq con los tipos correspondientes
+del lenguaje Algol-like y luego faltara tambi\'en agregar reglas para los juicios de 
+tipado de las nuevas frases. Pero antes vamos a necesitar definir el nuevo lenguaje
+de los contextos, como ha venido ocurriendo, esto ser\'a actualizar los tipos
+viejos por los nuevos.\\
+
+Un contexto de Algol-like estar\'a definido por la siguiente gram\'atica,\
+
+\begin{grammar}
+
+<Context> ::= $\varnothing$ | <Context>,<Id>:<Phrase Types>
+
+\end{grammar}
+
+Ahora s\'i, reescribamos las reglas de lambda leq con los nuevos tipos, b\'asicamente
+lo que vamos a hacer es cambiar un tipo $\delta$ por $\deltaexp$,
+
+\
 
 \noindent
-$\semBrcks{\pi}(h,s)\eta\iota$ $=$ $\semBrcks{\pi \iota}(h,s)(\eta\iota)$
+$\texttt{Ty Rule:}$ Constantes.
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\pi \vdash b : \boolexp$}
+\DisplayProof
+\quad
+\AxiomC{}
+\UnaryInfC{$\pi \vdash i : \intexp$}
+\DisplayProof
+\quad
+\AxiomC{}
+\UnaryInfC{$\pi \vdash r : \realexp$}
+\DisplayProof
+\end{center}
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Operadores b\'asicos.
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \intexp$}
+\UnaryInfC{$\pi \vdash -e : \intexp$}
+\DisplayProof
+\quad
+\AxiomC{$\pi \vdash e : \realexp$}
+\UnaryInfC{$\pi \vdash -e : \realexp$}
+\DisplayProof
+\end{center}
+
+\
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \boolexp$}
+\UnaryInfC{$\pi \vdash \neg e : \boolexp$}
+\DisplayProof
+\end{center}
+
+\
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \intexp$}
+\AxiomC{$\pi \vdash e' : \intexp$}
+\RightLabel{$\otimes \in \{+,-,*,/\ , \textbf{rem}\}$}
+\BinaryInfC{$\pi \vdash e \otimes e' : \intexp$}
+\DisplayProof
+
+\quad
+
+\quad
+
+\AxiomC{$\pi \vdash e : \realexp$}
+\AxiomC{$\pi \vdash e' : \realexp$}
+\RightLabel{$\otimes \in \{+,-,*\}$}
+\BinaryInfC{$\pi \vdash e \otimes e' : \realexp$}
+\DisplayProof
+\end{center}
+
+\
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \boolexp$}
+\AxiomC{$\pi \vdash e' : \boolexp$}
+\RightLabel{$\owedge \in \{\wedge,\vee,\Rightarrow,\Leftrightarrow\}$}
+\BinaryInfC{$\pi \vdash e \owedge e' : \boolexp$}
+\DisplayProof
+\end{center}
+
+\
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \delta$}
+\AxiomC{$\pi \vdash e' : \delta$}
+\RightLabel{$\delta \in \{\intexp, \realexp \}, \olessthan \in \{<,>,\leq,\geq\}$}
+\BinaryInfC{$\pi \vdash e \olessthan e' : \boolexp$}
+\DisplayProof
+\end{center}
+
+\
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \deltaexp$}
+\AxiomC{$\pi \vdash e' : \deltaexp$}
+\RightLabel{$\ominus \in \{=,\neq\}$}
+\BinaryInfC{$\pi \vdash e \ominus e' : \boolexp$}
+\DisplayProof
+\end{center}
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Aplicaci\'on.
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \theta \rightarrow \theta'$}
+\AxiomC{$\pi \vdash e': \theta$}
+\BinaryInfC{$\pi \vdash ee' : \theta'$}
+\DisplayProof
+\end{center}
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Operador de punto fijo.
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \theta \rightarrow \theta$}
+\UnaryInfC{$\pi \vdash \rec{e} : \theta$}
+\DisplayProof
+\end{center}
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Identificador.
+
+\begin{center}
+\AxiomC{}
+\RightLabel{$v:\theta \in \pi$}
+\UnaryInfC{$\pi \vdash v : \theta$}
+\DisplayProof
+\end{center}
+
+\noindent
+$\texttt{Ty Rule:}$ Abstracci\'on lambda.
+
+\begin{center}
+\AxiomC{$\pi,\iota:\theta \vdash e : \theta'$}
+\UnaryInfC{$\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'$}
+\DisplayProof
+\end{center}
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Expresi\'on condicional.
+
+\begin{center}
+\AxiomC{$\pi \vdash b  : \boolexp$}
+\AxiomC{$\pi \vdash e  : \theta$}
+\AxiomC{$\pi \vdash e' : \theta$}
+\TrinaryInfC{$\pi \vdash \cifthenelse{b}{e}{e'} : \theta$}
+\DisplayProof
+\end{center}
+
+Hasta aqu\'i lo que hemos hecho es recompilar y actualizar las reglas de inferencia
+para la parte aplicativa del lenguaje, ahora definamos las regla de los comandos 
+$\cskip$, $\cwhile$ y $\concatdots$ que no presentan ninguna particularidad que valga 
+la pena comentar y luego sigamos con las reglas $\cnew \ \deltavar$ y $\cassig$,
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ $\cskip$.
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\pi \vdash \cskip : \commt$}
+\DisplayProof
+\end{center}
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ $\cwhile$.
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \boolexp$}
+\AxiomC{$\pi \vdash e' : \commt$}
+\BinaryInfC{$\pi \vdash \cwhiledo{e}{e'} : \commt$}
+\DisplayProof
+\end{center}
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Composici\'on.
+
+\begin{center}
+\AxiomC{$\pi \vdash e  : \commt$}
+\AxiomC{$\pi \vdash e' : \commt$}
+\BinaryInfC{$\pi \vdash \cseq{e}{e'} : \commt$}
+\DisplayProof
+\end{center}
+
+En la regla de inferencia para la declaraci\'on de variable, ocurre 
+algo muy similar a lo que ocurre con la regla de la abstracci\'on lambda
+en cuanto a que se extiende el contexto, la principal diferencia ser\'a
+que solamente vamos a poder agregar el identificador con un phrase type "fijo",
+donde con "fijo" nos referimos a que solamente un identificador podr\'a ser
+de tipo $\deltavar$.
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Declaraci\'on de variable.
+
+\begin{center}
+\AxiomC{$\pi \vdash e  : \deltaexp$}
+\AxiomC{$\pi,\iota:\deltavar \vdash e' : \commt$}
+\BinaryInfC{$\pi \vdash \newdeltavar{\iota}{e}{e'} : \commt$}
+\DisplayProof
+\end{center}
+
+Antes mencin\'abamos que el tipo $\deltavar$ encapsulaba de manera bien
+separada la noci\'on de un identificador utilizado como contenedor de un
+valor o utilizado como un valor en si mismo. En la regla de la asignaci\'on
+se ve como para guardar un valor hace falta que la parte izquierda tenga
+tipo $\deltaacc$, es decir el tipo $\deltavar$ visto como contenedor y
+la parte derecha tenga tipo $\deltaexp$, que en el caso de ser un identificador
+es el tipo $\deltavar$ visto como valor.
+
+\
+
+\noindent
+$\texttt{Ty Rule:}$ Asignaci\'on.
+
+\begin{center}
+\AxiomC{$\pi \vdash e   : \deltaacc$}
+\AxiomC{$\pi \vdash e'  : \deltaexp$}
+\BinaryInfC{$\pi \vdash \assig{e}{e'} : \commt$}
+\DisplayProof
+\end{center}
+
 
 \section{Sem\'antica}
 
-Ha llegado el momento de definir la sem\'antica de las frases de nuestro lenguaje,
-para comenzar hay que aclarar que en realidad la sem\'antica no sera sobre
-las frases, si no sobre los juicios de tipado, es decir que para evaluar una frase
-esta tiene que estar correctamente tipada. Antes vimos que tanto para los tipos
-como para los contexto estos se correspond\'ian mediante un funtor $\semBrcks{ \ }$
-con objeto de la categor\'ia $\DC$, los cuales eran funtores. Ahora veremos que
-la sem\'antica de un juicio de tipado sera una transformaci\'on natural en $\DC$,
-es decir una flecha, entre un funtor $\semBrcks{ \ }$ aplicado a un contexto y
-$\semBrcks{ \ }$ aplicado a un tipo. Formalmente, sean $e$ una frase del lenguaje
-$\theta$ un tipo, $\pi$ un contexto y $\pi \vdash e : \theta$ un juicio de tipado, 
-luego\\
+A nivel sint\'actico vimos que Algol-like esta compuesto por las frases
+de lambda leq mas frases que representan la parte imperativa, de hecho al 
+presentar las reglas de inferencia para las frases de Algol-like, las
+reglas de la parte de lambda leq sufrieron un \'unico cambio simple
+en cuanto a los nombre de los tipos y pudimos aprovechar la definici\'on
+completa. Ahora que vamos a dar la sem\'antica 
+de Algol-like y no vamos a poder hacer algo similar con la sem\'antica, es decir aprovechar las
+ecuaciones sem\'anticas que definimos para lambda leq, la raz\'on principal es
+que el significado de nuestros tipos ya no ser\'a tan simple debido a que
+nos aparecen cuestiones relacionadas con el stack discipline. \\
 
-\noindent
-$\semBrcks{ \pi \vdash e : \theta }$ $:$ $\semBrcks{\pi} \rTo \semBrcks{\theta}$\\
+Adem\'as para definir las dos sem\'anticas que pretendemos para Algol-Like,
+con y sin stack discipline, vamos a tener dos pares; ecuaci\'on sem\'antica para
+el juicio de tipado que declara variables imperativas y categor\'ias de
+estados de la parte imperativa. Luego
+con una sola ecuaci\'on sem\'antica para el resto de nuestros
+juicios de tipado vamos a poder representar comportamientos distintos
+eligiendo entre uno u otro de estos pares.
 
-\noindent
-y cuya definici\'on para las distintas frases del lenguaje veremos a continuaci\'on.
+\subsection{Categor\'ias de Algol-like}
 
-\subsection{Constantes}
+Comencemos adaptando la categor\'ia de tipos $\Theta$, lo \'unico 
+por hacer ser\'a cambiar la clase de tipos de lambda leq por los de
+Algol-like.
 
-$\semBrcks{ \pi \vdash \true : \boolexp }C\eta\sigma$ $=$ $\iotabot true$\\
+\begin{definition}\label{algol:typescategory}
+La categor\'ia de tipos, que nombraremos $\Theta$, se define como sigue
 
-\noindent
-$\semBrcks{ \pi \vdash \false : \boolexp }C\eta\sigma$ $=$ $\iotabot false$\\
-
-\noindent
-$\semBrcks{ \pi \vdash i : \intexp }C\eta\sigma$ $=$ $\iotabot i$\\
-
-\noindent
-$\semBrcks{ \pi \vdash r : \realexp }C\eta\sigma$ $=$ $\iotabot r$\\
-
-\subsection{Operadores unarios}
-
-$\semBrcks{ \pi \vdash \neg b : \boolexp }C\eta\sigma$ 
-$=$ 
-$(\lambda b . \iotabot \neg b)_{\dbot}\semBrcks{\pi \vdash b : \boolexp}C\eta\sigma$\\
-
-\noindent
-$\semBrcks{ \pi \vdash -n : \deltaexp }C\eta\sigma$ 
-$=$ 
-$(\lambda n . \iotabot -n)_{\dbot}\semBrcks{\pi \vdash n : \deltaexp}C\eta\sigma$\\
-
-\noindent
-con $\delta \in \{ \intt,\realt \}$
-
-\subsection{Operadores binarios}
-
-$\semBrcks{ \pi \vdash b \otimes b' : \boolexp }C\eta\sigma$ 
-$=$ \\
+$\Theta_0$ $=$ $\{\theta \ | \ \theta \ \in \phraseTypes \}$\\
 \indent
-$(\lambda b . (\lambda b' . \iotabot (b \otimes b'))_{\dbot}
-\semBrcks{\pi \vdash b' : \boolexp}C\eta\sigma)_{\dbot}
-\semBrcks{\pi \vdash b : \boolexp}C\eta\sigma$\\
+$\Theta_1(\theta,\theta')$ $=$ $\{\theta \rTo \theta' \ | \ \theta \leq \theta'\}$\\
 
-con $\otimes \in \{ \wedge,\vee,\Rightarrow,\Leftrightarrow \}$\\
+\end{definition}
 
-\noindent
-$\semBrcks{ \pi \vdash i \odot i' : \intexp }C\eta\sigma$ 
-$=$ \\
+Sobre la categor\'ia de contextos no hay nada que cambiar, luego
+lo que nos queda por actualizar es la categor\'ia $\CD$, esta 
+en lambda leq la hab\'iamos definido como la categor\'ia concreta
+$\Dom$, la cuesti\'on es que ahora esta no nos alcanza solamente con esta y vamos a 
+necesitar un enfoque bastante distinto debido a que la separaci\'on 
+que existe entre el calculo lambda y la parte imperativa nos induce
+una separac\'ion entre los ambientes y los estados. As\'i por ejemplo
+sucede que $\semBrcks{\intexp}$ ya no ser\'a un $S_\intt$ que represente
+el conjunto de enteros, si no que pasar\'a a ser una funci\'on de
+estados en $S_\intt$.\\
+
+Pero antes de continuar, definamos que ser\'a un estado en nuestra sem\'antica.
+En general un estado ser\'a un conjunto de valores pero con la particularidad 
+de tener forma, donde con forma nos referimos a que si tom\'aramos un estado
+$(1,True)$ que pertenece a $\Z \times \B$, diremos que este estado tiene 
+forma $\lrangles{\Z,\B}$.
+
+\begin{definition}\label{algol:states}
+
+Un estado ser\'a un elemento perteneciente a $S_1 \times \ldots \times S_n$, 
+con $0 \leq n$ con $S_i$ conjuntos. Diremos adem\'as que este estado tiene
+forma $\lrangles{S_1,\ldots,S_n}$\\
+
+Adem\'as dados dos estados $\sigma$ y $\sigma'$, diremos que $\sigma$ extiende
+a $\sigma'$ cuando la forma de $\sigma$ sea tramo inicial de la forma de $\sigma'$.
+
+\end{definition}
+
+Introduzcamos algunas funciones \'utiles que nos van a servir para
+operar sobre los estados y las formas de los estados. Vamos a usar
+$\concat$ para definir la concatenaci\'on de estados y formas de estado,
+adem\'as para operar sobre los estados vamos a tener tres funciones b\'asicas,
+$head$, $tail$ y $last$. Sea $\sigma$ un estado con forma $\alpha \concat \alpha'$
+luego tenemos que $head_\alpha \sigma$ y $tail_\alpha¿ \sigma$ son los \'unicos
+estados tal que $head_\alpha \sigma$ $\concat$ $tail_\alpha¿ \sigma$ $=$ $\sigma$.
+Dado un estado con forma $\lrangles{S}$, tenemos que $last_S \sigma$ sera el
+\'unico valor contenido en el estado $\sigma$.\\
+
+Ahora con los estados definidos, vamos a dar una definici\'on de
+la categor\'ia de estados, en esta categor\'ia b\'asicamente cada objeto ser\'a
+un conjunto de estados con la misma forma y una flecha entre dos objetos
+determinar\'a como contraer la forma de un objeto y como transformar un estado
+con cierta forma en un estado mas grande.
+
+\begin{definition}\label{algol:statecategory}
+La categor\'ia de estados, que nombraremos $\C$, se define como sigue,\\
+
 \indent
-$(\lambda i . (\lambda i' . \iotabot (i \odot i'))_{\dbot}
-\semBrcks{\pi \vdash i' : \intexp}C\eta\sigma)_{\dbot}
-\semBrcks{\pi \vdash i : \intexp}C\eta\sigma$\\
-
-con $\odot \in \{ \div,\rem \}$\\
-
-\noindent
-$\semBrcks{ \pi \vdash r / r' : \realexp }C\eta\sigma$ 
-$=$ \\
+$\C_0$ $=$ $\{C$ $|$ $C$ es el conjunto de todos los estados con determinada forma$\}$\\
 \indent
-$(\lambda r . (\lambda r' . \iotabot (r / r'))_{\dbot}
-\semBrcks{\pi \vdash r' : \realexp}C\eta\sigma)_{\dbot}
-\semBrcks{\pi \vdash r : \realexp}C\eta\sigma$\\
+$\C_1(C,C')$ $=$ $\{C \rTo^{(h,s)} C'$ $|$ $C'$ extiende a $C\}$\\
 
-\noindent
-$\semBrcks{ \pi \vdash i \ominus i' : \deltaexp }C\eta\sigma$ 
-$=$ \\
-\indent
-$(\lambda i . (\lambda i' . \iotabot (i \ominus i'))_{\dbot}
-\semBrcks{\pi \vdash i' : \deltaexp}C\eta\sigma)_{\dbot}
-\semBrcks{\pi \vdash i : \deltaexp}C\eta\sigma$\\
-
-con $\odot \in \{ +,-,* \}$, $\delta \in \{\intt,\realt\}$\\
-
-\noindent
-$\semBrcks{ \pi \vdash e \oplus e' : \boolexp }C\eta\sigma$ 
-$=$ \\
-\indent
-$(\lambda e . (\lambda e' . \iotabot (e \oplus e'))_{\dbot}
-\semBrcks{\pi \vdash e' : \theta}C\eta\sigma)_{\dbot}
-\semBrcks{\pi \vdash e : \theta}C\eta\sigma$\\
-
-con $\oplus \in \{ =,\neq,\leq,\geq,<,> \}$, $\theta \in \{\intexp,\realexp,\boolexp\}$\\
-
-\subsection{Calculo lambda}
-
-$\semBrcks{ \pi \vdash \iota : \theta }C\eta$ $=$ $\eta\iota$
-
-cuando $\pi$ contiene el par $\iota:\theta$\\
-
-\noindent
-$\semBrcks{ \pi \vdash ee' : \theta' }C\eta$ 
-$=$ 
-$\semBrcks{ \pi \vdash e : \theta \rightarrow \theta' }C\eta\langle\rangle
-(\semBrcks{ \pi \vdash e' : \theta }C\eta)$\\
-
-\noindent
-$\semBrcks{ \pi \vdash \lambda \iota_{\theta} . e : \theta \rightarrow \theta' }C \eta C'z$ 
-$=$ 
-$\semBrcks{ \pi \vdash e : \theta' }(C \concat C')
-[\semBrcks{(\pi)}(C \rTo C')\eta | \iota:z]$\\
-
-\noindent
-$\semBrcks{ \pi \vdash \rec e : \theta \rightarrow \theta' }C \eta$ 
-$=$ 
-$\Y_{\semBrcks{\theta}C} 
-(\semBrcks{ \pi \vdash e : \theta \rightarrow \theta}C\eta\langle\rangle)$\\
-
-\section{Comandos}
-
-$\semBrcks{ \pi \vdash \cskip : \commt }C\eta\sigma$ 
-$=$ $\iotabot sigma$\\
-
-\noindent
-$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \theta }C\eta\sigma$ 
-$=$ \\
-\indent
-$(\lambda b . if \ b $ $then \semBrcks{ \pi \vdash e : \theta}C\eta\sigma$\\
-\indent \indent \indent \ \ 
-$else \semBrcks{ \pi \vdash e' : \theta}C\eta\sigma)_{\dbot}$\\
-\indent \indent \indent \indent
-$(\semBrcks{ \pi \vdash b : \boolexp}C\eta\sigma)$\\
-
-\noindent
-$\semBrcks{ \pi \vdash \assig{e}{e'} : \commt }C\eta\sigma$ 
-$=$ 
-$(\lambda x . \semBrcks{\pi \vdash e : \deltaacc}C\eta x)_{\dbot}
-(\semBrcks{ \pi \vdash e : \deltaexp }C\eta\sigma)$\\
-
-\noindent
-$\semBrcks{ \pi \vdash \seq{e}{e'} : \commt }C\eta\sigma$ 
-$=$ 
-$(\lambda \sigmahat . \semBrcks{\pi \vdash e : \commt}C\eta\sigmahat)_{\dbot}
-(\semBrcks{ \pi \vdash e : \commt}C\eta\sigma)$\\
-
-\noindent
-$\semBrcks{ \pi \vdash \cwhiledo{b}{e'} : \commt }C\eta$ 
-$=$ \\
-\indent 
-$\Y_{\semBrcks{\commt}C}$ $(\lambda c . \lambda \sigma .$\\
+donde \ $h: C' \rightarrow C$\\
 \indent \indent \indent
-$(\lambda b . if \ b $ $then \ c_{\dbot} \semBrcks{\pi \vdash e : \commt}C\eta\sigma$\\
-\indent \indent \indent \indent \indent \ \ 
-$else \ \iotabot \sigma)_{\dbot}$\\
+	  $h = head_C$\\
+\indent \indent \indent
+	  $s: (C \rightarrow C'_{\bot}) \rightarrow (C' \rightarrow C'_{\bot})$\\
+\indent \indent \indent
+	  $s = \lambda \sigmahat.$ 
+	  	   $(\lambda\sigma. \ \sigma \concat (tail_C' \sigma))_{\bot}$
+	  	   	$(c(head_C \sigma))$
+
+\end{definition}
+
+Notar que si tomamos un objeto $C$ de $\C$ podemos hablar de que este objeto
+tiene cierta forma, b\'asicamente la forma de los estados que agrupa, luego
+podemos hablar de dado otro objeto $C'$, este extiende a $C$ y esta extensi\'on
+se determina de la misma manera que para los estados. Adem\'as aprovechamos 
+que podemos hablar acerca de que $C$ tiene forma, para hacer un abuso de 
+notaci\'on en $head$ y $tail$.\\
+
+Ahora que tenemos la categor\'ia $\C$ estamos en condiciones de definir quien
+ser\'a $\CD$, una idea inicial es pensar en la categor\'ia funtorial
+$\Dom^\C$ como sugiere (ref Reynolds, Theories of programming... Cap. 19.), pero
+parece existir un problema seg\'un se menciona en (ref Oles, Functor categories and 
+store shapes, Chap. 11.) que tiene que ver con que $\Dom^\C$ parece no ser $\CCC$
+a pesar de que $\Dom$ lo sea y hab\'iamos mencionado que \'ibamos a querer que
+nuestra categor\'ia $\CD$ sea $\CCC$. En esta ultima referencia entonces se
+plantea el uso de $\PDom$, luego $\CD$ nos queda como la categor\'ia funtorial $\PDom^\C$.
+
+\subsection{Ecuaciones sem\'anticas}
+
+Para la definici\'on de las ecuaciones sem\'anticas primero vamos a tener
+que acomodar la sem\'antica de nuestros tipos y contextos, antes ya mencionamos
+que la representaci\'on que vamos a necesitar, por ejemplo, para el tipo $\intexp$
+ya no ser\'a tan simple como antes. 
+
+Notar que como nuestra categor\'ia $\CD$ es ahora una categor\'ia funtorial, 
+vamos a tener que la sem\'antica de un objeto $\theta$ de $\Theta$ ser\'a un funtor,\\
+
+$\semBrcks{\theta}$ $:$ $\C \rightarrow \PDom$\\
+
+tal que aplicado a un objeto, $C$, de $\C$ es,\\
+
+$\semBrcks{\theta} C$ $:$ $\PDom$\\
+
+y aplicado a una flecha, $C \rTo^{(h,s)} C'$ es,\\
+
+$\semBrcks{\theta} (h,s)$ $:$ $\semBrcks{\theta} C \rightarrow \semBrcks{\theta} C'$.\\
+
+en general, el comportamiento de esta ecuaci\'on ser\'a la traducci\'on del estado actual
+con forma $C$ a un estado extendido con forma $C'$. 
+
+\noindent
+Adem\'as, la sem\'antica de una flecha $\theta \rTo \theta'$ de $\Theta$ ser\'a
+una transformaci\'on natural, indexada por objetos de $\C$,\\
+
+$\semBrcks{\theta \rTo^{\leq} \theta'}C$ $:$ $\semBrcks{\theta}C \rightarrow \semBrcks{\theta'}C$.
+
+\begin{definition}\label{algol:typesemfunctor}
+Sea $\semBrcks{ \_ } : \Theta \rightarrow \CD$ un funtor, tal que\\
+
+$\semBrcks{\deltaexp}_0 C$ $=$ $C \rightarrow (S_\delta)_\bot$\\ 
+\indent
+$\semBrcks{\deltaexp}_0 (h,s) \ e$ $=$ $e \circ h$\\
+\
+
+$\semBrcks{\commt}_0 C$ $=$ $C \rightarrow C_\bot$\\
+\indent
+$\semBrcks{\commt}_0 (h,s) \ c$ $=$ $s \ c$\\
+\
+
+$\semBrcks{\deltaacc}_0 C$ $=$ $S_\delta \rightarrow \semBrcks{\commt}C$\\
+\indent
+$\semBrcks{\deltaacc}_0 (h,s) \ a$ $=$ $s \circ a$\\
+\
+
+$\semBrcks{\deltavar}_0 C$ $=$ $(\semBrcks{\deltaacc}C,\semBrcks{\deltaexp}C)$\\
+\indent
+$\semBrcks{\deltavar}_0 (h,s) \ (a,e)$ $=$ $( \lambda x. \ \semBrcks{\commt}(h,s)(a \ x)
+										   , \semBrcks{\deltaexp}(h,s)e
+										   )$\\
+\
+
+$\semBrcks{\theta \rightarrow \theta'}_0 C$ $=$ $\lambda C'. \ 
+												  \semBrcks{\theta}(C \concat C') 
+												  \rightarrow
+												  \semBrcks{\theta'}(C \concat C')$\\
+\indent
+$\semBrcks{\theta \rightarrow \theta'}_0 (h,s) \ f \ \widehat{C}$ $=$ 
+														$f(\overline{C} \concat \widehat{C})$\\
+\indent \indent donde $C \concat \overline{C} = C'$.\\
+\
+
+\indent
+$\semBrcks{\intexp \leq \realexp}_1 C \ e$ $=$ $\J \circ e$\\
+\
+
+\indent
+$\semBrcks{\realacc \leq \intacc}_1 C \ a$ $=$ $a \circ \J$\\
+\
+
+\indent
+$\semBrcks{\deltavar \leq \deltaexp}_1 C \ (a,e)$ $=$ $e$\\
+\
+
+\indent
+$\semBrcks{\deltavar \leq \deltaacc}_1 C \ (a,e)$ $=$ $a$\\
+\
+
+\indent
+$\semBrcks{\theta \leq \theta}_1 C$ $=$ $1_{\semBrcks{\theta} C}$\\
+\
+
+\indent
+$\semBrcks{\theta \leq \theta''}_1 C$ $=$ 
+					$\semBrcks{\theta' \leq \theta''}_1 C \circ \semBrcks{\theta \leq \theta'}_1 C$\\
+\
+
+\indent
+$\semBrcks{(\theta_0 \rightarrow \theta'_0) \leq (\theta_1 \rightarrow \theta'_1)}_1 C \ f \ \widehat{C}$ \\
+			\indent \indent \indent \indent \indent \indent
+			$=$ 
+			$\semBrcks{\theta'_0 \leq \theta'_1}_1 (C \concat \widehat{C}) 
+				\circ 
+			(f \ \widehat{C}) 
+				\circ 
+			\semBrcks{\theta_1 \leq \theta_0}_1 (C \concat \widehat{C}) 
+			$\\
+
+con $\J$ la inyecci\'on de enteros en reales.
+
+\end{definition}
+
+Ahora que hemos definido las ecuaciones sem\'anticas para nuestros tipos 
+hagamos un repaso sobre las mas relevantes de ellas. En determinados momentos
+vamos a hablar acerca de $\textit{alcance con forma}$, a lo que nos vamos
+a referir es, no solo al contexto en el cual un identificador tiene sentido,
+si no adem\'as la forma que debe tener un estado en ese contexto.
+
+\begin{itemize}
+\item $\semBrcks{\deltaexp}C$, como ya hemos mencionado ser\'a una funci\'on 
+de un estado en un conjunto $S_\delta$ de valores, la motivaci\'on de 
+esta definici\'on es poder disponer del estado para obtener el valor de 
+una variable imperativa cuando se la utiliza como expresi\'on.
+
+\item $\semBrcks{\deltaexp}(h,s) \ e$, acá $e : C \rightarrow S_\delta$, luego
+hacemos la transformaci\'on componiendo con $h : C' \rightarrow C$, para obtener
+$e \circ h : C' \rightarrow S_\delta$.
+
+\item $\semBrcks{\commt}C$, esta tal vez sea la mas intuitiva, ser\'a
+una funci\'on de un estado con forma $C$ en otro con la misma forma $C$ y
+como en todos los casos contemplando la no terminaci\'on.
+
+\item $\semBrcks{\commt}(h,s) \ c$, parecido a como pasaba para $\deltaexp$,
+tenemos un $c : C \rightarrow C_\bot$ y tenemos que 
+$s : (C \rightarrow C_\bot) \rightarrow (C' \rightarrow C'_\bot)$, luego
+$s \ c : C' \rightarrow C'_\bot$.
+
+\item $\semBrcks{\deltaacc}C$, el tipo representa a la variable como contenedora
+de valores, luego la sem\'antica ser\'a una funci\'on que toma un valor en $S_\delta$,
+un estado y devuelve un nuevo estado con el valor de la variable modificado.
+
+\item $\semBrcks{\deltaacc}(h,s) \ a$, como mencion\'abamos antes, 
+$a : S_\delta \rightarrow (C \rightarrow C_\bot)$ y
+$s : (C \rightarrow C_\bot) \rightarrow (C' \rightarrow C'_\bot)$, por lo tanto
+con la composici\'on $s \circ a : S_\delta \rightarrow (C' \rightarrow C'_\bot)$
+obtenemos la nueva funci\'on que actualiza valores de una variable en un estado
+extendido.
+
+\item $\semBrcks{\theta \rightarrow \theta'}C$, para interpretar esta ecuaci\'on
+podemos empezar cuestionando porque no podr\'ia estar definida de la siguiente 
+manera,\\
+
+$\semBrcks{\theta \rightarrow \theta'}C = \semBrcks{\theta}C \rightarrow \semBrcks{\theta'}C$\\
+
+y el problema esta en bajo que alcance se realiza la aplicaci\'on, 
+b\'asicamente puede suceder que la aplicaci\'on suceda en un alcance
+que tiene nuevas declaraciones y como consecuencia de esto, el estado tenga diferente
+forma. La soluci\'on entonces se basa en obtener cuanto se extendió el estado.
+
+\item $\semBrcks{\theta \rightarrow \theta'} (h,s) \ f$, pensemos que $f$ puede
+aplicarse en un alcance con, por lo menos, forma $C$ y queremos que pase a, por lo menos,
+poder aplicarse en un alcance con forma $C'$, entonces ampliamos hasta por lo menos
+la forma $C'$, con $\overline{C}$ y agregamos la posibilidad de seguir ampliando con $\widehat{C}$.
+
+\item $\semBrcks{(\theta_0 \rightarrow \theta'_0) \leq (\theta_1 \rightarrow \theta'_1)}_1 C \ f \ \widehat{C}$,
+lo que sucede con esta ecuaci\'on no es muy diferente a lo que pasa con la definici\'on hecha en
+lambda leq, el \'unico cuidado que hay que tener es el de extender la forma de $C$.
+
+\end{itemize}
+
+Pasemos ahora a definir la sem\'antica de nuestros contextos, de igual manera que
+hicimos con los tipos, empecemos analizando los tipos de las ecuaciones que vamos
+a definir. Sea $\pi$ un objeto de $\Pi$ luego tenemos que,\\
+
+$\semBrcks{\pi}C : \PDom$, \\
+
+$\semBrcks{\pi}(h,s) : \semBrcks{\pi}C \rightarrow \semBrcks{\pi}C'$ y\\
+
+$\semBrcks{\pi \rTo^{\leq} \pi'}_1C : \semBrcks{\pi}C \rightarrow \semBrcks{\pi'}C$\\
+
+\begin{definition}\label{algol:contextsemfunctor}
+Sea $\semBrcks{ \_ } : \Pi \rightarrow \CD$ un funtor, tal que
+
+$\semBrcks{\pi}_0C$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}C$\\
+\
+
+\indent
+$\semBrcks{\pi}_0(h,s) \ \eta$ $=$ $\prod\limits_{\iota \in dom \ \pi} 
+												\semBrcks{\pi\iota}(h,s)(\eta\iota)$\\
+\
+
+\
+
+\indent
+$\semBrcks{\pi \leq \pi'}_1C$ $=$ $\prod\limits_{\iota \in dom \ \pi} 
+												\semBrcks{\pi\iota \leq \pi'\iota}C(\eta\iota)$
+
+\end{definition}
+
+De la pasada definici\'on la ecuaci\'on que nos va a interesar ser\'a $\semBrcks{\pi}_0(h,s) \ \eta$,
+esta nos servir\'a para acomodar un ambiente $\eta$ a una determinada forma cuando lo extendemos
+agregando un valor, veremos adem\'as que esto pasa solamente para la abstracci\'on lambda y
+la declaraci\'on de variable imperativa.\\
+
+Ahora que hemos definido la sem\'antica de contextos y tipos, podemos continuar con
+la sem\'antica de los juicios de tipado de las frases. Como hicimos antes vamos a definir un 
+funtor, solo que este tomar\'a un juicio de tipado $\pi \vdash e : \theta$ y 
+devolver\'a una transformaci\'on natural del funtor $\semBrcks{\pi}$ en el funtor $\semBrcks{\theta}$ 
+indexada por objetos de $\C$.\\
+\
+
+\noindent
+$\texttt{Denotal Sem:}$ Constantes.\\
+
+$\semBrcks{ \pi \vdash b : \boolexp }C \ \eta \ \sigma$ $=$ $\iotabot \ b$\\
+
+$\semBrcks{ \pi \vdash i : \intexp  }C \ \eta \ \sigma$ $=$ $\iotabot \ i$\\
+
+$\semBrcks{ \pi \vdash r : \realexp }C \ \eta \ \sigma$ $=$ $\iotabot \ r$\\
+
+\noindent
+$\texttt{Denotal Sem:}$ Operadores unarios.\\
+
+$\semBrcks{ \pi \vdash \neg b : \boolexp }C$ 
+$=$ 
+$(\lambda b . \ \iotabot \neg b)_{\dbot} \circ \semBrcks{\pi \vdash b : \boolexp}C$\\
+
+$\semBrcks{ \pi \vdash -n : \deltaexp }C$ 
+$=$ 
+$(\lambda n . \ \iotabot -n)_{\dbot} \circ \semBrcks{\pi \vdash n : \deltaexp}C$\\
+
+con $\delta \in \{ \intt,\realt \}$\\
+
+\noindent
+$\texttt{Denotal Sem:}$ Operadores binarios\\
+
+$\semBrcks{ \pi \vdash b \owedge b' : \boolexp }C \ \eta \ \sigma$ 
+$=$ \\
+\indent \indent \indent
+$(\lambda b . \ (\lambda b' . \ \iotabot (b \owedge b'))_{\dbot}
+\semBrcks{\pi \vdash b' : \boolexp}C \ \eta \ \sigma)_{\dbot}
+\semBrcks{\pi \vdash b : \boolexp}C \ \eta \ \sigma$\\
+
+con $\owedge \in \{ \wedge,\vee,\Rightarrow,\Leftrightarrow \}$\\
+
+$\semBrcks{ \pi \vdash i \oplus i' : \deltaexp }C \ \eta \ \sigma$ 
+$=$ \\
+\indent \indent \indent
+$(\lambda i . \ (\lambda i' . \ \iotabot (i \oplus i'))_{\dbot}
+\semBrcks{\pi \vdash i' : \deltaexp}C \ \eta \ \sigma)_{\dbot}
+\semBrcks{\pi \vdash i : \deltaexp}C \ \eta \ \sigma$\\
+
+con $\oplus \in \{ +,-,*,/\,\rem \}$, $\delta \in \{\intt,\realt\}$\\
+
+$\semBrcks{ \pi \vdash e \ominus e' : \boolexp }C \ \eta \ \sigma$ 
+$=$ \\
+\indent \indent \indent 
+$(\lambda e . (\lambda e' . \iotabot (e \ominus e'))_{\dbot}
+\semBrcks{\pi \vdash e' : \deltaexp}C \ \eta \ \sigma)_{\dbot}
+\semBrcks{\pi \vdash e : \deltaexp}C \ \eta \ \sigma$\\
+
+con $\ominus \in \{\leq,\geq,<,> \}$, $\delta \in \{\intt,\realt\}$\\
+
+$\semBrcks{ \pi \vdash e \ominus e' : \boolexp }C \ \eta \ \sigma$ 
+$=$ \\
+\indent \indent \indent 
+$(\lambda e . (\lambda e' . \iotabot (e \ominus e'))_{\dbot}
+\semBrcks{\pi \vdash e' : \deltaexp}C \ \eta \ \sigma)_{\dbot}
+\semBrcks{\pi \vdash e : \deltaexp}C \ \eta \ \sigma$\\
+
+con $\ominus \in \{=,\neq\}$\\
+
+\noindent
+$\texttt{Denotal Sem:}$ Expresi\'on condicional.\\
+
+$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \theta }C \ \eta \ \sigma$ 
+$=$ \\
+\indent \indent \indent 
+$(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \theta}C \ \eta \ \sigma$\\
+\indent \indent \indent \indent \indent \ \ \ \
+$else \ \semBrcks{ \pi \vdash e' : \theta}C \ \eta \ \sigma)_{\dbot}$ 
+$(\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ \sigma)$\\
+
+\noindent
+$\texttt{Denotal Sem:}$ Aplicaci\'on.\\
+
+$\semBrcks{ \pi \vdash ee' : \theta' }C \ \eta$ 
+$=$ 
+$\semBrcks{ \pi \vdash e : \theta \rightarrow \theta' }C \ \eta \ \lrangles{} \
+(\semBrcks{ \pi \vdash e' : \theta }C \ \eta)$\\
+
+\noindent
+$\texttt{Denotal Sem:}$ Operador de punto fijo.\\
+
+$\semBrcks{ \pi \vdash \rec e : \theta \rightarrow \theta' }C \ \eta$ 
+$=$ 
+$\Y_{\semBrcks{\theta}C} \ 
+(\semBrcks{ \pi \vdash e : \theta \rightarrow \theta}C \ \eta \ \lrangles{})$\\
+
+\noindent
+$\texttt{Denotal Sem:}$ Identificador.\\
+
+$\semBrcks{ \pi \vdash \iota : \theta }C \ \eta$ $=$ $\eta \ \iota$
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ cuando $\iota:\theta$ $\in$ $\pi$.\\
+
+\noindent
+$\texttt{Denotal Sem:}$ \cskip.\\
+
+$\semBrcks{ \pi \vdash \cskip : \commt }C \ \eta \ \sigma$ $=$ $\iotabot \ \sigma$\\
+
+\noindent
+$\texttt{Denotal Sem:}$ Composici\'on.\\
+
+$\semBrcks{ \pi \vdash \cseq{e}{e'} : \commt }C \ \eta$ 
+$=$ 
+$(\lambda \sigmahat . \ \semBrcks{\pi \vdash e : \commt}C \ \eta \ \sigmahat)_{\dbot}
+\circ
+(\semBrcks{ \pi \vdash e : \commt}C \ \eta)$\\
+
+\noindent
+$\texttt{Denotal Sem:}$ \cwhile.\\
+
+$\semBrcks{ \pi \vdash \cwhiledo{b}{e} : \commt }C \ \eta$ 
+$=$ \\
+\indent \indent \indent
+$\Y_{\semBrcks{\commt}C}$ $(\lambda c . \ \lambda \sigma . \ $\\
 \indent \indent \indent \indent \indent \indent
-$(\semBrcks{ \pi \vdash b : \boolexp}C\eta\sigma))$\\
+$(\lambda b . \ if \ b $ $then \ c_{\dbot} (\semBrcks{\pi \vdash e : \commt}C \ \eta \ \sigma)$\\
+ \indent \indent  \indent \indent \indent \indent \indent \indent \ \ \ \
+$else \ \iotabot \ \sigma)_{\dbot}$ \
+$(\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ \sigma))$\\
 
-\section{Comando para declarar variable imperativa}
+\noindent
+$\texttt{Denotal Sem:}$ Asignaci\'on.\\
 
+$\semBrcks{ \pi \vdash \assig{e}{e'} : \commt }C \ \eta \ \sigma$ 
+$=$ \\
+\indent \indent \indent \indent \indent 
+$(\lambda x . \ \semBrcks{\pi \vdash e : \deltaacc}C \ \eta \ x \ \sigma)_{\dbot}
+(\semBrcks{ \pi \vdash e : \deltaexp }C \ \eta \ \sigma)$\\
 
+\noindent
+$\texttt{Denotal Sem:}$ Abstracci\'on lambda.\\
 
-
-
-
-
-
-
+$\semBrcks{ \pi \vdash \lambda \iota_{\theta} . \ e : \theta \rightarrow \theta' }C \ \eta \ C' \ z$ 
+$=$ \\
+\indent \indent \indent \indent \indent 
+$\semBrcks{ \pi \vdash e : \theta' } \ (C \concat C') \
+[ \ \semBrcks{\pi}(C \rTo^{(h,s)} C')\eta \ | \ \iota:z \ ]$\\

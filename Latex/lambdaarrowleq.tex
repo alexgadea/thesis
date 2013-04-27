@@ -11,9 +11,9 @@ conceptos sobre la implementaci\'on utilizando tipos dependientes.
 El segundo lenguaje mantiene las mismas expresiones que el primero
 pero vamos a extender los tipos para que soporten subtipado.\\
 
-El c\'apitulo va a estar separado en dos secciones, implementaci\'on 
-de lambda arrow e implementaci\'on de lambda leq. A su vez, en cada
-una estar\'an las definiciones sint\'acticas, sem\'anticas y de tipos
+El c\'apitulo va a estar separado en dos secciones, el estudio
+de lambda arrow y el estudio de lambda leq. A su vez, en cada
+un estar\'an las definiciones sint\'acticas, sem\'anticas y de tipos
 relacionadas a cada lenguaje.
 
 \section{Lambda arrow}
@@ -453,7 +453,7 @@ $\semBrcks{\pi \vdash e \otimes e' : \intt}\eta$ $=$ \\
 														\semBrcks{\pi \vdash e : \intt}\eta$
 
 \begin{center}
-con $\otimes \in \{+,-,*,/\ , \textbf{rem}\}$
+con $\otimes \in \{+,-,*,/\ , \rem\}$
 \end{center}
 
 \noindent
@@ -715,9 +715,9 @@ $\semBrcks{\theta \leq \theta}_1$ $=$ $1_{\semBrcks{\theta}}$\\
 $\semBrcks{\theta \leq \theta''}_1$ $=$ $\semBrcks{\theta' \leq \theta''}_1 \circ \semBrcks{\theta \leq \theta'}_1$\\
 \indent
 $\semBrcks{(\theta_0 \rightarrow \theta'_0) \leq (\theta_1 \rightarrow \theta'_1)}_1$ 
-									$=$ 
-									$\lambda f \in \semBrcks{\theta_0 \rightarrow \theta'_0}_0$ .
-									$\semBrcks{\theta_1 \leq \theta'_1}_1 \circ f \circ \semBrcks{\theta'_0 \leq \theta_0}_1$\\
+				$=$ 
+				$\lambda f \in \semBrcks{\theta_0 \rightarrow \theta'_0}_0$ .
+				$\semBrcks{\theta'_0 \leq \theta'_1}_1 \circ f \circ \semBrcks{\theta_1 \leq \theta_0}_1$\\
 
 con $\J$ la inyecci\'on de enteros en reales.
 
@@ -734,7 +734,7 @@ La categor\'ia de contextos, que nombraremos $\Pi$, se define como sigue
 
 $\Pi_0$ $=$ $\{\pi \ | \ \pi \ \in \lrangles{Context} \}$\\
 \indent
-$\Pi_1$ $=$ $\{ \pi \rTo \pi' \ | \ \pi,\pi' \in \lrangles{Context} \ y \ \pi \leq \pi' \}$
+$\Pi_1(\pi,\pi')$ $=$ $\{ \pi \rTo \pi' \ | \ \pi \leq \pi' \}$
 
 \end{definition}
 
@@ -759,7 +759,8 @@ sem\'antica respectiva.
 Para completar la sem\'antica del lenguaje lambda leq, nos falta 
 definir una ecuaci\'on sem\'antica que relacione un juicio de tipado
 con una relaci\'on de orden entre dos tipos, la ecuaci\'on que estamos
-buscando relaci\'on con la regla de inferencia Subsumption.
+buscando relaci\'on con la regla de inferencia Subsumption.\\
+\
 
 \noindent
 $\texttt{Denotal Sem:}$ Subsumption.\
