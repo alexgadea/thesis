@@ -843,15 +843,27 @@ $(\lambda e . (\lambda e' . \iotabot (e \ominus e'))_{\dbot}
 con $\ominus \in \{=,\neq\}$\\
 
 \noindent
-$\texttt{Denotal Sem:}$ Expresi\'on condicional. (Este \textbf{if} esta re mal.)\\
+$\texttt{Denotal Sem:}$ Expresi\'on condicional.\\
 
-$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \theta }C \ \eta \ \sigma$ 
+$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltaacc}C \ \eta \ z \ \sigma$ 
 $=$ \\
 \indent \indent \indent 
-$(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \theta}C \ \eta \ \sigma$\\
+$(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \deltaacc}C \ \eta \ z \ \sigma$\\
 \indent \indent \indent \indent \indent \ \ \ \
-$else \ \semBrcks{ \pi \vdash e' : \theta}C \ \eta \ \sigma)_{\dbot}$ 
+$else \ \semBrcks{ \pi \vdash e' : \deltaacc}C \ \eta \ z \ \sigma)_{\dbot}$ 
 $(\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ \sigma)$\\
+
+$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \theta}C \ \eta$ 
+$C_0 \ z_0 \ \ldots \ C_n \ z_n \ \sigma$ $=$ \\
+\indent \indent \indent \ \
+$(\lambda b . \ if \ b $ $
+	then \ \semBrcks{ \pi \vdash e : \theta}C \ \eta \ C_0 \ z_0 \ \ldots \ C_n \ z_n \ \sigma$\\
+	\indent \indent \indent \indent \indent \ \ \ \ \ \
+	$else \ \semBrcks{ \pi \vdash e' : \theta}C \ \eta \ C_0 \ z_0 \ \ldots \ C_n \ z_n \ \sigma)_{\dbot}$ \\
+	\indent \indent \indent \indent \indent \indent \indent \indent \indent \indent \indent \indent
+$(\semBrcks{ \widehat{\pi} \vdash b : \boolexp}\widehat{C} \ \widehat{\eta} \ \sigma)$\\
+
+mmm algo no esta bien con la ecuaci\'on anterior.\\
 
 \noindent
 $\texttt{Denotal Sem:}$ Aplicaci\'on.\\
@@ -864,7 +876,7 @@ $\semBrcks{ \pi \vdash e : \theta \rightarrow \theta' }C \ \eta \ \lrangles{} \
 \noindent
 $\texttt{Denotal Sem:}$ Operador de punto fijo.\\
 
-$\semBrcks{ \pi \vdash \rec e : \theta \rightarrow \theta' }C \ \eta$ 
+$\semBrcks{ \pi \vdash \rec e : \theta}C \ \eta$ 
 $=$ 
 $\Y_{\semBrcks{\theta}C} \ 
 (\semBrcks{ \pi \vdash e : \theta \rightarrow \theta}C \ \eta \ \lrangles{})$\\
@@ -885,7 +897,7 @@ $\texttt{Denotal Sem:}$ Composici\'on.\\
 
 $\semBrcks{ \pi \vdash \cseq{e}{e'} : \commt }C \ \eta$ 
 $=$ 
-$(\lambda \sigmahat . \ \semBrcks{\pi \vdash e : \commt}C \ \eta \ \sigmahat)_{\dbot}
+$(\semBrcks{\pi \vdash e' : \commt}C \ \eta)_{\dbot}
 \circ
 (\semBrcks{ \pi \vdash e : \commt}C \ \eta)$\\
 
@@ -909,16 +921,17 @@ $\semBrcks{ \pi \vdash \assig{e}{e'} : \commt }C \ \eta \ \sigma$
 $=$ \\
 \indent \indent \indent \indent \indent 
 $(\lambda x . \ \semBrcks{\pi \vdash e : \deltaacc}C \ \eta \ x \ \sigma)_{\dbot}
-(\semBrcks{ \pi \vdash e : \deltaexp }C \ \eta \ \sigma)$\\
+(\semBrcks{ \pi \vdash e' : \deltaexp }C \ \eta \ \sigma)$\\
 
 \noindent
 $\texttt{Denotal Sem:}$ Abstracci\'on lambda.\\
 
 $\semBrcks{ \pi \vdash \lambda \iota_{\theta} . \ e : \theta \rightarrow \theta' }C \ \eta \ C' \ z$ 
-$=$ \\
-\indent \indent \indent \indent \indent 
+$=$ 
 $\semBrcks{ \pi \vdash e : \theta' } \ (C \concat C') \
-[ \ \semBrcks{\pi}(C \rTo^{(h,s)} C')\eta \ | \ \iota:z \ ]$\\
+[ \ \semBrcks{\pi}(h,s) \ \eta \ | \ \iota:z \ ]$\\
+
+con $(h,s)$ $:$ $C \rTo (C \concat C')$ \\
 
 \noindent
 $\texttt{Denotal Sem:}$ Declaraci\'on de variable (Stack discipline).\\
