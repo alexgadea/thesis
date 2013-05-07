@@ -928,7 +928,7 @@ $\texttt{Denotal Sem:}$ Abstracci\'on lambda.\\
 
 $\semBrcks{ \pi \vdash \lambda \iota_{\theta} . \ e : \theta \rightarrow \theta' }C \ \eta \ C' \ z$ 
 $=$ 
-$\semBrcks{ \pi \vdash e : \theta' } \ (C \concat C') \
+$\semBrcks{ \pi,\iota:\theta \vdash e : \theta' } \ (C \concat C') \
 [ \ \semBrcks{\pi}(h,s) \ \eta \ | \ \iota:z \ ]$\\
 
 con $(h,s)$ $:$ $C \rTo (C \concat C')$ \\

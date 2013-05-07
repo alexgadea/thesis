@@ -13,7 +13,7 @@ pero vamos a extender los tipos para que soporten subtipado.\\
 
 El c\'apitulo va a estar separado en dos secciones, el estudio
 de lambda arrow y el estudio de lambda leq. A su vez, en cada
-un estar\'an las definiciones sint\'acticas, sem\'anticas y de tipos
+uno estar\'an las definiciones sint\'acticas, sem\'anticas y de tipos
 relacionadas a cada lenguaje.
 
 \section{Lambda arrow}
@@ -86,7 +86,9 @@ sem\'antica de los tipos.\\
 
 Un contexto ser\'a una lista de pares que relacionan un identificador 
 con un tipo, con la restricci\'on de que no pueden
-existir identificadores repetidos. En particular, para
+existir identificadores repetidos, esta restricci\'on no es menor y mas
+adelante cuando tengamos definidas las reglas de inferencia vamos a
+ver alguna consecuencia de esta elecci\'on. En particular, para
 definir los contextos usamos una gram\'atica, esta elecci\'on 
 nos va a permitir tener una versi\'on sint\'actica de los contextos
 y ademas una sem\'antica la cual, un poco mas adelante, vamos a
@@ -324,6 +326,24 @@ $\texttt{Ty Rule:}$ Expresi\'on condicional.
 \DisplayProof
 \end{center}
 
+Ahora que tenemos todas las reglas de inferencia definidas podemos mencionar
+algo que hab\'iamos anticipado cuando definimos contextos, en relaci\'on a la
+restricci\'on que estos tienen. Empecemos considerando la frase 
+$\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota \times \iota}$ y supongamos
+no existe ninguna restricci\'on sobre los contextos, luego podemos dar
+una derivaci\'on con las reglas de inferencia que hemos dado tal que valide 
+el siguiente juicio de tipado 
+$\vdash \clambda{\iota}{\intt}
+		{\clambda{\iota}{\intt} \ \iota \times \iota : \intt \rightarrow \intt \rightarrow \intt}$.
+		
+La pregunta que surge, ahora que tenemos que este juicio es valido y por lo tanto
+deber\'iamos poder evaluar nuestra frase, esta relacionada con la doble
+ocurrencia de $\iota$. ¿ Cuando aplicamos esta frase a dos frases enteras, 
+que valor debe tomar $\iota$ ?; Para lidiar entonces con esto, es que
+tenemos la restricci\'on sobre los contextos, la idea es que ahora
+con la restricci\'on la frase $\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota \times \iota}$
+no pertenece a ning\'un juicio de tipado valido.
+
 \subsubsection{Sem\'antica}
 
 Ahora vamos a definir la sem\'antica de los tipos y los contextos, para esto vamos a
@@ -332,7 +352,9 @@ sem\'anticas usando sem\'antica denotacional.
 
 Vamos a necesitar de tres categor\'ias, una sera de los tipos ($\lrangles{Type}$),
 otra de contextos ($\lrangles{Context}$) y finalmente una para el significado 
-de los juicios de tipado.
+de los juicios de tipado. Lo interesante sobre utilizar categor\'ias, sobre
+todo para el significado de los juicios de tipado, ser\'a la capacidad de
+adaptar las ecuaciones sem\'anticas a las distintas caracter\'isticas del lenguaje.
 
 \begin{definition}\label{lambdaa:typescategory}
 La categor\'ia de tipos, que nombraremos $\Theta$, sera una categor\'ia discreta tal que 
@@ -351,11 +373,19 @@ $\Pi_0$ $=$ $\{\pi \ | \ \pi \ \in \lrangles{Context} \}$\\
 \end{definition}
 
 La categor\'ia sem\'antica, que nombraremos $\CD$, sera una categor\'ia cartesiana 
-cerrada, la cual iremos adaptando seg\'un las necesidades de nuestro lenguaje.
-Tanto para $\lambdaarrow$ como para $\lambdaleq$ esta sera $\Dom$, la cual es la
-categor\'ia que tiene por objetos a dominios y por flechas a funciones continuas.
+cerrada, la cual iremos adaptando seg\'un las necesidades de nuestro lenguaje. 
+Tanto para $\lambdaarrow$ como para $\lambdaleq$ esta sera $\Dom$.\\
 
-Ahora que tenemos los dominios necesarios, podemos definir dos funtores, 
+Antes de continuar con las definiciones sem\'anticas hagamos un repaso de cual es
+la categor\'ia $\Dom$, esta tiene por objetos a dominios y por flechas a
+funciones continuas. Adem\'as como caracter\'istica que nos va a interesar, 
+tenemos la existencia del operador de punto fijo que representaremos como $\Y_D$
+con $D$ un dominio y cuya existencia la garantiza (ref Reynolds Prop 2.5), como
+ya hemos mencionado es $\CCC$, donde el producto entre dos objetos $D$ y $D'$ 
+es el producto cartesiano de conjuntos y el exponencial $D^{D'}$ es el conjunto 
+de funciones de $D'$ en $D$.\\
+
+Ahora s\'i, con los dominios necesarios, podemos definir dos funtores, 
 uno entre $\Theta$ y $\CD$, y otro entre $\Pi$ y $\CD$. Esto implica definir 
 funciones, que mapee objetos en objetos y flechas en flechas, ahora como $\Theta$ y $\Pi$ 
 son discreta, la definici\'on de estas ultimas funciones es directa, por lo 
@@ -367,7 +397,7 @@ Mencionamos adem\'as que con $\bot$ vamos a representar la no terminaci\'on, est
 va a hacer falta ya que nuestro lenguaje b\'asico incluye operador de punto fijo.
 
 \begin{definition}\label{lambdaa:typesemfunctor}
-Sea $\semBrcks{ \ } : \Theta \rightarrow \CD$ un funtor, tal que
+Sea $\semBrcks{ \_ } : \Theta \rightarrow \CD$ un funtor, tal que
 
 $\semBrcks{\delta}_0$ $=$ $(S_\delta)_\bot$\\
 \indent
@@ -378,7 +408,7 @@ $\semBrcks{\theta \rightarrow \theta'}_0$ $=$ $\semBrcks{\theta'}_0^{\semBrcks{\
 Notar que como $\CD$ es $\mathcal{CCC}$ entonces podemos asegurar que existe el objeto exponencial.
 
 \begin{definition}\label{lambdaa:contextsemfunctor}
-Sea $\semBrcks{ \ } : \Pi \rightarrow \CD$ un funtor, tal que
+Sea $\semBrcks{ \_ } : \Pi \rightarrow \CD$ un funtor, tal que
 
 $\semBrcks{\pi}_0$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}$
 
@@ -395,11 +425,11 @@ podemos comentar que las ecuaciones sem\'anticas se definen sobre un juicio
 de tipado y no sobre las expresiones en s\'i. Esto implica entonces, que para evaluar
 un programa este antes debe haber typecheckeado correctamente.
 
-Una ecuaci\'on sem\'antica entonces tomara un juicio de tipado valido, un elemento 
-perteneciente a un objeto de la categor\'ia $\CD$ y retornara otro elemento perteneciente
-a un objeto de $\CD$, es decir, dado un juicio $\pi \vdash e : \theta$, tendremos 
-objetos $\semBrcks{\pi}$ y $\semBrcks{\theta}$ tal que la la ecuaci\'on sem\'antica 
-de este juicio tiene tipo $\semBrcks{\pi \vdash e : \theta} : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$.
+Una ecuaci\'on sem\'antica entonces estar\'a definida por un juicio de tipado valido,
+supongamos $\pi \vdash e : \theta$, un objeto de la categor\'ia $\CD$, determinado por 
+el funtor $\semBrcks{\pi}$, otro objeto de $\CD$, determinado por $\semBrcks{\theta}$ y
+un funtor sobre el juicio de tipado, tal que, 
+$\semBrcks{\pi \vdash e : \theta} : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$.\\
 
 Agregamos a nuestra lista de metavariables, $\eta$ con tipo $\semBrcks{\pi}$.
 
@@ -419,13 +449,6 @@ $\semBrcks{\pi \vdash i : \intt} \eta$  $=$ $i$\\
 
 $\semBrcks{\pi \vdash r : \realt} \eta$ $=$ $r$
 \end{center}
-
-\
-
-\
-
-\
-
 \
 
 \noindent
@@ -539,7 +562,7 @@ $\texttt{Denotal Sem:}$ Abstracci\'on lambda.\
 \
 
 $\semBrcks{\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'}\eta$ $=$
-						$\lambda x \in \semBrcks{\theta}$ . $\semBrcks{\pi \vdash e : \theta'}[\ \eta \ , \ \iota:x \ ]$
+						$\lambda x \in \semBrcks{\theta}$ . $\semBrcks{\pi,\iota:\theta \vdash e : \theta'}[\ \eta \ | \ \iota:x \ ]$
 						
 \
 
@@ -548,7 +571,7 @@ $\texttt{Denotal Sem:}$ Operador de punto fijo.\
 
 \
 
-$\semBrcks{\pi \vdash \rec{e} : \theta}\eta$ $=$ $\Y (\semBrcks{\pi \vdash e : \theta \rightarrow \theta}\eta)$
+$\semBrcks{\pi \vdash \rec{e} : \theta}\eta$ $=$ $\Y_{\theta} (\semBrcks{\pi \vdash e : \theta \rightarrow \theta}\eta)$
 
 \
 
@@ -560,7 +583,64 @@ $\texttt{Denotal Sem:}$ Identificador.\
 $\semBrcks{\pi \vdash \iota : \theta}\eta$ $=$ $\eta \iota$\\
 
 Estas ultimas ecuaciones nos terminan de definir la sem\'antica de nuestro 
-primer lenguaje lambda arrow.
+primer lenguaje lambda arrow.\\
+
+Ahora que tenemos nuestro lenguaje definido tanto sint\'acticamente como
+sem\'anticamente, veamos algunas propiedades y caracter\'isticas. Tomemos
+la ecuaci\'on sem\'antica de la abstracci\'on lambda y analic\'emosla un 
+poco, podemos empezar notando que el significado que le estamos dado
+a la abstracci\'on lambda de nuestro lenguaje se corresponde exactamente
+con la noci\'on de funci\'on, de hecho, no hay que confundir la letra lambda
+que ocurre en el lado izquierdo de la que ocurre en el lado derecho de la
+ecuaci\'on. Con esto en mente analicemos un poco mas de cerca la definici\'on,\\
+
+$\semBrcks{\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'}\eta$ $:$
+$\semBrcks{\theta'}^{\semBrcks{\theta}}$\\
+
+\noindent
+esto recordando que $\semBrcks{\theta \rightarrow \theta'}$ $=$ $\semBrcks{\theta'}^{\semBrcks{\theta}}$,
+es decir, como ya mencionamos antes, el significado de la abstracci\'on lambda es
+una funci\'on en $\Dom$, que va de $\semBrcks{\theta}$ en $\semBrcks{\theta'}$. Mirando
+ahora la parte derecha,\\
+
+$\lambda x \in \semBrcks{\theta}$ . 
+				$\semBrcks{\pi,\iota:\theta \vdash e : \theta'}[\ \eta \ | \ \iota:x \ ]$ $:$
+				$\semBrcks{\theta} \rightarrow \semBrcks{\theta'}$\\
+
+\noindent
+vemos que efectivamente es una funci\'on en el dominio correcto, adem\'as en\\
+
+$\semBrcks{\pi,\iota:\theta \vdash e : \theta'}$ $:$ 
+								$\semBrcks{pi,\iota:\theta} \rightarrow \semBrcks{\theta'}$\\
+
+\noindent
+la aplicaci\'on del entorno $[\ \eta \ | \ \iota:x \ ]$ extendido tipa perfecto 
+con $\semBrcks{pi,\iota:\theta}$ dando como resultado el tipo esperado,\\
+
+$\semBrcks{\pi,\iota:\theta \vdash e : \theta'}[\ \eta \ | \ \iota:x \ ]$ $:$ $\semBrcks{\theta'}$.\\
+
+Por otro lado, una propiedad importante que deben cumplir nuestras 
+ecuaciones sem\'anticas es ser funciones continuas, no hay que olvidar
+que cuando decimos que, dado un juicio $\pi \vdash e : \theta$, el tipo
+de nuestra ecuaci\'on ser\'a $\semBrcks{\pi} \rightarrow \semBrcks{\theta}$, ese 
+tipo representa un conjunto de funciones continuas en $\Dom$. Es decir, para
+verdaderamente estar seguros que las definiciones que hemos dado son 
+correctas, debemos probar que las ecuaciones sem\'anticas son funciones 
+continuas.
+
+\begin{proposition}
+
+Dado un juicio de tipado $\pi \vdash e : \theta$ la ecuaci\'on sem\'antica
+\\ 
+$\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua.
+
+\end{proposition}
+
+\begin{proof}
+
+Por inducci\'on en la estructura de los $\lrangles{Phrase}$.
+
+\end{proof}
 
 \section{Lambda Leq}
 
