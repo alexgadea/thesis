@@ -456,22 +456,22 @@ $\texttt{Denotal Sem:}$ Operadores b\'asicos.\
 
 \begin{center}
 
-$\semBrcks{\pi \vdash -e : \intt}$ $=$ $(\lambda x \in S_\intt . -x)_{\dbot} \circ \semBrcks{\pi \vdash e : \intt}$\\
+$\semBrcks{\pi \vdash -e : \intt}$ $=$ $(\lambda x \in S_\intt . \iotabot -x)_{\dbot} \circ \semBrcks{\pi \vdash e : \intt}$\\
 
 \
 
-$\semBrcks{\pi \vdash -e : \realt}$ $=$ $(\lambda x \in S_\realt . -x)_{\dbot} \circ \semBrcks{\pi \vdash e : \realt}$\\
+$\semBrcks{\pi \vdash -e : \realt}$ $=$ $(\lambda x \in S_\realt .\iotabot -x)_{\dbot} \circ \semBrcks{\pi \vdash e : \realt}$\\
 
 \
 
-$\semBrcks{\pi \vdash \neg e : \boolt}$ $=$ $(\lambda x \in S_\boolt . \neg x)_{\dbot} \circ \semBrcks{\pi \vdash e : \boolt}$
+$\semBrcks{\pi \vdash \neg e : \boolt}$ $=$ $(\lambda x \in S_\boolt . \iotabot \neg x)_{\dbot} \circ \semBrcks{\pi \vdash e : \boolt}$
 
 \end{center}
 
 \noindent
 $\semBrcks{\pi \vdash e \otimes e' : \intt}\eta$ $=$ \\
 				\indent \indent \indent $(\lambda x \in S_\intt . 
-											(\lambda x' \in S_\intt . x \otimes x')_{\dbot}
+											(\lambda x' \in S_\intt . \iotabot (x \otimes x'))_{\dbot}
 													\semBrcks{\pi \vdash e' : \intt}\eta)_{\dbot}
 														\semBrcks{\pi \vdash e : \intt}\eta$
 
@@ -482,7 +482,7 @@ con $\otimes \in \{+,-,*,/\ , \rem\}$
 \noindent
 $\semBrcks{\pi \vdash e \otimes e' : \realt}\eta$ $=$ \\
 				\indent \indent \indent $(\lambda x \in S_\realt . 
-											(\lambda x' \in S_\realt . x \otimes x')_{\dbot}
+											(\lambda x' \in S_\realt . \iotabot (x \otimes x'))_{\dbot}
 													\semBrcks{\pi \vdash e' : \realt}\eta)_{\dbot}
 														\semBrcks{\pi \vdash e : \realt}\eta$
 
@@ -493,7 +493,7 @@ con $\otimes \in \{+,-,*\}$
 \noindent
 $\semBrcks{\pi \vdash e \owedge e' : \boolt}\eta$ $=$ \\
 				\indent \indent \indent $(\lambda x \in S_\boolt . 
-											(\lambda x' \in S_\boolt . x \owedge x')_{\dbot}
+											(\lambda x' \in S_\boolt . \iotabot (x \owedge x'))_{\dbot}
 													\semBrcks{\pi \vdash e' : \boolt}\eta)_{\dbot}
 														\semBrcks{\pi \vdash e : \boolt}\eta$
 
@@ -504,7 +504,7 @@ con $\owedge \in \{\wedge,\vee,\Rightarrow,\Leftrightarrow\}$
 \begin{center}
 
 $\semBrcks{\pi \vdash e \olessthan e' : \boolt}\eta$ $=$ $(\lambda x \in S_\delta . 
-											(\lambda x' \in S_\delta . x \olessthan x')_{\dbot}
+											(\lambda x' \in S_\delta . \iotabot (x \olessthan x'))_{\dbot}
 													\semBrcks{\pi \vdash e' : \delta}\eta)_{\dbot}
 														\semBrcks{\pi \vdash e : \delta}\eta$
 
@@ -516,7 +516,7 @@ con $\delta \in \{\intt, \realt \}, \olessthan \in \{<,>,\leq,\geq\}$
 \begin{center}
 
 $\semBrcks{\pi \vdash e \ominus e' : \boolt}\eta$ $=$ $(\lambda x \in S_\delta . 
-											(\lambda x' \in S_\delta . x \ominus x')_{\dbot}
+											(\lambda x' \in S_\delta . \iotabot (x \ominus x'))_{\dbot}
 													\semBrcks{\pi \vdash e' : \delta}\eta)_{\dbot}
 														\semBrcks{\pi \vdash e : \delta}\eta$
 
@@ -619,6 +619,125 @@ con $\semBrcks{pi,\iota:\theta}$ dando como resultado el tipo esperado,\\
 
 $\semBrcks{\pi,\iota:\theta \vdash e : \theta'}[\ \eta \ | \ \iota:x \ ]$ $:$ $\semBrcks{\theta'}$.\\
 
+Acabamos de ver un poco mas de cerca la ecuaci\'on sem\'antica de la abstracci\'on
+lambda, lo que vamos a hacer a continuaci\'on es probar que nuestra sem\'antica 
+denotacional es correcta con respecto a la regla de reducci\'on $\beta$, para esto
+vamos a necesitar el teorema de substituci\'on. Para enunciar y probar este teorema
+vamos a tener que introducir un nuevo tipo de juicio de tipado as\'i como tambi\'en
+algunos conceptos de substituci\'on, como la idea es no meternos en mucho tecnicismo
+presentemos r\'apidamente las herramientas que vamos a necesitar.\\
+
+Empecemos introduciendo por parte de la substituci\'on el operador $\Delta$ que 
+sera un map entre $\lrangles{Id}$ y $\lrangles{Phrase}$ que representara una
+substituci\'on de identificadores por frases, y una funci\'on
+$FV$ de $\lrangles{Phrase}$ en $\lrangles{Id}$ que determinara los
+identificadores libres de una frase.\\
+
+Adem\'as, vamos a necesitar de un juicio de tipado nuevo cuyo significado
+ser\'a que dado un identificador $\iota$ y una substituci\'on $\Delta$, 
+la substituci\'on de $\iota$ por $\Delta\iota$ en una frase conserva el 
+tipado. Dados $\pi$, $\pi'$ contextos y $\delta$, vamos a representar el 
+nuevo juicio como $\pi \vdash \Delta : \pi'$.
+
+\begin{theorem}[De substituci\'on]
+Sean $\pi$ y $\pi'$ contextos, $\delta$ una substituci\'on y supongamos
+tenemos dos juicios de tipado $\pi' \vdash e : \theta$, $\pi \vdash \delta : \pi'$ 
+tal que \\
+
+$\eta'\iota$ $=$ $\semBrcks{\pi \vdash \delta\iota : \pi'\iota}$
+para todo $\iota \in \ dom \ \pi'$, entonces\\
+ 
+$\semBrcks{\pi' \vdash e : \theta}\eta'$ $=$ $\semBrcks{\pi \vdash e / \Delta : \theta}\eta$.
+
+\end{theorem}
+
+
+\begin{proof}
+Procedamos por inducci\'on en la estructura de la derivaci\'on de los juicios de tipado.\\
+
+\begin{itemize}
+
+\item Casos base
+\begin{itemize}
+\item Supongamos $\pi \vdash b : \boolt$, luego tenemos 
+$\semBrcks{\pi \vdash b : \boolt}\eta'$ $=$ $\iotabot b$ $=$ 
+$\semBrcks{\pi' \vdash b : \boolt}\eta$ $=$ $\semBrcks{\pi' \vdash b / \delta : \boolt}\eta$.
+
+\item (An\'alogo para $\intt$ y $\realt$).
+
+\item Supongamos $\pi' \vdash \iota : \theta$, luego 
+$\semBrcks{\pi' \vdash \iota : \theta}\eta'$ $=$ $\eta'\iota$
+ahora por hip\'otesis tenemos que 
+$\eta'\iota$ $=$ $\semBrcks{\pi \vdash \delta\iota : \pi'\iota}\eta$ $=$
+$\semBrcks{\pi \vdash \iota / \delta : \theta}\eta$.
+\end{itemize}
+
+\item Casos inductivos,
+\begin{itemize}
+\item Supongamos $\pi' \vdash e \ominus e' : \boolt$, luego tenemos \\
+$\semBrcks{\pi' \vdash e \ominus e' : \boolt}\eta'$ $=$
+	$(\lambda x . 
+		(\lambda x' . \iotabot (x \ominus x'))_{\dbot}
+					\semBrcks{\pi' \vdash e' : \boolt}\eta')_{\dbot}
+						\semBrcks{\pi' \vdash e : \boolt}\eta'$ \\
+						
+por hip\'otesis inductiva dos veces\\
+
+$(\lambda x . 
+		(\lambda x' . \iotabot (x \ominus x'))_{\dbot}
+					\semBrcks{\pi' \vdash e' / \delta : \boolt}\eta)_{\dbot}
+						\semBrcks{\pi' \vdash e / \delta : \boolt}\eta$ $=$
+						
+$\semBrcks{\pi' \vdash (e / \delta) \ominus (e' / \delta) : \boolt}\eta$ $=$
+$\semBrcks{\pi' \vdash (e \ominus e') / \delta : \boolt}\eta$.\\
+
+\item An\'alogo dem\'as operadores binarios, un\'arios, expresi\'on condicional
+aplicaci\'on y operador de punto fijo.\\
+
+\item Supongamos $\pi' \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'$, luego
+$\semBrcks{\pi' \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'}\eta'$ $=$
+$\lambda x . \semBrcks{\pi',\iota:\theta \vdash e : \theta'}[ \eta' \ | \ \iota:x ]$ \\
+
+ahora, probando * y luego aplicando hip\'otesis inductiva obtenemos,\\
+
+$\lambda x . \semBrcks{\pi,\iota':\theta \vdash e / \delta' : \theta'}[ \eta \ | \ \iota':x ]$ $=$
+$\semBrcks{\pi \vdash \clambda{\iota'}{\theta}{e / \delta'} : \theta \rightarrow \theta'}\eta$ $=$
+$\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e}) / \delta' : \theta \rightarrow \theta'}\eta$\\
+
+donde $\delta' = [ \delta \ | \ \iota:\iota' ]$ y 
+$\iota' \not\in \bigcup\limits_{\kappa \in FV(e)-\{\iota\}} (FV(\delta\kappa))$
+
+\begin{itemize}
+\item Para poder aplicar la hip\'otesis inductiva tenemos que probar que vale que,\\
+
+para todo $\kappa \in \ dom (\widehat{\pi})$, donde $\widehat{\pi} = \pi',\iota:\theta$, \\
+
+$[ \eta' \ | \ \iota:x ]\kappa$ $=$ 
+$\semBrcks{\pi,\iota':\theta \vdash \delta'\kappa : \widehat{\pi}\kappa}[ \eta \ | \ \iota':x ]$.\\
+
+Tomamos un $\kappa$ cualquiera, y vamos a separar en dos casos, si $\kappa \not= \iota$ entonces
+es directo aplicando la hip\'otesis. Veamos que sucede si suponemos $\kappa = \iota$,\\
+
+$[ \eta' \ | \ \iota:x ]\kappa$ $=$ $x$ y\\
+
+$\semBrcks{\pi,\iota':\theta \vdash \delta'\kappa : \widehat{\pi}\kappa}[ \eta \ | \ \iota':x ]$ $=$
+$\semBrcks{\pi,\iota':\theta \vdash \iota' : \theta}[ \eta \ | \ \iota':x ]$ $=$
+$[ \eta \ | \ \iota':x ]\iota'$ $=$ $x$.
+
+Por lo tanto podemos aplicar la hip\'otesis inductiva.\\
+
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+\end{proof}
+
+%es analizar categ\'oricamente la abstracci\'on
+%lambda aplicada a una frase, es decir vamos a suponer un juicio de tipado
+%$\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'$, vamos a ver que las flechas
+%que vamos a obtener coinciden exactamente con la definici\'on de la ecuaci\'on 
+%sem\'antica de la aplicaci\'on.
+
 Por otro lado, una propiedad importante que deben cumplir nuestras 
 ecuaciones sem\'anticas es ser funciones continuas, no hay que olvidar
 que cuando decimos que, dado un juicio $\pi \vdash e : \theta$, el tipo
@@ -626,7 +745,8 @@ de nuestra ecuaci\'on ser\'a $\semBrcks{\pi} \rightarrow \semBrcks{\theta}$, ese
 tipo representa un conjunto de funciones continuas en $\Dom$. Es decir, para
 verdaderamente estar seguros que las definiciones que hemos dado son 
 correctas, debemos probar que las ecuaciones sem\'anticas son funciones 
-continuas.
+continuas. Para terminar adem\'as vamos a probar que la sem\'antica 
+denotacional 
 
 \begin{proposition}\
 
@@ -649,7 +769,7 @@ $({\bigsqcup\limits^{\infty}_{i=0}}'' f_{i})x = {\bigsqcup\limits^{\infty}_{i=0}
 \end{center}
 
 para todo $x \in P$. Adem\'as, si $P$ es un dominio, $P \rightarrow P'$ es un dominio
-cuyo ultimo elemento es una funci\'on tal que $\bot'' x = \bot'$ para todo $x \in P$.
+cuyo menor elemento es una funci\'on tal que $\bot'' x = \bot'$ para todo $x \in P$.
 
 \item Supongamos $P$ y $P'$ son predominios, entonces:
 
