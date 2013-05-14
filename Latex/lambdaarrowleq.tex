@@ -620,24 +620,351 @@ con $\semBrcks{pi,\iota:\theta}$ dando como resultado el tipo esperado,\\
 $\semBrcks{\pi,\iota:\theta \vdash e : \theta'}[\ \eta \ | \ \iota:x \ ]$ $:$ $\semBrcks{\theta'}$.\\
 
 Acabamos de ver un poco mas de cerca la ecuaci\'on sem\'antica de la abstracci\'on
-lambda, lo que vamos a hacer a continuaci\'on es probar que nuestra sem\'antica 
+lambda, siguiendo con la etapa de an\'alisis de las ecuaciones que hemos definido
+vamos a tomar la aplicaci\'on y realizar un an\'alisis categ\'orico, \'el cual
+adem\'as nos servir\'a mas adelante para probar la continuidad de la 
+aplicaci\'on.\\
+
+Empecemos suponiendo tenemos el juicio de tipado $\pi \vdash ee' : \theta'$ y
+recordando adem\'as que dados dos tipos $\theta$ y $\theta'$, $\semBrcks{\theta'}^{\semBrcks{\theta}}$
+era objeto exponencial en $\Dom$, es decir, que adem\'as de este objeto tenemos
+una flecha $\epsilon$ tal que,
+
+\begin{diagram}
+  \semBrcks{\theta'}^{\semBrcks{\theta}} \times \semBrcks{\theta} & \rTo^{\epsilon} & \semBrcks{\theta'}.
+\end{diagram}
+
+Por otro lado, $\semBrcks{\pi \vdash e' : \theta} : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$ y,
+como ya vimos hace un rato, $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}$ $:$
+$\semBrcks{\pi} \rightarrow \semBrcks{\theta'}^{\semBrcks{\theta}}$, luego podemos definir 
+una flecha $f = \uncurry (\semBrcks{\pi \vdash e : \theta \rightarrow \theta'})$ y notar que
+$f : \semBrcks{\pi} \times \semBrcks{\theta} \rightarrow \semBrcks{\theta'}$. Por lo tanto
+tenemos el siguiente diagrama,
+
+\begin{diagram}
+  \semBrcks{\theta'}^{\semBrcks{\theta}} \times \semBrcks{\theta} & \rTo^{\epsilon} & \semBrcks{\theta'}\\
+  \uTo^{\widetilde{f} \times 1_{\semBrcks{\theta}}} & \ruTo_{f} & &  \\
+  \semBrcks{\pi} \times \semBrcks{\theta} & & \\
+\end{diagram}
+
+donde claramente $\widetilde{f} = \semBrcks{\pi \vdash e : \theta \rightarrow \theta'}$. Ahora,
+si definimos una flecha $g = \semBrcks{\pi \vdash e' : \theta}$, podemos obtener la siguiente flecha
+
+\begin{diagram}
+\semBrcks{\pi} & \rTo^{\lrangles{1_{\semBrcks{\pi}} , 1_{\semBrcks{\pi}}}} 
+			   & \semBrcks{\pi} \times \semBrcks{\pi} 
+			   & \rTo^{1_{\semBrcks{\pi}} \times g}
+			   & \semBrcks{\pi} \times \semBrcks{\theta}
+			   & \rTo^{f}
+			   & \semBrcks{\theta'}
+\end{diagram}
+
+luego podemos combinar los dos diagramas, donde 
+$(1_{\semBrcks{\pi}} \times g) \circ \lrangles{1_{\semBrcks{\pi}} , 1_{\semBrcks{\pi}}}$
+$=$ $\lrangles{1_{\semBrcks{\pi}} , g}$ y obtener,
+
+\begin{diagram}
+  \semBrcks{\theta'}^{\semBrcks{\theta}} \times \semBrcks{\theta} & \rTo^{\epsilon} & \semBrcks{\theta'}\\
+  \uTo^{\widetilde{f} \times 1_{\semBrcks{\theta}}} & \ruTo^{f} \ruTo(2,4) & &  \\
+  \semBrcks{\pi} \times \semBrcks{\theta} & & f \circ \lrangles{1_{\semBrcks{\pi}} , g} & \\
+  \uTo^{\lrangles{1_{\semBrcks{\pi}} , g}}  \ruTo(3,2) & & &  \\
+  \semBrcks{\pi} & & &
+\end{diagram}
+
+Ahora usando este diagrama podemos definir la ecuaci\'on sem\'antica
+de la aplicaci\'on como,\\
+
+$\semBrcks{\pi \vdash ee' : \theta'}$ $=$ $\epsilon \circ \lrangles{\widehat{f},g}$\\
+
+donde $\lrangles{\widehat{f},g} = (\widetilde{f} \times 1_{\semBrcks{\theta}}) \circ \lrangles{1_{\semBrcks{\pi}} , g}$.\\
+
+Algo importante de notar es que esta definici\'on se corresponden exactamente
+con la definici\'on previa que hicimos, para terminar con este an\'alisis 
+comprobemos que efectivamente pasa esto. Pasando en limpio la nueva ecuaci\'on
+de la aplicaci\'on es,\\
+
+$\semBrcks{\pi \vdash ee' : \theta'}$ $=$ 
+$\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}
+									,\semBrcks{\pi \vdash e' : \theta}}$\\
+									
+tomando un $\eta$ cualquiera tendremos,\\
+
+$\semBrcks{\pi \vdash ee' : \theta'}\eta$ $=$ 
+$\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}
+									,\semBrcks{\pi \vdash e' : \theta}} \eta$ $=$\\
+\
+
+$\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta
+									,\semBrcks{\pi \vdash e' : \theta}\eta}$ $=$\\
+\
+
+$\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta
+									(\semBrcks{\pi \vdash e' : \theta} \eta)$\\
+
+
+Ahora estamos en condiciones de demostrar una propiedad importante que deben cumplir nuestras 
+ecuaciones sem\'anticas es ser funciones continuas, no hay que olvidar
+que cuando decimos que, dado un juicio $\pi \vdash e : \theta$, el tipo
+de nuestra ecuaci\'on ser\'a $\semBrcks{\pi} \rightarrow \semBrcks{\theta}$, ese 
+tipo representa un conjunto de funciones continuas en $\Dom$. Es decir, para
+verdaderamente estar seguros que las definiciones que hemos dado son 
+correctas, debemos probar que las ecuaciones sem\'anticas son funciones 
+continuas.\\
+
+Empecemos enunciando algunas proposiciones que nos van a hacer \'util para
+la prueba de continuidad.
+
+\begin{proposition}\
+
+\begin{enumerate}
+
+\item Si $P$ y $P'$ son predominios, $P \rightarrow P'$ es un predominio en
+el cual el limite de la cadena de funciones $f_0 \sqsubseteq'' f_1 \sqsubseteq'' \cdots$ 
+es una funci\'on tal que 
+
+\begin{center}
+$({\bigsqcup\limits^{\infty}_{i=0}}'' f_{i})x = {\bigsqcup\limits^{\infty}_{i=0}}' f_{i} x$
+\end{center}
+
+para todo $x \in P$. Adem\'as, si $P$ es un dominio, $P \rightarrow P'$ es un dominio
+cuyo menor elemento es una funci\'on tal que $\bot'' x = \bot'$ para todo $x \in P$.
+
+\item Supongamos $P$ y $P'$ son predominios, entonces:
+
+\begin{enumerate}
+\item[(a)] Una funci\'on constante de $P$ en $P'$ es una funci\'on continua de $P$ en $P'$.\\
+
+\item[(b)] La funci\'on identidad en $P$ es una funci\'on continua de $P$ en $P$.\\
+
+\item[(c)] Si f es una funci\'on continua de $P$ en $P'$ y g es una funci\'on
+continua de $P'$ en $P''$, entonces $g \circ f$ es una funci\'on continua de $P$ en $P''$.\\
+
+\item[(d)] Dada una cadena $f_0 \sqsubseteq'' f_1 \sqsubseteq'' \cdots$ tal que cada $f_i$ es una
+funci\'on continua de $P$ en $P'$ y dada otra cadena $x_0 \sqsubseteq'' x_1 \sqsubseteq'' \cdots$ de
+elementos de $P$, entonces vale
+
+\begin{center}
+${\bigsqcup\limits^{\infty}_{i=0}}{\bigsqcup\limits^{\infty}_{j=0}}f_i x_j$ $=$
+${\bigsqcup\limits^{\infty}_{k=0}}f_k x_k$
+\end{center}
+
+\item[(e)] Dadas $n$ funciones $f_i$ de $P \rightarrow P_i$ tal que cada $f_i$ es continua, entonces
+la funci\'on $\lrangles{f_0,f_1,\ldots,f_{n-1}}$ que satisface,
+
+\begin{center}
+$\lrangles{f_0,f_1,\ldots,f_{n-1}}x = \lrangles{f_0 x,f_1 x,\ldots,f_{n-1} x}$
+\end{center}
+
+es una funci\'on continua de $P$ en $P_0 \times P_1 \times \ldots \times P_{n-1}$.
+
+\item[(f)] Dado un predominio $P$ y un dominio $D$, la funci\'on $(\_)_{\dbot}$ que va
+de $P \rightarrow D$ en $P_{\bot} \rightarrow D$, es una funci\'on continua.
+
+\end{enumerate}
+
+\end{enumerate}
+
+\end{proposition}
+
+\begin{proposition}
+
+Dado un juicio de tipado $\pi \vdash e : \theta$ la ecuaci\'on sem\'antica
+\\ 
+$\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua.
+
+\end{proposition}
+
+\begin{proof}
+
+En la prueba vamos a proceder por inducci\'on en la estructura de la derivaci\'on 
+de los juicios de tipado.\\
+
+Supongamos tenemos un juicio de tipado $\pi \vdash e : \theta$ tal que
+$\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua y probemos
+que dado un juicio de tipado $\pi \vdash e : \theta$ mas complejo,
+$\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua.\\
+
+Supongamos tenemos una cadena interesante
+$\eta_0 \sqsubseteq \eta_1 \sqsubseteq \cdots$ en $\semBrcks{\pi}$ y probemos
+que $\semBrcks{\pi \vdash e : \theta}(\bigsqcup\limits^{\infty}_{i=0} \eta_i)$
+$=$ $\bigsqcup\limits^{\infty}_{i=0} \semBrcks{\pi \vdash e : \theta}\eta_i$.
+
+\begin{itemize}
+\item Casos base.
+
+\begin{itemize}
+\item Para probar los casos base de los juicios de las constantes usamos Prop 1.3.a, 
+que nos asegura que una funci\'on constante es funci\'on continua. 
+
+\item Supongamos ahora que tenemos $\pi \vdash \iota : \theta$, luego \\
+
+$\semBrcks{\pi \vdash \iota : \theta} (\bigsqcup\limits^{\infty}_{i=0} \eta_i)$ $=$
+$(\bigsqcup\limits^{\infty}_{i=0} \eta_i)\iota$ $=$
+$\bigsqcup\limits^{\infty}_{i=0} (\eta_i \iota)$ $=$
+$\bigsqcup\limits^{\infty}_{i=0} (\semBrcks{\pi \vdash \iota : \theta}\eta_i)$\\
+
+luego podemos concluir que $\semBrcks{\pi \vdash \iota : \theta}$ es una funci\'on
+continua.
+\end{itemize}
+
+\item Casos inductivos
+\begin{itemize}
+
+\item Supongamos tenemos $\pi \vdash ee' : \theta$, como ya anticipamos antes, vamos a
+usar la versi\'on categ\'oria de la ecuaci\'on, \\
+
+$\semBrcks{\pi \vdash ee' : \theta}$ $=$
+$\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}
+					     ,\semBrcks{\pi \vdash e' : \theta}}$\\
+
+luego por hip\'otesis inductiva $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}$ y
+$\semBrcks{\pi \vdash e' : \theta}$ son funciones continuas, entonces
+$\lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}
+					     ,\semBrcks{\pi \vdash e' : \theta}}$ es una funci\'on continua,
+adem\'as como $\epsilon$ es la flecha del exponencial tambi\'en es continua y para
+terminar la composici\'on de funciones continuas es una funci\'on continua. Por lo tanto
+la ecuaci\'on sem\'antica $\semBrcks{\pi \vdash ee' : \theta}$ es una funci\'on 
+continua.
+
+\item Supongamos tenemos $\pi \vdash \rec{e} : \theta$, luego\\
+
+$\semBrcks{\pi \vdash \rec{e} : \theta}(\bigsqcup\limits^{\infty}_{i=0} \eta_i)$ $=$ 
+$\Y_{\semBrcks{\theta}}
+	(\semBrcks{\pi \vdash e : \theta \rightarrow \theta} (\bigsqcup\limits^{\infty}_{i=0} \eta_i))$\\
+	
+aplicando hip\'otesis inductiva en $\semBrcks{\pi \vdash e : \theta \rightarrow \theta} (\bigsqcup\limits^{\infty}_{i=0} \eta_i)$, la definici\'on del operador de punto fijo,
+el hecho de que este operador sea una funci\'on continua y una de las proposiciones
+anteriores podemos obtener las siguientes igualdades, donde para hacer mas f\'acil la
+lectura nombramos a $\semBrcks{\pi \vdash e : \theta \rightarrow \theta}\eta_i = f_i$,\\
+
+$\Y_{\semBrcks{\theta}}
+	(\semBrcks{\pi \vdash e : \theta \rightarrow \theta} (\bigsqcup\limits^{\infty}_{i=0} \eta_i))$ $=$
+$\Y_{\semBrcks{\theta}}
+	(\bigsqcup\limits^{\infty}_{i=0} f_i)$ $=$\\
+
+$(\bigsqcup\limits^{\infty}_{i=0} f_i)$ $(\Y_{\semBrcks{\theta}}(\bigsqcup\limits^{\infty}_{i=0} f_i))$ $=$
+$(\bigsqcup\limits^{\infty}_{i=0} f_i)$ $(\bigsqcup\limits^{\infty}_{j=0} (\Y_{\semBrcks{\theta}}f_j)$ $=$\\
+
+$\bigsqcup\limits^{\infty}_{i=0}$ $\bigsqcup\limits^{\infty}_{j=0}$ $f_i (\Y_{\semBrcks{\theta}}f_j)$ $=$
+$\bigsqcup\limits^{\infty}_{k=0}$ $f_k (\Y_{\semBrcks{\theta}}f_k)$ $=$
+$\bigsqcup\limits^{\infty}_{k=0}$ $\Y_{\semBrcks{\theta}}f_k$ $=$\\
+
+$\bigsqcup\limits^{\infty}_{k=0}$ $\Y_{\semBrcks{\theta}}(\semBrcks{\pi \vdash e : \theta \rightarrow \theta}\eta_k)$ $=$ 
+$\bigsqcup\limits^{\infty}_{k=0}$ $\semBrcks{\pi \vdash \rec{e} : \theta} \eta_k$.\\
+
+Por lo tanto, nuestra ecuaci\'on sem\'antica $\semBrcks{\pi \vdash \rec{e} : \theta}$ es
+una funci\'on continua.
+
+\item Supongamos tenemos el juicio de tipado $\pi \vdash \cifthenelse{b}{e}{e'} : \theta$, para
+probar que la ecuaci\'on para este juicio de tipado es continua vamos a definir otra funci\'on
+y probar que esta es continua, luego veremos como obtener la ecuaci\'on de la expresi\'on 
+condicional instanciando de alguna manera esta funci\'on.\\
+
+Empecemos definiendo la funci\'on que llamaremos $\IF$ que ir\'a de $D \times D \times \B_\bot$ en
+$D$, con $D$ un dominio y cuya definici\'on es,
+
+\[
+\IF \lrangles{t_i,f_i,b_i}=
+\begin{cases}
+\bot & \text{si } b_i = \bot \\
+t_i  & \text{si } b_i\\
+f_i  & \text{si } \neg b_i\\
+\end{cases}
+\]
+
+probemos ahora que esta funci\'on es continua. Supongamos una cadena 
+$\lrangles{t_0,f_0,b_0} \sqsubseteq \lrangles{t_1,f_1,b_1} \sqsubseteq \ldots$, luego
+vamos a querer probar que $\IF (\bigsqcup\limits^{\infty}_{i=0}\lrangles{t_i,f_i,b_i})$ $=$
+$\bigsqcup\limits^{\infty}_{i=0} (\IF \lrangles{t_i,f_i,b_i})$.
+
+
+$\IF (\bigsqcup\limits^{\infty}_{i=0}\lrangles{t_i,f_i,b_i}) =
+\IF (\lrangles{\bigsqcup\limits^{\infty}_{i=0}t_i
+    ,\bigsqcup\limits^{\infty}_{i=0}f_i
+    ,\bigsqcup\limits^{\infty}_{i=0}b_i}) =$
+\[
+=
+\begin{cases}
+\bigsqcup\limits^{\infty}_{i=0} \bot & \text{si } \bigsqcup\limits^{\infty}_{i=0}b_i = \bot \\
+\bigsqcup\limits^{\infty}_{i=0}t_i & \text{si } \bigsqcup\limits^{\infty}_{i=0}b_i\\
+\bigsqcup\limits^{\infty}_{i=0}f_i & \text{si } \neg \bigsqcup\limits^{\infty}_{i=0}b_i\\
+\end{cases}
+\]
+
+hagamos ahora un an\'alisis por casos.
+
+\begin{itemize}
+\item $\bigsqcup\limits^{\infty}_{i=0}b_i = \bot$, luego lo que pasa es que tenemos
+la cadena \\
+
+$\lrangles{t_0,f_0,\bot} \sqsubseteq \lrangles{t_1,f_1,\bot} \sqsubseteq \ldots$ \\
+
+a la que si le aplicamos la funci\'on $\IF$, tal que tenemos la cadena \\
+
+$IF \lrangles{t_0,f_0,\bot} \sqsubseteq IF \lrangles{t_1,f_1,\bot} \sqsubseteq \ldots$, \\
+
+obtenemos la cadena\\
+
+$\bot \sqsubseteq \bot \sqsubseteq \ldots$ cuyo supremo es $\bigsqcup\limits^{\infty}_{i=0} \bot$.\\
+
+\item $\bigsqcup\limits^{\infty}_{i=0}b_i = true$, entonces sucede similar que el caso anterior
+con la salvedad de que tenemos dos tipos de cadena posibles,\\
+
+$\lrangles{t_0,f_0,\bot} \sqsubseteq \lrangles{t_1,f_1,\bot} 
+		\sqsubseteq \ldots \sqsubseteq \lrangles{t_{j-1},f_{j-1},\bot} \sqsubseteq $\\
+$\lrangles{t_j,f_j,true} \sqsubseteq \lrangles{t_{j+1},f_{j+1},true} \sqsubseteq \ldots $\\
+
+o \\
+
+$\lrangles{t_0,f_0,true} \sqsubseteq \lrangles{t_1,f_1,true} \sqsubseteq \ldots$ \\
+
+y lo que sucede es que para cualquiera de las dos cadenas al aplicarle $\IF$ el supremo ser\'a 
+$\bigsqcup\limits^{\infty}_{i=0} t_i$.
+
+\item $\bigsqcup\limits^{\infty}_{i=0}b_i = false$, an\'alogo al caso anterior.
+
+\end{itemize}
+
+Por lo tanto $\IF (\bigsqcup\limits^{\infty}_{i=0}\lrangles{t_i,f_i,b_i})$ $=$
+$\bigsqcup\limits^{\infty}_{i=0} (\IF \lrangles{t_i,f_i,b_i})$.\\
+
+Luego es claro que $\IF \lrangles{ \semBrcks{\pi \vdash e : \theta}\eta
+					  			  , \semBrcks{\pi \vdash e' : \theta}\eta
+								  , \semBrcks{\pi \vdash b : \boolt}\eta
+								  }$ $=$
+$\semBrcks{\pi \vdash \cifthenelse{b}{e}{e'} : \theta}\eta$
+
+Por lo tanto, nuestra ecuaci\'on sem\'antica $\semBrcks{\pi \vdash \cifthenelse{b}{e}{e'} : \theta}$ es
+una funci\'on continua.
+
+\item Los casos para los operadores binarios y un\'arios son similares a la prueba
+de expresi\'on condicional.
+
+\item Supongamos tenemos $\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'$,
+esta en papel, todav\'ia no estoy seguro. Sorpresa! sigo sin estar seguro :) \\
+
+\end{itemize}
+\end{itemize}
+\end{proof}
+
+Lo que vamos a hacer a continuaci\'on es probar que nuestra sem\'antica 
 denotacional es correcta con respecto a la regla de reducci\'on $\beta$, para esto
 vamos a necesitar el teorema de substituci\'on. Para enunciar y probar este teorema
 vamos a tener que introducir un nuevo tipo de juicio de tipado as\'i como tambi\'en
 algunos conceptos de substituci\'on, como la idea es no meternos en mucho tecnicismo
 presentemos r\'apidamente las herramientas que vamos a necesitar.\\
 
-Empecemos introduciendo por parte de la substituci\'on el operador $\Delta$ que 
+Empecemos introduciendo por parte de la substituci\'on el operador $\delta$ que 
 sera un map entre $\lrangles{Id}$ y $\lrangles{Phrase}$ que representara una
 substituci\'on de identificadores por frases, y una funci\'on
 $FV$ de $\lrangles{Phrase}$ en $\lrangles{Id}$ que determinara los
 identificadores libres de una frase.\\
 
 Adem\'as, vamos a necesitar de un juicio de tipado nuevo cuyo significado
-ser\'a que dado un identificador $\iota$ y una substituci\'on $\Delta$, 
-la substituci\'on de $\iota$ por $\Delta\iota$ en una frase conserva el 
+ser\'a que dado un identificador $\iota$ y una substituci\'on $\delta$, 
+la substituci\'on de $\iota$ por $\delta\iota$ en una frase conserva el 
 tipado. Dados $\pi$, $\pi'$ contextos y $\delta$, vamos a representar el 
-nuevo juicio como $\pi \vdash \Delta : \pi'$.
+nuevo juicio como $\pi \vdash \delta : \pi'$.
 
 \begin{theorem}[De substituci\'on]
 Sean $\pi$ y $\pi'$ contextos, $\delta$ una substituci\'on y supongamos
@@ -647,7 +974,7 @@ tal que \\
 $\eta'\iota$ $=$ $\semBrcks{\pi \vdash \delta\iota : \pi'\iota}$
 para todo $\iota \in \ dom \ \pi'$, entonces\\
  
-$\semBrcks{\pi' \vdash e : \theta}\eta'$ $=$ $\semBrcks{\pi \vdash e / \Delta : \theta}\eta$.
+$\semBrcks{\pi' \vdash e : \theta}\eta'$ $=$ $\semBrcks{\pi \vdash e / \delta : \theta}\eta$.
 
 \end{theorem}
 
@@ -732,158 +1059,6 @@ Por lo tanto podemos aplicar la hip\'otesis inductiva.\\
 
 \end{proof}
 
-%es analizar categ\'oricamente la abstracci\'on
-%lambda aplicada a una frase, es decir vamos a suponer un juicio de tipado
-%$\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'$, vamos a ver que las flechas
-%que vamos a obtener coinciden exactamente con la definici\'on de la ecuaci\'on 
-%sem\'antica de la aplicaci\'on.
-
-Por otro lado, una propiedad importante que deben cumplir nuestras 
-ecuaciones sem\'anticas es ser funciones continuas, no hay que olvidar
-que cuando decimos que, dado un juicio $\pi \vdash e : \theta$, el tipo
-de nuestra ecuaci\'on ser\'a $\semBrcks{\pi} \rightarrow \semBrcks{\theta}$, ese 
-tipo representa un conjunto de funciones continuas en $\Dom$. Es decir, para
-verdaderamente estar seguros que las definiciones que hemos dado son 
-correctas, debemos probar que las ecuaciones sem\'anticas son funciones 
-continuas. Para terminar adem\'as vamos a probar que la sem\'antica 
-denotacional 
-
-\begin{proposition}\
-
-\begin{enumerate}
-
-\item Supongamos f es un funci\'on monotona del predominio $P$ en el predominio $P'$,
-entonces f ser\'a una funci\'on continua si y solo si, para toda cadena
-interesante $x_0 \sqsubseteq x_1 \sqsubseteq \cdots$ en $P$,
-
-\begin{center}
-$f (\bigsqcup\limits^{\infty}_{i=0} x_i) \sqsubseteq {\bigsqcup\limits^{\infty}_{i=0}}' f (x_i)$
-\end{center}
-
-\item Si $P$ y $P'$ son predominios, $P \rightarrow P'$ es un predominio en
-el cual el limite de la cadena de funciones $f_0 \sqsubseteq'' f_1 \sqsubseteq'' \cdots$ 
-es una funci\'on tal que 
-
-\begin{center}
-$({\bigsqcup\limits^{\infty}_{i=0}}'' f_{i})x = {\bigsqcup\limits^{\infty}_{i=0}}' f_{i} x$
-\end{center}
-
-para todo $x \in P$. Adem\'as, si $P$ es un dominio, $P \rightarrow P'$ es un dominio
-cuyo menor elemento es una funci\'on tal que $\bot'' x = \bot'$ para todo $x \in P$.
-
-\item Supongamos $P$ y $P'$ son predominios, entonces:
-
-\begin{enumerate}
-\item[(a)] Una funci\'on constante de $P$ en $P'$ es una funci\'on continua de $P$ en $P'$.\\
-
-\item[(b)] La funci\'on identidad en $P$ es una funci\'on continua de $P$ en $P$.\\
-
-\item[(c)] Si f es una funci\'on continua de $P$ en $P'$ y g es una funci\'on
-continua de $P'$ en $P''$, entonces $g \circ f$ es una funci\'on continua de $P$ en $P''$.\\
-
-\item[(d)] Si f es una funci\'on continua de $P$ en $P'$, entonces $\_ \circ f$ es una funci\'on
-continua de $P' \rightarrow P''$ en $P \rightarrow P''$.\\
-
-\item[(e)] Si g es una funci\'on continua de $P'$ en $P''$, entonces $g \circ \_$ es una funci\'on
-continua de $P \rightarrow P'$ en $P \rightarrow P''$.
-
-\end{enumerate}
-
-\end{enumerate}
-
-\end{proposition}
-
-\begin{proposition}
-
-Dado un juicio de tipado $\pi \vdash e : \theta$ la ecuaci\'on sem\'antica
-\\ 
-$\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua.
-
-\end{proposition}
-
-\begin{proof}
-
-En la prueba vamos a proceder por inducci\'on en la estructura de la derivaci\'on 
-de los juicios de tipado.\\
-
-Para probar los casos base usamos Prop 1.3.a, que nos asegura que una funci\'on
-constante es funci\'on continua. Continuemos entonces con los casos inductivos,
-supongamos tenemos un juicio de tipado $\pi \vdash e : \theta$ tal que
-$\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua y probemos
-que dado un juicio de tipado $\pi \vdash e : \theta$ mas complejo,
-$\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua.\\
-
-La idea es usar Prop 1.1, para esto supongamos tenemos una cadena interesante
-$\eta_0 \sqsubseteq \eta_1 \sqsubseteq \cdots$ en $\semBrcks{\pi}$ y probemos
-para cada caso inductivo que $\semBrcks{\pi \vdash e : \theta}(\bigsqcup\limits^{\infty}_{i=0} \eta_i)$
-$=$ $\bigsqcup\limits^{\infty}_{i=0} \semBrcks{\pi \vdash e : \theta} (\eta_i)$.
-
-\begin{itemize}
-
-\item Supongamos tenemos $\pi \vdash ee' : \theta$,\\
-
-$\semBrcks{\pi \vdash ee' : \theta}(\bigsqcup\limits^{\infty}_{i=0} \eta_i)$ $=$
-$\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}(\bigsqcup\limits^{\infty}_{i=0} \eta_i)
-			(\semBrcks{\pi \vdash e' : \theta}(\bigsqcup\limits^{\infty}_{i=0} \eta_i))$\\
-
-hasta ac\'a hemos usado la definici\'on de la ecuaci\'on de la aplicaci\'on, ahora usando 
-hip\'otesis inductiva dos veces tenemos,\\
-
-$\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}(\bigsqcup\limits^{\infty}_{i=0} \eta_i)
-			(\semBrcks{\pi \vdash e' : \theta}(\bigsqcup\limits^{\infty}_{i=0} \eta_i))$ $=$
-\begin{flushright}
-$=$ $(\bigsqcup\limits^{\infty}_{i=0} \semBrcks{\pi \vdash e : \theta \rightarrow \theta'} (\eta_i))
-					(\bigsqcup\limits^{\infty}_{i=0} \semBrcks{\pi \vdash e' : \theta}(\eta_i))$
-\end{flushright}
-					
-notar que podemos ver a $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'} (\eta_i)$
-como una funci\'on $f_i$, lo que nos permite usar Prop 1.2, dar un paso en la igualdad y
-continuar hasta el resultado esperado,\\
-
-\begin{center}
-
-$(\bigsqcup\limits^{\infty}_{i=0} \semBrcks{\pi \vdash e : \theta \rightarrow \theta'} (\eta_i))
-					(\bigsqcup\limits^{\infty}_{i=0} \semBrcks{\pi \vdash e' : \theta}(\eta_i))$ 
-$=$\\
-\
-
-$=$ 
-$\bigsqcup\limits^{\infty}_{i=0} (
-		\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}(\eta_i)
-					(\bigsqcup\limits^{\infty}_{j=0} \semBrcks{\pi \vdash e' : \theta}(\eta_j)))$ 
-$=$\\
-\
-
-$=$
-$\bigsqcup\limits^{\infty}_{i=0} \bigsqcup\limits^{\infty}_{j=0}$
-$\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}(\eta_i)(\semBrcks{\pi \vdash e' : \theta}(\eta_j))$ 
-$=$\\
-\
-
-$=$
-$\bigsqcup\limits^{\infty}_{k=0}$
-$\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}(\eta_k)(\semBrcks{\pi \vdash e' : \theta}(\eta_k))$ 
-$=$\\
-\
-
-$=$
-$\bigsqcup\limits^{\infty}_{k=0}$ $\semBrcks{\pi \vdash ee' : \theta'}(\eta_k)$
-
-\end{center}
-
-por lo tanto la ecuaci\'on sem\'antica $\semBrcks{\pi \vdash ee' : \theta}$ es una funci\'on 
-continua.
-
-\item Los casos para el expresi\'on condicional, operador de punto fijo, identificador, 
-operadores binarios y un\'arios son similares, en cada caso particular usando las Prop anteriores.
-
-\item Supongamos tenemos $\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'$,
-esta en papel, todav\'ia no estoy seguro.\\
-
-\end{itemize}
-
-
-\end{proof}
 
 \section{Lambda Leq}
 
