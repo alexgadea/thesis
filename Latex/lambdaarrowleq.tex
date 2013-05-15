@@ -1056,6 +1056,66 @@ Por lo tanto podemos aplicar la hip\'otesis inductiva.\\
 \end{itemize}
 \end{itemize}
 \end{itemize}
+\end{proof}
+
+Ahora que tenemos enunciado y demostrado el teorema de substituci\'on podemos
+continuar y demostrar que nuestra sem\'antica den\'otacional es correcta 
+con respecto a la regla $\beta$.
+
+\begin{theorem}[Correcci\'on regla $\beta$]
+Dado un juicio de tipado $\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'$ vale,
+
+\begin{center}
+$\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'}$ $=$
+$\semBrcks{\pi \vdash e / \iota:e' : \theta'}$
+\end{center}
+
+\end{theorem}
+\begin{proof}
+
+La idea de la prueba ser\'a aplicar las distintas ecuaciones sem\'anticas de la aplicaci\'on
+y abstracci\'on lambda hasta llegar el punto de poder aplicar nuestro teorema de susbtituci\'on.
+Supongamos un $\eta$ cualquiera,\\
+
+$\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'}\eta$ $=$
+$(\semBrcks{\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'}\eta)$
+$(\semBrcks{\pi \vdash e' : \theta}\eta)$ $=$\\
+
+$(\lambda x . \semBrcks{\pi,\iota:\theta \vdash e : \theta'}[ \ \eta \ | \ \iota:x \ ])$
+$(\semBrcks{\pi \vdash e' : \theta}\eta)$ $=$\\
+
+$\semBrcks{\pi,\iota:\theta \vdash e : \theta'}[ \ \eta \ | \ 
+												\iota:(\semBrcks{\pi \vdash e' : \theta}\eta) \ ]$,\\
+												
+hasta este punto lo que hemos hecho es usar las definiciones de la aplicaci\'on
+y abstracci\'on, y resolver la aplicaci\'on del operador lambda de nuestro
+modelo sem\'antico. A continuaci\'on vamos a redefinir con nombre a algunas 
+expresiones y ver como podemos aplicar el teorema de substituci\'on, vamos
+a renombrar $[ \ \eta \ | \ \iota:(\semBrcks{\pi \vdash e' : \theta}\eta) \ ] = \eta'$
+y $\pi,\iota:\theta = \pi'$, luego obtenemos\\
+
+$\semBrcks{\pi' \vdash e : \theta'}\eta'$\\
+
+ahora, para poder aplicar substituci\'on tenemos que probar antes que
+para todo $\kappa \in \ dom (\pi')$, $\eta' \kappa = \semBrcks{\pi \vdash \delta\kappa : \pi' \kappa}$
+donde $\delta$ sera la substituci\'on $\iota:e'$ y la identidad para todo otro $\kappa$. Supongamos
+un $\kappa$ cualquiera,
+
+\begin{itemize}
+\item Caso $\kappa \neq \iota$, $\eta' \kappa = \eta \kappa = 
+									\semBrcks{\pi \vdash \kappa : \pi'\kappa}\eta = 
+									\semBrcks{\pi \vdash \delta \kappa : \pi'\kappa}\eta$.
+
+\item Case $\kappa = \iota$, $\eta' \kappa = \eta' \iota = 
+									 \semBrcks{\pi \vdash e : \theta}\eta = 
+									 \semBrcks{\pi \vdash \delta \iota : \pi'\iota}\eta$.
+\end{itemize}
+
+luego aplicando substituci\'on obtenemos,
+$\semBrcks{\pi' \vdash e : \theta'}\eta'$ $=$ $\semBrcks{\pi \vdash e / \delta : \theta'}\eta$\\
+
+por lo tanto, $\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'}\eta$ $=$
+ 			  $\semBrcks{\pi \vdash e / \iota:e' : \theta'}\eta$.
 
 \end{proof}
 
