@@ -1,10 +1,10 @@
-\chapter{Algol-like}
+\chapter{Lenguaje Algol-like}
 \label{chap:algollike}
 
 En el final del cap\'itulo anterior terminamos con el estudio
 del lenguaje lambda leq, este era un lenguaje funcional con subtipado.
 En este cap\'itulo vamos a tomar a lambda leq y vamos a agregar
-aspectos imperativos, este nuevo lenguaje lo llamaremos Algol-like.
+aspectos imperativos, este nuevo lenguaje lo llamaremos \Alike.
 
 Este nuevo lenguaje que vamos a estudiar pertenecer\'a a la clase
 de lenguaje Algol-like estos combinan
@@ -17,7 +17,7 @@ la aplicaci\'on del procedimiento desaparece quedando de esta manera
 la parte imperativa por evaluar y que es exactamente la segunda parte.
 
 A continuaci\'on presentamos los cinco principio que (ref de the essence of algol)
-cree que captura la esencia de los lenguajes algol.
+cree que captura la esencia de los lenguajes Algol-like.
 
 \begin{enumerate}
 \item Algol-like se obtiene de un lenguaje imperativo simple imponiendo un
@@ -48,9 +48,9 @@ si contemplan stack discipline.
 
 \section{Sint\'axis}
 
-Como ya mencionamos Algol-like sera una extensi\'on de lambda leq, agregando las
+Como ya mencionamos \Alike sera una extensi\'on de lambda leq, agregando las
 construcciones para un lenguaje imperativo simple. Pero antes de hacer esta extensi\'on
-hay algo a acomodar en cuantos a los lenguajes de donde se extiende Algol-like y
+hay algo a acomodar en cuantos a los lenguajes de donde se extiende \Alike y
 esta en el hecho de que el lenguaje de tipos de lambda leq es demasiado simple debemos
 extenderlo seg\'un el punto dos de los principios de algol.
 
@@ -70,7 +70,15 @@ a moverlo a nuestra otra clase de tipos $\textit{Phrase Types}$ y vamos a agrega
 construcciones de tipos que representan los valores para los comandos, aceptadores, variables y 
 expresiones, este ultimo tipo se lo puede considerar como el nuevo tipo que 
 representa a los tipos como los ten\'iamos antes, es decir, si una frase antes
-ten\'ia tipo $\intt$ ahora tendr\'a tipo $\intt\textbf{exp}$(resi\'on).
+ten\'ia tipo $\intt$ ahora tendr\'a tipo $\intt\textbf{exp}$(resi\'on). Dicho lo
+anterior no hay duda sobre la utilidad de $\deltaexp$ como tipo, hagamos un repaso
+de los dem\'as tipos que vamos a introducir, el tipo de los comandos no ser\'a
+otra cosa que el representante de las frases de la parte imperativa de
+nuestro lenguaje, el tipo de las variables encapsular\'a las dos posibles utilizaciones
+de un identificador de variable, es decir, ya sea como valor o como almacenamiento,
+para este primero es que tenemos el tipo de las expresiones y para el segundo es
+donde aparece el tipo de los aceptadores, este b\'asicamente se encarga de 
+representar a un identificador de variables como un almac\'en de valores.
 
 \setlength{\grammarindent}{8em}
 \begin{grammar}
@@ -83,9 +91,9 @@ ten\'ia tipo $\intt$ ahora tendr\'a tipo $\intt\textbf{exp}$(resi\'on).
 
 \end{grammar}
 
-Ahora que hemos actualizado el lenguaje de tipos necesario para Algol-like, presentemos
+Ahora que hemos actualizado el lenguaje de tipos necesario para \Alike, presentemos
 la gram\'atica, como mencionamos anteriormente este lenguaje va a ser una extensi\'on de lambda leq, agregando los construcciones para un lenguaje imperativo simple. Estas construcciones 
-ser\'an los comandos para la declaraci\'on de variables ($\newdeltavar{}{}{}$), 
+ser\'an los comandos para la declaraci\'on de variables ($\cnew \deltavar$), 
 asignaci\'on($\cassig$), comando neutro ($\cskip$), concatenaci\'on de comandos ($\concatdots$)
 y un comando para iteraciones ($\cwhile$).
 
@@ -153,7 +161,6 @@ tipos de $\phraseTypes$,
    \dLine   & & \dLine   & &        &    \rdLine(1,2)  \ldLine(1,2)     &     & \\
    \intvar  & & \realvar & &        &       \boolvar   &            & \commt
 \end{diagram}
-
 
 Expliquemos un poco que estamos viendo, por un lado respetando la idea de que
 $\intt$ es ahora $\intexp$ y $\realt$ es $\realexp$, entonces vamos a tener
@@ -632,7 +639,7 @@ $\semBrcks{\deltavar}_0 (h,s) \ (a,e)$ $=$ $( \lambda x. \ \semBrcks{\commt}(h,s
 										   )$\\
 \
 
-$\semBrcks{\theta \rightarrow \theta'}_0 C$ $=$ $\lambda C'. \ 
+$\semBrcks{\theta \rightarrow \theta'}_0 C$ $=$ $(C' : \C_0) \rightarrow 
 												  \semBrcks{\theta}(C \concat C') 
 												  \rightarrow
 												  \semBrcks{\theta'}(C \concat C')$\\
@@ -853,17 +860,28 @@ $(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \deltaacc}C \ \eta \ 
 $else \ \semBrcks{ \pi \vdash e' : \deltaacc}C \ \eta \ z \ \sigma)_{\dbot}$ 
 $(\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ \sigma)$\\
 
-$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \theta}C \ \eta$ 
-$C_0 \ z_0 \ \ldots \ C_n \ z_n \ \sigma$ $=$ \\
-\indent \indent \indent \ \
-$(\lambda b . \ if \ b $ $
-	then \ \semBrcks{ \pi \vdash e : \theta}C \ \eta \ C_0 \ z_0 \ \ldots \ C_n \ z_n \ \sigma$\\
-	\indent \indent \indent \indent \indent \ \ \ \ \ \
-	$else \ \semBrcks{ \pi \vdash e' : \theta}C \ \eta \ C_0 \ z_0 \ \ldots \ C_n \ z_n \ \sigma)_{\dbot}$ \\
-	\indent \indent \indent \indent \indent \indent \indent \indent \indent \indent \indent \indent
-$(\semBrcks{ \widehat{\pi} \vdash b : \boolexp}\widehat{C} \ \widehat{\eta} \ \sigma)$\\
+$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltaexp}C \ \eta \ \sigma$ 
+$=$ \\
+\indent \indent \indent 
+$(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \deltaacc}C \ \eta \ \sigma$\\
+\indent \indent \indent \indent \indent \ \ \ \
+$else \ \semBrcks{ \pi \vdash e' : \deltaacc}C \ \eta \ \sigma)_{\dbot}$ 
+$(\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ \sigma)$\\
 
-mmm algo no esta bien con la ecuaci\'on anterior.\\
+$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \commt}C \ \eta \ \sigma$ 
+$=$ \\
+\indent \indent \indent 
+$(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \deltaacc}C \ \eta \ \sigma$\\
+\indent \indent \indent \indent \indent \ \ \ \
+$else \ \semBrcks{ \pi \vdash e' : \deltaacc}C \ \eta \ \sigma)_{\dbot}$ 
+$(\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ \sigma)$\\
+
+$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltavar}C$ 
+$=$ \\ 
+\indent \indent \indent 
+$\langle \ \semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltaacc}C$\\
+\indent \indent \indent 
+$, \semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltaexp}C \ \rangle$ \\
 
 \noindent
 $\texttt{Denotal Sem:}$ Aplicaci\'on.\\
