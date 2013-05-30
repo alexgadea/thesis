@@ -1286,7 +1286,7 @@ $\Theta_1(\theta,\theta')$ $=$ $\{\theta \rTo \theta' \ | \ \theta \leq \theta'\
 
 \end{definition}
 
-Esta nueva categor\'ia coincide con el poset de tipos con la relaci\'on de orden
+Esta nueva categor\'ia coincide con el pre-orden de tipos con la relaci\'on de orden
 $\leq$ visto como categor\'ia, por lo tanto se desprende que dados
 dos tipos $\theta$ y $\theta'$, $| \ \Theta_1(\theta,\theta') \ | \leq \ 1$.
 
@@ -1323,6 +1323,43 @@ $\semBrcks{(\theta_0 \rightarrow \theta'_0) \leq (\theta_1 \rightarrow \theta'_1
 con $\J$ la inyecci\'on de enteros en reales.
 
 \end{definition}
+
+Antes de seguir con la nueva definici\'on de la categor\'ia de contextos analicemos 
+la definici\'on $\semBrcks{(\theta_0 \rightarrow \theta'_0) \leq (\theta_1 \rightarrow \theta'_1)}$.
+La idea ser\'a ver que la definici\'on que dimos es correcta y adem\'as mostrar de que manera
+la podemos construir, comencemos notando que,\\
+
+$\semBrcks{\theta_1 \leq \theta_0} : \semBrcks{\theta_1} \rightarrow \semBrcks{\theta_0} 
+= Hom_{\Dom}(\semBrcks{\theta_1},\semBrcks{\theta_0})$\\
+
+$\semBrcks{\theta_0' \leq \theta_1'} : \semBrcks{\theta_0'} \rightarrow \semBrcks{\theta_1'}
+= Hom_{\Dom}(\semBrcks{\theta_0'},\semBrcks{\theta_1'})$\\
+
+y definamos entonces dos funtores, uno covariante $Hom(\semBrcks{\theta_1}, \_ )$ y otro contravariante
+$Hom(\_,\semBrcks{\theta_1'})$. \\
+
+Tomemos una funci\'on $f$ en $\semBrcks{\theta_0 \rightarrow \theta_0'}$ cualquiera, luego \\
+
+$Hom(\semBrcks{\theta_1}, f)$ $:$ 
+$Hom(\semBrcks{\theta_1}, \semBrcks{\theta_0}) \rightarrow Hom(\semBrcks{\theta_1}, \semBrcks{\theta_0'})$,\\
+
+usando lo que notamos al principio podemos hacer, es decir, $\semBrcks{\theta_1 \leq \theta_0} : Hom_{\Dom}(\semBrcks{\theta_1},\semBrcks{\theta_0})$, obtenemos \\
+
+$Hom(\semBrcks{\theta_1}, f) \semBrcks{\theta_1 \leq \theta_0}$ $=$ $f \circ \semBrcks{\theta_1 \leq \theta_0} : 
+Hom(\semBrcks{\theta_1}, \semBrcks{\theta_0'})$.\\
+
+Si ahora hacemos algo similar usando el otro funtor tenemos,\\
+
+$Hom(f \circ \semBrcks{\theta_1 \leq \theta_0}, \semBrcks{\theta_1'})$ $:$ 
+$Hom(\semBrcks{\theta_0'}, \semBrcks{\theta_1'}) \rightarrow Hom(\semBrcks{\theta_1}, \semBrcks{\theta_1'})$,\\
+
+y aplicando el funtor como antes podemos llegar a la ecuación propuesta,\\
+
+$Hom(f \circ \semBrcks{\theta_1 \leq \theta_0}, \semBrcks{\theta_1'})\semBrcks{\theta_0' \leq \theta_1'}$ $=$
+$\semBrcks{\theta_0' \leq \theta_1'} \circ f \circ \semBrcks{\theta_1 \leq \theta_0}$.\\
+
+Luego podemos mencionar que el subtipado para un tipo $\theta \rightarrow \theta'$ es covariante
+para $\theta$ y contravariante para $\theta'$.\\
 
 La definici\'on de la relaci\'on $\leq$ entre tipos nos permite ademas actualizar 
 la definici\'on de la categor\'ia de contexto, de manera tal de definir $\leq$ entre
