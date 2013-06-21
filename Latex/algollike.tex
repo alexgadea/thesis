@@ -46,7 +46,7 @@ en la cual no tenemos stack discipline. Lo interesante es que lo vamos a lograr 
 realmente muy poco sobre las ecuaciones sem\'anticas y los dominios originales que
 si contemplan stack discipline.
 
-\section{Sint\'axis}
+\section{Sintaxis}
 
 Como ya mencionamos \Alike sera una extensi\'on de lambda leq, agregando las
 construcciones para un lenguaje imperativo simple. Pero antes de hacer esta extensi\'on
@@ -224,18 +224,22 @@ $\texttt{Ty Rule:}$ $\delta$varTo$\delta$acc.
 
 Adem\'as de estas reglas de inferencia para el subtipado, nos van a hacer
 falta actualizar las reglas de inferencia de lambda leq con los tipos correspondientes
-del lenguaje Algol-like y luego faltara tambi\'en agregar reglas para los juicios de 
+del lenguaje \Alike y luego faltara tambi\'en agregar reglas para los juicios de 
 tipado de las nuevas frases. Pero antes vamos a necesitar definir el nuevo lenguaje
 de los contextos, como ha venido ocurriendo, esto ser\'a actualizar los tipos
-viejos por los nuevos.\\
+viejos por los nuevos.
 
-Un contexto de Algol-like estar\'a definido por la siguiente gram\'atica,\
+\begin{definition}\label{alike:context}
+
+Un contexto estar\'a definido por la siguiente gram\'atica,\
 
 \begin{grammar}
 
 <Context> ::= $\varnothing$ | <Context>,<Id>:<Phrase Types>
 
 \end{grammar}
+
+\end{definition}
 
 Ahora s\'i, reescribamos las reglas de lambda leq con los nuevos tipos, b\'asicamente
 lo que vamos a hacer es cambiar un tipo $\delta$ por $\deltaexp$,
@@ -471,26 +475,27 @@ $\texttt{Ty Rule:}$ Asignaci\'on.
 
 \section{Sem\'antica}
 
-A nivel sint\'actico vimos que Algol-like esta compuesto por las frases
+A nivel sint\'actico vimos que \Alike esta compuesto por las frases
 de lambda leq mas frases que representan la parte imperativa, de hecho al 
-presentar las reglas de inferencia para las frases de Algol-like, las
+presentar las reglas de inferencia para las frases de \Alike, las
 reglas de la parte de lambda leq sufrieron un \'unico cambio simple
 en cuanto a los nombre de los tipos y pudimos aprovechar la definici\'on
 completa. Ahora que vamos a dar la sem\'antica 
-de Algol-like y no vamos a poder hacer algo similar con la sem\'antica, es decir aprovechar las
+de \Alike y no vamos a poder hacer algo similar con la sem\'antica, es decir aprovechar las
 ecuaciones sem\'anticas que definimos para lambda leq, la raz\'on principal es
 que el significado de nuestros tipos ya no ser\'a tan simple debido a que
 nos aparecen cuestiones relacionadas con el stack discipline. \\
 
-Adem\'as para definir las dos sem\'anticas que pretendemos para Algol-Like,
-con y sin stack discipline, vamos a tener dos pares; ecuaci\'on sem\'antica para
-el juicio de tipado que declara variables imperativas y categor\'ias de
-estados de la parte imperativa. Luego
-con una sola ecuaci\'on sem\'antica para el resto de nuestros
-juicios de tipado vamos a poder representar comportamientos distintos
-eligiendo entre uno u otro de estos pares.
+Adem\'as para definir las dos sem\'anticas que pretendemos para \Alike,
+con y sin stack discipline, vamos a tener definiciones extras, una
+para el juicio de tipado de la declaraci\'on de variables imperativas
+y otra para la categor\'ia de estados de la parte imperativa. 
+Lo interesante de notar sobre lo anterior es que dadas todas las ecuaciones
+sem\'anticas de nuestro lenguaje, con solo seleccionar una sola
+ecuaci\'on vamos a decidir sobre el tipo de implementaci\'on en
+relaci\'on al stack discipline.
 
-\subsection{Categor\'ias de Algol-like}
+\subsection{Categor\'ias de \Alike}
 
 Comencemos adaptando la categor\'ia de tipos $\Theta$, lo \'unico 
 por hacer ser\'a cambiar la clase de tipos de lambda leq por los de
@@ -516,16 +521,18 @@ sucede que $\semBrcks{\intexp}$ ya no ser\'a un $S_\intt$ que represente
 el conjunto de enteros, si no que pasar\'a a ser una funci\'on de
 estados en $S_\intt$.\\
 
-Pero antes de continuar, definamos que ser\'a un estado en nuestra sem\'antica.
-En general un estado ser\'a un conjunto de valores pero con la particularidad 
-de tener forma, donde con forma nos referimos a que si tom\'aramos un estado
-$(1,True)$ que pertenece a $\Z \times \B$, diremos que este estado tiene 
-forma $\lrangles{\Z,\B}$.
+Pero antes de continuar, definamos que ser\'a un estado en nuestra sem\'antica,
+para el cual tendremos dos versiones, una versi\'on ser\'a un conjunto de valores 
+pero con la particularidad de tener forma, donde aclarando un poco a que 
+nos referimos con forma, es que si tom\'aramos un estado $(1,True)$ que 
+pertenece a $\Z \times \B$, diremos que este estado tiene 
+forma $\lrangles{\Z,\B}$. Para la otra versi\'on un estado ser\'a una funci\'on
+de de identificadores en valores.
 
-\begin{definition}\label{algol:states}
+\begin{definition}\label{algol:disciplinestates}
 
 Un estado ser\'a un elemento perteneciente a $S_1 \times \ldots \times S_n$, 
-con $0 \leq n$ con $S_i$ conjuntos. Diremos adem\'as que este estado tiene
+con $1 \leq n$ con $S_i$ conjuntos. Diremos adem\'as que este estado tiene
 forma $\lrangles{S_1,\ldots,S_n}$\\
 
 Adem\'as dados dos estados $\sigma$ y $\sigma'$, diremos que $\sigma$ extiende
@@ -537,19 +544,54 @@ Introduzcamos algunas funciones \'utiles que nos van a servir para
 operar sobre los estados y las formas de los estados. Vamos a usar
 $\concat$ para definir la concatenaci\'on de estados y formas de estado,
 adem\'as para operar sobre los estados vamos a tener tres funciones b\'asicas,
-$head$, $tail$ y $last$. Sea $\sigma$ un estado con forma $\alpha \concat \alpha'$
-luego tenemos que $head_\alpha \sigma$ y $tail_\alpha¿ \sigma$ son los \'unicos
+$head$, $tail$ y $last$. 
+
+\begin{definition}\label{algol:statesfunctions}
+
+Sea $\sigma$ un estado con forma $\alpha \concat \alpha'$ luego definimos
+$head_\alpha \sigma$ y $tail_\alpha¿ \sigma$ como los \'unicos
 estados tal que $head_\alpha \sigma$ $\concat$ $tail_\alpha¿ \sigma$ $=$ $\sigma$.
-Dado un estado con forma $\lrangles{S}$, tenemos que $last_S \sigma$ sera el
+
+Adem\'as dado un estado $\sigma$ con forma $\lrangles{S}$, tenemos que $last_S \sigma$ sera el
 \'unico valor contenido en el estado $\sigma$.\\
 
-Ahora con los estados definidos, vamos a dar una definici\'on de
-la categor\'ia de estados, en esta categor\'ia b\'asicamente cada objeto ser\'a
+\end{definition}
+
+Hasta aqu\'i entonces hemos definido la primera versi\'on de estados, esta ser\'a la que
+se corresponda con la categor\'ia de estados para la sem\'antica con stack discipline.
+Pasemos a definir la segunda versi\'on, la cual se corresponder\'a entonces con
+la categor\'ia de estados para la sem\'antica sin stack discipline. Como ya
+mencionamos antes estos estados ahora ser\'an funciones de identificadores
+en valores, en un sentido similar a como es un ambiente, la raz\'on principal
+por la cual vamos a tener esta segunda versi\'on se basa en que vamos a querer
+dejar de lado la idea de que los estados tengan forma y el problema que 
+trae esto es que, justamente la forma es lo que nos permite actualizar o consultar
+los valores de nuestro estado, por lo tanto necesitamos otro tipo
+de estado con otro mecanismo para realizar esas acciones.
+Para resolver esto usamos una idea similar a la propuesta en (referencia Reynolds Theories...)
+para el lenguaje Iswim.
+
+\begin{definition}\label{algol:states}
+
+Un estado ser\'a un elemento perteneciente a 
+$\bigcup\limits_{I \in \FinId} I \rightarrow S$
+
+donde $\FinId$ ser\'a un conjunto de subconjuntos finitos de $\lrangles{Id}$ y
+$S = S_\intt + S_\realt + S_\boolt$\\
+
+A este conjunto de estados lo llamaremos $\Sigma$.\\
+
+\end{definition}
+
+Ahora con los estados definidos, vamos a dar las dos definiciones de
+la categor\'ia de estados, una ser\'a la categor\'ia en la que b\'asicamente cada objeto ser\'a
 un conjunto de estados con la misma forma y una flecha entre dos objetos
 determinar\'a como contraer la forma de un objeto y como transformar un estado
-con cierta forma en un estado mas grande.
+con cierta forma en un estado mas grande. Y la otra categor\'ia tendr\'a
+un solo objeto que agrupar\'a a todos los estados sin importar la forma y
+cuya \'unica flecha ser\'a la identidad.
 
-\begin{definition}\label{algol:statecategory}
+\begin{definition}\label{algol:disciplinestatecategory}
 La categor\'ia de estados, que nombraremos $\C$, se define como sigue,\\
 
 \indent
@@ -561,22 +603,46 @@ donde \ $h: C' \rightarrow C$\\
 \indent \indent \indent
 	  $h = head_C$\\
 \indent \indent \indent
-	  $s: (C \rightarrow C'_{\bot}) \rightarrow (C' \rightarrow C'_{\bot})$\\
+	  $s: (C \rightarrow C_{\bot}) \rightarrow (C' \rightarrow C'_{\bot})$\\
 \indent \indent \indent
-	  $s = \lambda \sigmahat.$ 
-	  	   $(\lambda\sigma. \ \sigma \concat (tail_C' \sigma))_{\bot}$
-	  	   	$(c(head_C \sigma))$
+	  $s \ c \ \sigmahat =$ 
+	  	   $(\lambda \sigma. \ \sigma \concat (tail_{\overline{C}} \ \sigmahat))_{\bot}$
+	  	   	$(c(h \ \sigmahat))$\\
+\indent \indent \indent
+	 $C' = C \concat \overline{C}$
 
 \end{definition}
 
 Notar que si tomamos un objeto $C$ de $\C$ podemos hablar de que este objeto
 tiene cierta forma, b\'asicamente la forma de los estados que agrupa, luego
-podemos hablar de dado otro objeto $C'$, este extiende a $C$ y esta extensi\'on
+podemos hablar de que dado otro objeto $C'$, este extiende a $C$ y esta extensi\'on
 se determina de la misma manera que para los estados. Adem\'as aprovechamos 
 que podemos hablar acerca de que $C$ tiene forma, para hacer un abuso de 
 notaci\'on en $head$ y $tail$.\\
 
-Ahora que tenemos la categor\'ia $\C$ estamos en condiciones de definir quien
+Ahora definamos la segunda categor\'ia de estados que mencionamos anteriormente.
+
+\begin{definition}\label{algol:statecategory}
+La categor\'ia de estados, que nombraremos $\C$, se define como sigue,\\
+
+\indent
+$\C_0$ $=$ $\{\ \Sigma \ \}$\\
+
+y cuya \'unica flecha es $(1_h,1_s) : \Sigma \rightarrow \Sigma$, tal que\\
+
+$1_h : \Sigma \rightarrow \Sigma$\\
+\indent
+$1_h \sigma = \sigma$\\
+\indent
+$1_s: (\Sigma \rightarrow \Sigma_{\bot}) \rightarrow (\Sigma \rightarrow \Sigma_{\bot})$\\
+\indent
+$1_s \ c = c$
+
+\end{definition}
+
+Una aclaraci\'on importante es que, salvo aclaraci\'on, cuando hablemos de 
+la categor\'ia $\C$ vamos a estar refiri\'endonos a cualquiera de las dos
+que acabamos de definir. Dicho esto, estamos en condiciones de definir quien
 ser\'a $\CD$, una idea inicial es pensar en la categor\'ia funtorial
 $\Dom^\C$ como sugiere (ref Reynolds, Theories of programming... Cap. 19.), pero
 parece existir un problema seg\'un se menciona en (ref Oles, Functor categories and 
@@ -597,19 +663,18 @@ vamos a tener que la sem\'antica de un objeto $\theta$ de $\Theta$ ser\'a un fun
 
 $\semBrcks{\theta}$ $:$ $\C \rightarrow \PDom$\\
 
-tal que aplicado a un objeto, $C$, de $\C$ es,\\
+tal que aplicado a un objeto $C$, de $\C$ es,\\
 
 $\semBrcks{\theta} C$ $:$ $\PDom$\\
 
-y aplicado a una flecha, $C \rTo^{(h,s)} C'$ es,\\
+y aplicado a una flecha $C \rTo^{(h,s)} C'$ es,\\
 
 $\semBrcks{\theta} (h,s)$ $:$ $\semBrcks{\theta} C \rightarrow \semBrcks{\theta} C'$.\\
 
-en general, el comportamiento de esta ecuaci\'on ser\'a la traducci\'on del estado actual
-con forma $C$ a un estado extendido con forma $C'$. 
+en general, el comportamiento de este funtor aplicado a una flecha ser\'a la traducci\'on del estado actual con forma $C$ a un estado extendido con forma $C'$. 
 
 \noindent
-Adem\'as, la sem\'antica de una flecha $\theta \rTo \theta'$ de $\Theta$ ser\'a
+Adem\'as, la sem\'antica de una flecha $\theta \rTo^{\leq} \theta'$ de $\Theta$ ser\'a
 una transformaci\'on natural, indexada por objetos de $\C$,\\
 
 $\semBrcks{\theta \rTo^{\leq} \theta'}C$ $:$ $\semBrcks{\theta}C \rightarrow \semBrcks{\theta'}C$.
@@ -632,17 +697,15 @@ $\semBrcks{\deltaacc}_0 C$ $=$ $S_\delta \rightarrow \semBrcks{\commt}C$\\
 $\semBrcks{\deltaacc}_0 (h,s) \ a$ $=$ $s \circ a$\\
 \
 
-$\semBrcks{\deltavar}_0 C$ $=$ $(\semBrcks{\deltaacc}C,\semBrcks{\deltaexp}C)$\\
+$\semBrcks{\deltavar}_0 C$ $=$ $\semBrcks{\deltaacc}C \times \semBrcks{\deltaexp}C$\\
 \indent
-$\semBrcks{\deltavar}_0 (h,s) \ (a,e)$ $=$ $( \lambda x. \ \semBrcks{\commt}(h,s)(a \ x)
-										   , \semBrcks{\deltaexp}(h,s)e
-										   )$\\
+$\semBrcks{\deltavar}_0 (h,s) \ (a,e)$ $=$ $( \semBrcks{\deltaacc}(h,s) \ a
+										     , \semBrcks{\deltaexp}(h,s) \ e
+										     )$\\
 \
 
-$\semBrcks{\theta \rightarrow \theta'}_0 C$ $=$ $(C' : \C_0) \rightarrow 
-												  \semBrcks{\theta}(C \concat C') 
-												  \rightarrow
-												  \semBrcks{\theta'}(C \concat C')$\\
+$\semBrcks{\theta \rightarrow \theta'}_0 C$ $=$ 
+					$\Hom{\semBrcks{\theta}(C \concat \_)}{\semBrcks{\theta'}(C \concat \_)}$\\
 \indent
 $\semBrcks{\theta \rightarrow \theta'}_0 (h,s) \ f \ \widehat{C}$ $=$ 
 														$f(\overline{C} \concat \widehat{C})$\\
@@ -804,11 +867,13 @@ $\semBrcks{ \pi \vdash \neg b : \boolexp }C$
 $=$ 
 $(\lambda b . \ \iotabot \neg b)_{\dbot} \circ \semBrcks{\pi \vdash b : \boolexp}C$\\
 
-$\semBrcks{ \pi \vdash -n : \deltaexp }C$ 
+$\semBrcks{ \pi \vdash -i : \intexp }C$ 
 $=$ 
-$(\lambda n . \ \iotabot -n)_{\dbot} \circ \semBrcks{\pi \vdash n : \deltaexp}C$\\
+$(\lambda i . \ \iotabot -i)_{\dbot} \circ \semBrcks{\pi \vdash i : \intexp}C$\\
 
-con $\delta \in \{ \intt,\realt \}$\\
+$\semBrcks{ \pi \vdash -r : \realexp }C$ 
+$=$ 
+$(\lambda r . \ \iotabot -r)_{\dbot} \circ \semBrcks{\pi \vdash r : \realexp}C$\\
 
 \noindent
 $\texttt{Denotal Sem:}$ Operadores binarios\\
@@ -951,32 +1016,66 @@ $\semBrcks{ \pi,\iota:\theta \vdash e : \theta' } \ (C \concat C') \
 
 con $(h,s)$ $:$ $C \rTo (C \concat C')$ \\
 
-\noindent
+Hasta aqu\'i hemos definido todas las ecuaciones sem\'anticas de $\Alike$ salvo
+para el comando $\cnew \ \deltavar$, para este vamos a tener dos definiciones
+y con estas, en conjunto con las dos categor\'ias de estados, vamos a completar 
+las dos sem\'anticas que estudiamos.\\
+
 $\texttt{Denotal Sem:}$ Declaraci\'on de variable (Stack discipline).\\
 
-$\semBrcks{\pi \vdash \newdeltavar{\iota}{e}{c} : \commt}C \ \eta \ \sigma$ 
+$\semBrcks{\pi \vdash \newdeltavar{\iota}{ei}{c} : \commt}C \ \eta \ \sigma$ 
 $=$ \\ \indent \indent
-$(\lambda \sigma' . \ H \sigma')_{\dbot}$\\ \indent \indent \indent
-$(\lambda \ v . \ \semBrcks{\pi,\iota:\deltavar \vdash c : \commt}
-		\ (C\concat\lrangles{S_\delta}) \ \eta_{new} \ \sigma_{new})_{\dbot}$
+$H_{\bot} ((\lambda \ v . \ \semBrcks{\pi,\iota:\deltavar \vdash c : \commt}
+		\ (C\concat\lrangles{S_\delta}) \ \eta_{ext} \ \sigma_{ext})_{\dbot}$
 \\ \indent \indent  \indent  \indent  \indent \indent  \indent
 \indent \indent \indent \indent \indent \indent \indent
 \indent \indent \indent
-$(\semBrcks{\pi \vdash e : \deltaexp}C \ \eta \ \sigma)$\\
+$(\semBrcks{\pi \vdash ei : \deltaexp}C \ \eta \ \sigma))$\\
 
 con $(h,s)$ $:$ $C \rTo (C \concat \lrangles{S_\delta})$ \\
 \indent \indent \ \
-$a_\sigma$ $=$ $\lambda x. \ \lambda \sigmahat . \ \iotabot ((head_{C} \sigmahat) \concat \lrangles{x})$\\
+$a$ $=$ $\lambda v. \ \lambda \sigmahat . \ \iotabot ((head_{C} \sigmahat) \concat \lrangles{v})$\\
 \indent \indent \ \
-$e_\sigma$ $=$ $ \iotabot \circ last_{S_\delta}$\\
+$e$ $=$ $ \iotabot \circ last_{S_\delta}$\\
 \indent \indent \ \
-$\sigma_{new} = \sigma \concat \lrangles{v} $\\
+$\sigma_{ext} = \sigma \concat \lrangles{v} $\\
 \indent \indent \ \
-$\eta_{new} = [ \ \semBrcks{\pi}(h,s) \ \eta \ | \ x:\lrangles{a_\sigma,e_\sigma} \ ]$\\
+$\eta_{ext} = [ \ \semBrcks{\pi}(h,s) \ \eta \ | \ \iota:\lrangles{a,e} \ ]$\\
 \indent \indent \ \
 $H = head_C$\\
 
-\
+\noindent
+Expliquemos la ecuaci\'on detenidamente, recordando que esta es la versi\'on
+con stack discipline, el comportamiento que este comando deber\'ia tener es evaluar
+el comando $c$ en un estado y ambiente extendido con el identificador $\iota$, 
+este con el valor inicial correspondiente de haber evaluado $ei$
+y al terminar la evaluaci\'on de $c$ contraer el estado y el ambiente, tirando
+de esa manera toda referencia al identificador $\iota$.\\
+
+Suponiendo siempre la evaluaci\'on de nuestros comandos es distinta de $\bot$, 
+lo primero que hacemos es evaluar el juicio de tipado $\pi \vdash ei : \deltaexp$
+con el ambiente y estado sin extender, esta evaluaci\'on nos retorna un valor
+que vamos a nombrar $v$, este ser\'a el valor para inicializar el identificador $\iota$.
+Luego pasamos a evaluar $\pi \vdash c : \commt$, ac\'a vamos a tener que extender 
+el ambiente y el estado, as\'i como tambi\'en el conjunto de estados con el tipo
+b\'asico del identificador. \\
+Extender el estado ser\'a simplemente pegar por atr\'as el valor $v$ al estado
+$\sigma$, extender el ambiente ya no es tan simple por un lado si ocurre que 
+agregamos el identificador $\iota$ con el par aceptador-evaluador por atr\'as
+pero no al ambiente tal cual lo ten\'iamos, si no a un nuevo ambiente que es
+el resultado de acomodar el ambiente original a la extensi\'on del estado, mas
+adelante vamos a ver por qu\'e esto es importante. Sobre el par aceptador-evaluador
+podemos notar que evaluar $\iota$ como expresi\'on ser\'a evaluar $e$, es decir,
+ser\'a obtener el ultimo elemento del estado y evaluar $\iota$ como aceptador ser\'a
+recortar el estado hasta justo antes del valor actual y pegar por atr\'as el nuevo
+valor.\\
+Finalmente al terminar de evaluar $\pi \vdash c : \commt$ obtenemos un estado
+con forma $C \concat \lrangles{S_\delta}$ y necesitamos contraerlo para eliminar
+el valor de $\iota$, esto lo hace $H_\bot$ recortando el estado hasta justo antes
+del valor, justo como pasaba con la evaluaci\'on de $\iota$ como aceptador pero
+sin agregar ning\'un valor nuevo.\\
+
+Repasemos con un ejemplo todo lo comentado anteriormente.\\
 
 \
 
@@ -985,23 +1084,328 @@ $H = head_C$\\
 \
 
 \
+
+\noindent
+\textbf{Ejemplo}
+Supongamos tenemos un comando,\\
+
+$\cnew \ \intvar \ \assig{\iota}{0} \ \cin$\\
+\indent \indent
+$\cnew \ \intvar \ \assig{\kappa}{1} \ \cin$\\
+\indent \indent \indent
+$\assig{\kappa}{\iota}$ $\cseq$\\
+\indent
+$\cskip$\\
+
+y la siguiente derivaci\'on que nos prueba que esta bien tipado para
+obtener el juicio de tipado $\vdash \cseq{\cnew \iota \ }{ \ \cskip} : \commt$, donde
+$\cnew \iota$ es el primer comando $\cnew \intvar$, adem\'as vamos a
+llamar $\cnew \kappa$ al otro comando $\cnew \intvar$.
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\pi_{\iota,\kappa} \vdash \kappa : \intvar$}
+\AxiomC{$\intvar \leq \intexp$}
+\BinaryInfC{$\pi_{\iota,\kappa} \vdash \kappa : \intacc$}
+\AxiomC{}
+\UnaryInfC{$\pi_{\iota,\kappa} \vdash \iota : \intvar$}
+\AxiomC{$\intvar \leq \intexp$}
+\BinaryInfC{$\pi_{\iota,\kappa} \vdash \iota : \intexp$}
+\BinaryInfC{$\pi_\iota,\kappa:\intvar \vdash \assig{\kappa}{\iota} : \commt$}
+\DisplayProof
+\end{center}
+
+\
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\pi_\iota \vdash 1 : \intexp$}
+\AxiomC{}
+\UnaryInfC{$\pi_\iota,\kappa:\intvar \vdash \assig{\kappa}{\iota} : \commt$}
+\BinaryInfC{$\iota:\intvar \vdash \cnew \kappa : \commt$}
+\DisplayProof
+\end{center}
+
+\
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\vdash 0 : \intexp$}
+\AxiomC{}
+\UnaryInfC{$\iota:\intvar \vdash \cnew \kappa : \commt$}
+\BinaryInfC{$\vdash \cnew \iota : \commt$}
+\AxiomC{}
+\UnaryInfC{$\vdash \cskip : \commt$}
+\BinaryInfC{$\vdash \cseq{\cnew \iota \ }{ \ \cskip} : \commt$}
+\DisplayProof
+\end{center}
+
+\noindent
+Ahora que tenemos nuestro juicio de tipado $\vdash \cseq{\cnew \iota \ }{ \ \cskip} : \commt$
+podemos continuar con la evaluaci\'on, podemos empezar evaluando a vista y notar que
+a lo que pretendemos que evalu\'e este juicio es a $\emptystate$, el estado vac\'io, 
+pero adem\'as y es
+la principal raz\'on por la que esta el comando $\cskip$, es ver que luego de ejecutar
+un $\cnew \ \deltavar$ el comando que siga a este no sabe nada acerca de lo que paso
+dentro y con los identificadores. Tomamos ambiente y estado vac\'ios, \\
+
+\noindent
+$\semBrcks{\vdash \cseq{\cnew \iota \ }{ \ \cskip} : \commt}\emptyshape\emptyenv\emptystate$ $=$
+$((\semBrcks{\vdash \cskip : \commt}\emptyshape\emptyenv)_{\bot}
+\circ 
+\semBrcks{\vdash \cnew \iota : \commt}\emptyshape\emptyenv) \emptystate$\\
+
+ahora pasemos a evaluar juicio de tipado para $\cnew \iota$\\
+
+\noindent
+$\semBrcks{\vdash \cnew \iota : \commt}\emptyshape\emptyenv\emptystate$
+$=$ \\ \indent \indent
+$H_{\bot} ((\lambda \ v . \ \semBrcks{\iota:\intvar \vdash \cnew \kappa : \commt}
+		\ (\emptyshape \concat\lrangles{S_\intt}) \ \eta_{ext} \ \sigma_{ext})_{\dbot}$
+\\ \indent \indent  \indent  \indent  \indent \indent  \indent
+\indent \indent \indent \indent \indent \indent \indent
+\indent \indent \indent
+$(\semBrcks{\vdash 0 : \intexp}\emptyshape \ \emptyenv \ \emptystate))$\\
+
+donde $\eta_{ext}$ ser\'a simplemente agregar el identificador $\iota$ y el
+par $\lrangles{a_\iota,e_\iota}$ y $\sigma_{ext}$ ser\'a la lista de valores
+con un \'unico valor, el $0$.\\
+
+\noindent
+$\semBrcks{\vdash \cnew \iota : \commt}\emptyshape\emptyenv\emptystate$
+$=$
+$H_{\bot} \semBrcks{\iota:\intvar \vdash \cnew \kappa : \commt}
+				    \ \lrangles{S_\intt} \ 
+		  	        [ \ \iota : \lrangles{a_\iota,e_\iota} \ ] \ \lrangles{0}$\\
+
+con $a_\iota = \lambda v. \ \lambda \sigmahat . \ \iotabot 
+				((head_{\lrangles{}} \sigmahat) \concat \lrangles{v})$\\
+\indent \indent \ 
+$e_\iota$ $=$ $ \iotabot \circ last_{S_\intt}$\\
+
+evaluamos el $\cnew \kappa$ como hicimos con $\cnew \iota$ pero con el cuidado
+de que ahora no tenemos forma, ni ambiente, ni estado vac\'ios\\
+
+\noindent
+$\semBrcks{\pi_\iota \vdash \cnew \kappa : \commt}
+	\ \lrangles{S_\intt} \ 
+	[ \ \iota : \lrangles{a_\iota,e_\iota} \ ] \ \lrangles{0}$ $=$ \\
+\indent \indent
+$H_{\bot} ((\lambda \ v . \ \semBrcks{\pi_\iota,\kappa:\intvar \vdash \assig{\kappa}{\iota}: \commt}
+		\ (\lrangles{S_\intt} \concat\lrangles{S_\intt}) \ \eta_{ext} \ \sigma_{ext})_{\dbot}$
+\\ \indent \indent  \indent  \indent  \indent \indent  \indent
+\indent \indent \indent \indent \indent \indent \indent
+\indent \indent \indent
+$(\semBrcks{\pi_\iota \vdash 1 : \intexp}\emptyshape \ \emptyenv \ \emptystate))$\\
+
+como antes, tenemos que ver quienes ser\'an $\eta_{new}$ y $\sigma_{new}$, empezando por
+este ultimo es sencillo y es simplemente pegar por atr\'as el valor $1$, en cuanto a
+$\eta_{new}$ ya no es tan directo, lo que sucede es que vamos a tener que acomodar el
+antiguo ambiente, $[ \ \iota : \lrangles{a_\iota,e_\iota} \ ]$, y luego agregar
+el identificador $\kappa$ con el par $\lrangles{a_\kappa,e_\kappa}$.\\
+Para acomodar el ambiente utilizamos 
+$\semBrcks{\pi_\iota}(h,s)$ donde $\lrangles{S_\intt} \rTo^{(h,s)} \lrangles{S_\intt,S_\intt}$,
+es decir, este funtor aplicado a la flecha $(h,s)$ toma un ambiente de tipo
+$\semBrcks{\pi_\iota}\lrangles{S_\intt}$ y nos retorna un ambiente con tipo 
+$\semBrcks{\pi_\iota}\lrangles{S_\intt,S_\intt}$.\\
+
+$\semBrcks{\pi_\iota}(h,s) \ [ \ \iota : \lrangles{a_\iota,e_\iota} \ ]$ $=$
+$[ \ \iota : \semBrcks{\pi_\iota \iota}(h,s) \lrangles{a_\iota,e_\iota} \ ]$ $=$\\
+
+\indent
+$[ \ \iota : \semBrcks{\intvar}(h,s) \lrangles{a_\iota,e_\iota} \ ]$ $=$
+$[ \ \iota : \lrangles{\semBrcks{\intacc}(h,s) a_\iota,\semBrcks{\intacc}(h,s)e_\iota} \ ]$ $=$\\
+
+\indent
+$[ \ \iota : \lrangles{s \circ a_\iota,e_\iota \circ h} \ ]$\\
+
+ahora si podemos extender el ambiente 
+$[ \ \iota : \lrangles{s \circ a_\iota,e_\iota \circ h} \ | \
+	\kappa : \lrangles{a_\kappa,e_\kappa}\ ]$ y este sera nuestro nuevo ambiente $\eta_{new}$.
+Luego podemos avanzar un poco mas con la evaluaci\'on y pasar el limpio la ultima ecuaci\'on,\\
+
+\noindent
+$\semBrcks{\pi_\iota \vdash \cnew \kappa : \commt}
+	\ \lrangles{S_\intt} \ 
+	[ \ \iota : \lrangles{a_\iota,e_\iota} \ ] \ \lrangles{0}$ $=$ \\
+	\indent 
+	$H_{\bot} 
+	\semBrcks{\pi_{\iota,\kappa} \vdash \assig{\kappa}{\iota}: \commt}
+		\ \lrangles{S_\intt,S_\intt}
+		\ [ \ \iota : \lrangles{s \circ a_\iota,e_\iota \circ h} \ | \
+			\kappa : \lrangles{a_\kappa,e_\kappa}\ ] 
+		\ \lrangles{0,1}$\\
+
+con $a_\kappa = \lambda v. \ \lambda \sigmahat . \ \iotabot 
+				((head_{\lrangles{S_\intt}} \sigmahat) \concat \lrangles{v})$\\
+\indent \indent \ 
+	$e_\kappa$ $=$ $ \iotabot \circ last_{S_\intt}$\\
+\indent \indent \ 
+	$(s \circ a_\iota) \ x \ \sigmahat = 
+		(\lambda \sigma . \ \sigma \concat tail_{\lrangles{S_\intt}}\sigmahat)_{\dbot} 
+			(a_\iota \ x \ (head_{\lrangles{S_\intt}} \sigmahat))$\\
+\indent \indent \ 
+	$e_\iota \circ h = e_\iota \circ head_{\lrangles{S_\intt}}$.\\
+	
+Haciendo un repaso general de lo que llevamos hecho, tenemos evaluado hasta el comando
+de asignaci\'on, esto implica haber evaluado los comandos para introducir variables 
+imperativas, lo mas importante a repasar es los pares aceptor-evaluador de los
+identificadores $\iota$ y $\kappa$. Empezando con $\iota$, vemos que usarlo como
+expresi\'on es utilizar como $e_\iota$ que
+sabe como retornar el valor asociado a $\iota$ dado un estado con forma $\lrangles{S_\intt}$,
+luego acomodando esto al introducir $\kappa$, lo que sucede es que usar como expresi\'on
+a $\iota$ es utilizar $e_\iota \circ head_{\lrangles{S_\intt}}$, es decir, dado
+un estado con forma $\lrangles{S_\intt, S_\intt}$, primero nos quedamos con la
+parte inicial sin la extensi\'on del identificador $\kappa$ y luego ya podemos
+utilizar $e_\iota$ en un estado con forma $\lrangles{S_\intt}$.\\
+Si en cambio usamos a $\iota$ como aceptador de valor, entonces ser\'a utilizar
+$a_\iota$ que sabe recortar un estado con forma $\lrangles{S_\intt}$ de manera
+de perder justo el valor asociado a $\iota$, como pasaba con antes, al agregar
+$\kappa$ hay que acomodar la funci\'on a utilizar cuando usamos $\iota$ como aceptador,
+para esto vamos a usar 
+$s : (\lrangles{S_\intt} \rightarrow \lrangles{S_\intt}_{\bot})
+	 \rightarrow 
+	 (\lrangles{S_\intt,S_\intt} \rightarrow \lrangles{S_\intt,S_\intt}_{\bot})$, esta
+funci\'on b\'asicamente va a tomar $a \ x : \lrangles{S_\intt} \rightarrow \lrangles{S_\intt}_{\bot}$,
+recortar un la parte inicial de un estado con forma $\lrangles{S_\intt,S_\intt}$, aplicar
+$a \ x$ en ese estado y luego concatenar el resultado de esa aplicaci\'on con la parte
+final del estado original con forma $\lrangles{S_\intt,S_\intt}$.\\
+Notar que para las funciones $e_\kappa$ y $a_\kappa$ el comportamiento es igual
+al comportamiento para $e_\iota$ y $a_\iota$ cuando no se agregan variables imperativas 
+nuevas. Hecho este repaso, podemos continuar con la evaluaci\'on del juicio de tipado
+de la asignaci\'on, ac\'a vamos a ver como es que utilizamos un identificador 
+tanto como aceptor y como valor.\\
+
+$\semBrcks{\pi_{\iota,\kappa} \vdash \assig{\kappa}{\iota}: \commt}
+		\ \lrangles{S_\intt,S_\intt} \ \eta_{\iota,\kappa}
+		\ \lrangles{0,1}$ $=$\\
+\indent \indent \indent \indent
+$(\lambda x . \ \semBrcks{\pi_{\iota,\kappa} \vdash \kappa : \intacc}
+	\lrangles{S_\intt,S_\intt} 
+	\ \eta_{\iota,\kappa}
+	\ x \ \lrangles{0,1})_{\dbot}$\\
+\indent \indent \indent \indent \indent \indent \indent \indent
+$(\semBrcks{ \pi_{\iota,\kappa} \vdash \iota : \intexp } 
+	\ \lrangles{S_\intt,S_\intt}
+	\ \eta_{\iota,\kappa} 
+	\ \lrangles{0,1})$\\
+	
+evaluemos detenidamente el juicio de tipado para $\iota$, es importante notar que en
+la derivaci\'on de nuestro juicio de tipado  para tipar $\iota$ no alcanza con
+simplemente buscar en el contexto, ya que $\iota$ tiene tipo $\intvar$ entonces
+hay que usar una regla de subtipado, por lo tanto esto impacta de la siguiente
+manera en nuestra evaluaci\'on\\
+
+$\semBrcks{ \pi_{\iota,\kappa} \vdash \iota : \intexp } 
+	\ \lrangles{S_\intt,S_\intt}
+	\ \eta_{\iota,\kappa} 
+	\ \lrangles{0,1}$ $=$ \\
+	\indent
+	$(\semBrcks{\intvar \leq \intexp} \ \lrangles{S_\intt,S_\intt}
+	\circ 
+	\semBrcks{ \pi_{\iota,\kappa} \vdash \iota : \intvar } \ \lrangles{S_\intt,S_\intt})
+		\ \eta_{\iota,\kappa} 
+		\ \lrangles{0,1}$ $=$\\
+	\indent
+	$\semBrcks{\intvar \leq \intexp} \ \lrangles{S_\intt,S_\intt} 
+				(\eta_{\iota,\kappa} \ \iota) \ \lrangles{0,1}$ $=$\\
+	\indent
+	$\semBrcks{\intvar \leq \intexp} \ \lrangles{S_\intt,S_\intt} 
+				(\lrangles{s \circ a_\iota,e_\iota \circ h}) \ \lrangles{0,1}$ $=$
+	$(e_\iota \circ h) \ \lrangles{0,1}$ $=$\\
+	\indent
+	$(e_\iota \circ head_{\lrangles{S_\intt}}) \lrangles{0,1}$ $=$
+	$last_{S_\intt} (head_{\lrangles{S_\intt}} \ \lrangles{0,1})$ $=$
+	$last_{S_\intt} \lrangles{0}$ $=$ $0$\\
+	
+volviendo ahora con $\iota$ evaluado como expresi\'on\\
+
+$\semBrcks{\pi_{\iota,\kappa} \vdash \assig{\kappa}{\iota}: \commt}
+		\ \lrangles{S_\intt,S_\intt} \ \eta_{\iota,\kappa}
+		\ \lrangles{0,1}$ $=$\\
+\indent \indent \indent \indent
+$\semBrcks{\pi_{\iota,\kappa} \vdash \kappa : \intacc}
+	\lrangles{S_\intt,S_\intt} 
+	\ \eta_{\iota,\kappa}
+	\ 0 \ \lrangles{0,1}$\\
+
+ahora evaluando similar a como hicimos con $\iota$ y teniendo el mismo cuidado
+con el subtipado del identificador $\kappa$ de $\intvar$ a $\intacc$\\
+
+$\semBrcks{\pi_{\iota,\kappa} \vdash \kappa : \intacc}
+	\lrangles{S_\intt,S_\intt} 
+	\ \eta_{\iota,\kappa}
+	\ 0 \ \lrangles{0,1}$ $=$\\
+	\indent
+$(\semBrcks{\intvar \leq \intacc} \ \lrangles{S_\intt,S_\intt}
+	\circ 
+	\semBrcks{ \pi_{\iota,\kappa} \vdash \kappa : \intvar } \ \lrangles{S_\intt,S_\intt})
+		\ \eta_{\iota,\kappa} 
+		\ 0 \ \lrangles{0,1}$ $=$\\
+	\indent
+$\semBrcks{\intvar \leq \intacc} \ \lrangles{S_\intt,S_\intt} (\eta_{\iota,\kappa} \kappa)
+		\ 0 \ \lrangles{0,1}$ $=$\\
+	\indent
+$\semBrcks{\intvar \leq \intacc} \ \lrangles{S_\intt,S_\intt} \lrangles{a_\kappa,e_\kappa}
+		\ 0 \ \lrangles{0,1}$ $=$ $a_\kappa \ 0 \ \lrangles{0,1}$ $=$\\
+	\indent
+$\iotabot ((head_{\lrangles{S_\intt}} \lrangles{0,1}) \concat \lrangles{0})$ $=$
+$\iotabot (\lrangles{0} \concat \lrangles{0})$ $=$ $\iotabot \lrangles{0,0}$\\
+
+de nuevo, reescribiendo ahora con la evaluaci\'on terminada de $\kappa$,\\
+
+$\semBrcks{\pi_{\iota,\kappa} \vdash \assig{\kappa}{\iota}: \commt}
+		\ \lrangles{S_\intt,S_\intt} \ \eta_{\iota,\kappa}
+		\ \lrangles{0,1}$ $=$ $\iotabot \lrangles{0,0}$\\
+		
+ya casi terminando y volviendo a la evaluaci\'on de la composici\'on entre
+$\cnew \iota$ y $\cskip$, \\
+
+$(\semBrcks{\vdash \cskip : \commt}\emptyshape\emptyenv)_{\bot}
+(\semBrcks{\vdash \cnew \iota : \commt}\emptyshape\emptyenv\emptystate)$
+$=$\\
+\indent 
+$(\lambda \sigma . \ \sigma)_\bot (H_{\bot} (H_{\bot} \iotabot \lrangles{0,0}))$ $=$\\
+\indent
+$(\lambda \sigma . \ \sigma)_\bot 
+	((head_{\lrangles{}})_{\bot} ((head_{\lrangles{S_\intt}})_{\bot} \iotabot \lrangles{0,0}))$ $=$\\
+\indent
+$((\lambda \sigma . \ \sigma) \circ 
+	head_{\lrangles{}} \circ head_{\lrangles{S_\intt}})_{\bot} \iotabot \lrangles{0,0}$ $=$\\
+\indent
+$(\lambda \sigma . \ \sigma) (head_{\lrangles{}} (head_{\lrangles{S_\intt}} \ \lrangles{0,0}))$ $=$
+$(\lambda \sigma . \ \sigma) (head_{\lrangles{}} \lrangles{0})$ $=$ 
+$(\lambda \sigma . \ \sigma)\lrangles{}$ $=$ $\lrangles{}$\\
+
+y con esto terminamos la evaluaci\'on del juicio de tipado completo y adem\'as con 
+el resultado esperado.
+
+\
+
+\
+
+\
+
+\
+
+\
+
 \noindent
 $\texttt{Denotal Sem:}$ Declaraci\'on de variable (Sin stack discipline).\\
 
 $\semBrcks{\pi \vdash \newdeltavar{\iota}{e}{c} : \commt}C \ \eta \ \sigma$ 
 $=$ \\ \indent \indent
-$(\lambda \sigma' . \ H \sigma')_{\dbot}$\\ \indent \indent \indent
-$(\lambda \ v . \ \semBrcks{\pi,\iota:\deltavar \vdash c : \commt}
+$H_{\bot} ((\lambda \ v . \ \semBrcks{\pi,\iota:\deltavar \vdash c : \commt}
 		\ C \ \eta_{new} \ \sigma_{new})_{\dbot}$
-$(\semBrcks{\pi \vdash e : \deltaexp}C \ \eta \ \sigma)$\\
+$(\semBrcks{\pi \vdash e : \deltaexp}C \ \eta \ \sigma))$\\
 
 con 
-$a_\sigma \ v \ \sigmahat$ $=$ $ \lrangles{\sigmahat \ | \ (newRef \ \sigma):v} $\\
+$a \ v \ \sigma$ $=$ $\iotabot [ \ \sigma \ | \ \iota:\iotadelta v \ ] $\\
 \indent \indent \ \
-$e_\sigma \ \sigmahat$ $=$ $\sigmahat(newRef \ \sigma)$\\
+$e \ \sigma$ $=$ $(\lambda v . v)_{\delta}\sigma \iota$\\
 \indent \indent \ \
-$\sigma_{new} = \lrangles{\sigma \ | \ (newRef \ \sigma):v}$\\
+$\sigma_{new} = [ \ \sigma \ | \ \iota:\iotadelta v \ ]$\\
 \indent \indent \ \
-$\eta_{new} = [ \ \eta \ | \ x:\lrangles{a_\sigma,e_\sigma} \ ]$\\
+$\eta_{new} = [ \ \eta \ | \ x:\lrangles{a,e} \ ]$\\
 \indent \indent \ \
 $H = 1_C$\\

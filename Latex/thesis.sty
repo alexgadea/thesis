@@ -2,14 +2,14 @@
 
 \newcommand{\lambdaarrow}{\lambda^{\rightarrow}}
 \newcommand{\lambdaleq}{\lambda^{\leq}}
-\newcommand{\Alike}{Alike }
-
+\newcommand{\Alike}{Alike}
 
 \newcommand{\concat}{+\kern-1.3ex+\kern0.8ex}
 \newcommand{\ti}{\textit}
 \newcommand{\semBrcks}[1]{\llbracket #1 \rrbracket}
 \newcommand{\lrangles}[1]{\langle #1 \rangle}
 
+\newcommand{\FinId}{IdF}
 \newcommand{\dataTypes}{\lrangles{\textit{Data \ Types}}}
 \newcommand{\phraseTypes}{\lrangles{\textit{Phrase \ Types}}}
 
@@ -17,16 +17,19 @@
 \newcommand{\CD}{\D\C}
 \newcommand{\Dom}{\textbf{Dom}}
 \newcommand{\PDom}{\textbf{PDom}}
+\newcommand{\Hom}[2]{\textbf{Hom}(#1,#2)}
 \newcommand{\uncurry}{\textbf{uncurry}}
 \newcommand{\IF}{\textbf{IF}}
 
 \newcommand{\CCC}{\mathcal{CCC}}
 \newcommand{\C}{\textbf{C}}
+\newcommand{\Ref}{\textbf{Rf}}
 \newcommand{\D}{\textbf{D}}
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
 \newcommand{\B}{\mathbb{B}}
 \newcommand{\R}{\mathbb{R}}
+\newcommand{\Sdeltas}{\mathbb{S}}
 \newcommand{\T}{\mathcal{T}}
 \newcommand{\J}{\mathcal{J}}
 \newcommand{\Y}{\textbf{Y}}
@@ -76,8 +79,13 @@
 \newcommand{\newdeltavar}[3]{\newvar{\deltavar}{#1}{#2}{#3}}
 \newcommand{\cseq}[2]{#1 \concatdots #2}
 
+
+\newcommand{\emptystate}{\lrangles{}}
+\newcommand{\emptyshape}{\lrangles{}}
+\newcommand{\emptyenv}{[ \ ]}
 \newcommand{\denotalsem}[5]{\semBrcks{#1 \vdash #2} #3 #4 #5}
 \newcommand{\iotabot}{\iota_{\uparrow}}
+\newcommand{\iotadelta}{\iota_{\delta}}
 \newcommand{\sigmahat}{\widehat{\sigma}}
 
 \newcommand{\parentcolor}[2]{\textcolor{#1}{(} #2 \textcolor{#1}{)}}
