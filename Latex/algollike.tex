@@ -1380,15 +1380,23 @@ $(\lambda \sigma . \ \sigma)\lrangles{}$ $=$ $\lrangles{}$\\
 y con esto terminamos la evaluaci\'on del juicio de tipado completo y adem\'as con 
 el resultado esperado.
 
-\
+A continuaci\'on vamos a introducir nuestra versi\'on de ecuaci\'on sem\'antica
+que en conjunto con la segunda categor\'ia de estados que dimos conforman la sem\'antica
+sin stack discipline. Repasando lo que pretendemos con esta sem\'antica ser\'ia, 
+que a diferencia de lo que paso en el ejemplo anterior que al terminar de evaluar
+un comando $\cnew \deltavar$ el siguiente comando no sabe nada acerca de los
+identificadores y valores a los que se evalu\'o, nosotros queremos esta informaci\'on
+quede visible, aunque no sea posible acceder.\\
 
-\
-
-\
-
-\
-
-\
+En el momento en que introducimos las definiciones de estados mencion\'abamos 
+que, para esta segunda versi\'on, \'ibamos a abandonar el hecho de que los estados tengan
+forma, ahora que avanzamos mas podemos comentar la raz\'on, uno puede pensar para la
+versi\'on con stack discipline que la forma del estado esta totalmente relacionada
+con la cantidad, y el tipo, de identificadores que se han introducido y son accesibles
+en cierto comando interno del $\cnew \deltavar$, de esta manera cuando termin\'abamos 
+de evaluar un $\cnew \deltavar$ autom\'aticamente perd\'iamos un elemento del estado.
+La cuesti\'on ahora es que, nosotros queremos que la cantidad de valores de un
+estado no tenga relaci\'on con la cantidad de comandos para introducir identificadores.\\
 
 \noindent
 $\texttt{Denotal Sem:}$ Declaraci\'on de variable (Sin stack discipline).\\
@@ -1406,6 +1414,58 @@ $e \ \sigma$ $=$ $(\lambda v . v)_{\delta}\sigma \iota$\\
 \indent \indent \ \
 $\sigma_{new} = [ \ \sigma \ | \ \iota:\iotadelta v \ ]$\\
 \indent \indent \ \
-$\eta_{new} = [ \ \eta \ | \ x:\lrangles{a,e} \ ]$\\
+$\eta_{new} = [ \ \eta \ | \ \iota:\lrangles{a,e} \ ]$\\
 \indent \indent \ \
 $H = 1_C$\\
+
+De la misma forma que hicimos con la primera ecuaci\'on sem\'antica de este
+comando, repasemos cada parte de la nueva ecuaci\'on. En general todo sobre 
+la nueva ecuaci\'on es igual, los detalles importantes est\'an en las funciones
+$a$, $e$ y $H$, empecemos notando que $H$ la cual
+en la otra sem\'antica era al encargada de recortar el estado cuando terminaba 
+la evaluci\'on del cuerpo, ahora es una identidad, es decir, vamos a retornar el
+estado tal cual estaba al terminar de evaluar el cuerpo. La funci\'on para evaluar
+el identificador como aceptador, es decir $a$, sobrescribe el valor antiguo del estado,
+lo nuevo que aparece ac\'a es el $\iota_\delta$ esta funci\'on es la inyecci\'on
+de $S_\delta$ en $S$, recordando $S$ era la uni\'on disjunta de $S_\intt$, 
+$S_\realt$ y $S_\boolt$.\\
+Para explicar la funci\'on para evaluar el identificador
+como valor, primero vamos a introducir la funci\'on $(\_)_{\delta}$ que dada una $f$
+de $S_\delta$ en $S_\delta$ se define as\'i,
+\begin{center}
+$f_{\delta}(\iota_{\delta}x) = f \ x$
+\end{center}
+luego simplemente ser\'a aplicar el estado al identificador, la \'unica 
+salvedad importante es que $\sigma \iota : S$ y nosotros necesitamos algo de tipo
+$S_\delta$, para esto utilizamos $(\lambda v. \ v)_\delta$.\\
+
+Existe una observaci\'on importantes que surge de pensar el siguiente caso,
+supongamos tenemos un $e : \Sigma \rightarrow S_\intt$ y un $\sigma \iota : S_\boolt$,
+luego $e$ podr\'ia estar definido as\'i $(\lambda v . v)_{\intt}\sigma \iota$, esto es
+un problema ya que $(\lambda v . v)_{\intt}$ espera algo de tipo entero y 
+$\sigma \iota$ es algo de tipo booleano, para manejar esto deber\'iamos 
+introducir todo un manejo extra de errores de tipos en momento de evaluaci\'on, 
+y como consecuencia nuestra sem\'antica sin stack discipline generar\'ia una
+nueva clase de errores que la sem\'antica con stack discipline no genera.\\
+
+Para solucionar esto podemos pensar en que casos nuestra sem\'antica sin
+stack discipline generar\'ia estos errores, nos damos cuenta que esto puede pasar
+solo cuando intentamos evaluar juicios de tipado no cerrados, es decir que 
+contienen variables libre. Analicemos por qu\'e esta afirmaci\'on, empecemos
+suponiendo que tenemos un comando cerrado y que tenemos un $\sigma$ cualquiera,
+es decir que por ejemplo tiene identificadores con valore asociados, luego
+cada vez que aparezca un identificador como comando, lo que tiene que haber ocurrido
+es que este identificador es un subcomando de uno o varios $\cnew \deltavar$ y por lo
+tanto al evaluar este comando pisamos la posible existencia de un identificador
+asociado a un valor del tipo inadecuado. El problema entonces surge cuando evaluamos
+un comando no cerrado, ya que es posible que nos encontremos con un identificador
+como comando a evaluar, sin que este sea subcomando de uno o varios $\cnew \deltavar$
+y por lo tanto el tipo del valor asociado al identificador en el estado no sea el 
+correcto.\\
+
+La soluci\'on a esto entonces es pensar que, para los programas que vamos a
+querer evaluar o que pretendemos sean programas validos a evaluar, nunca 
+son no cerrados, por lo tanto este comportamiento extraño que podr\'ia llegar
+a tener nuestro evaluador sin stack discipline puede ser despreciable bas\'andonos
+en este hecho, y que ser\'a una restricci\'on importante en caso de comparar
+las sem\'anticas de uno y otro.
