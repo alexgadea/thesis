@@ -928,9 +928,9 @@ $(\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ \sigma)$\\
 $\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltaexp}C \ \eta \ \sigma$ 
 $=$ \\
 \indent \indent \indent 
-$(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \deltaacc}C \ \eta \ \sigma$\\
+$(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \deltaexp}C \ \eta \ \sigma$\\
 \indent \indent \indent \indent \indent \ \ \ \
-$else \ \semBrcks{ \pi \vdash e' : \deltaacc}C \ \eta \ \sigma)_{\dbot}$ 
+$else \ \semBrcks{ \pi \vdash e' : \deltaexp}C \ \eta \ \sigma)_{\dbot}$ 
 $(\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ \sigma)$\\
 
 $\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \commt}C \ \eta \ \sigma$ 
@@ -1468,4 +1468,283 @@ querer evaluar o que pretendemos sean programas validos a evaluar, nunca
 son no cerrados, por lo tanto este comportamiento extraño que podr\'ia llegar
 a tener nuestro evaluador sin stack discipline puede ser despreciable bas\'andonos
 en este hecho, y que ser\'a una restricci\'on importante en caso de comparar
-las sem\'anticas de uno y otro.
+las sem\'anticas de uno y otro.\\
+
+\section{Naturalidad de las ecuaciones sem\'anticas}
+
+Para el lenguaje lambda arrow, y por lo tanto tambi\'en para lambda leq, probamos
+que las ecuaciones estuvieran bien definidas, es decir que fueran funciones continuas.
+Ahora vamos a hacer lo mismo para las ecuaciones de \Alike con la diferencia de que
+por las definiciones categ\'oricas que hicimos vamos a probar que nuestras ecuaciones
+sean transformaciones naturales. Dado un juicio de tipado valido, $\pi \vdash e : \theta$,
+vamos a querer probar que el siguiente diagrama conmuta dada una flecha $C \rTo{(h,s)} C'$
+en $\C$,
+\begin{center}
+\begin{diagram}
+   \semBrcks{\pi}C & & \rTo^{\semBrcks{\pi \vdash e : \theta}C} & & \semBrcks{\theta}C \\
+   \dTo^{\semBrcks{\pi}(h,s)} & & & & \dTo^{\semBrcks{\theta}(h,s)} & \\
+   \semBrcks{\pi}C' & & \rTo^{\semBrcks{\pi \vdash e : \theta}C'} & & \semBrcks{\theta}C' &
+\end{diagram}
+\end{center}
+
+\
+
+\begin{proposition}
+Sea $(h,s) : C \rTo C'$ cualquier y dadas $f : C \rightarrow C_\bot$ y 
+$f' : C \rightarrow C_\bot$ vale,
+
+\begin{center}
+$s(f'_{\dbot} \circ f)$ $=$ $s(f')_{\dbot} \circ s(f)$
+\end{center}
+
+\end{proposition}
+
+\begin{proposition}
+\end{proposition}
+
+\begin{theorem}[de naturalidad]
+Dado un juicio de tipado valido $\pi \vdash e : \theta$ y una flecha 
+$C \rTo{(h,s)} C'$ en $\C$ se cumple,
+\begin{center}
+$\semBrcks{\theta}(h,s) \circ \semBrcks{\pi \vdash e : \theta}C$ $=$
+$\semBrcks{\pi \vdash e : \theta}C' \circ \semBrcks{\pi}(h,s)$
+\end{center}
+es decir el diagrama anterior conmuta.
+
+\end{theorem}
+
+\begin{proof}
+Procedamos por inducci\'on en la estructura de la derivaci\'on de los juicios de tipado,
+supongamos un $\eta : \semBrcks{\pi}C$ y un $\sigma' : C'$,
+
+\begin{itemize}
+
+\item Casos base
+\begin{itemize}
+\item Supongamos $\pi \vdash b : \boolexp$, \\
+
+$\semBrcks{\boolexp}(h,s)(\semBrcks{\pi \vdash b : \boolexp}C \ \eta) \sigma'$ $=$
+$\semBrcks{\boolexp}(h,s)(\lambda \sigma. \ \iota \ b) \sigma'$ $=$ \\
+$((\lambda \sigma. \ \iota \ b) \circ h)\sigma'$ $=$
+$(\lambda \sigma. \ \iota \ b) (h \sigma')$ $=$
+$\iota \ b$ $=$ $\semBrcks{\pi \vdash b : \boolexp}C'(\semBrcks{\pi}(h,s)\eta)\sigma'$
+
+\item (Analogo $\intexp$ y $\realexp$)
+
+\item Supongamos $\pi \vdash \iota : \theta$,\\
+
+por un lado tenemos,
+$\semBrcks{\theta}(h,s)(\semBrcks{\pi \vdash \iota : \theta}C \ \eta)$ $=$
+$\semBrcks{\theta}(h,s)(\eta \iota)$ $=$ $(\star)$ \\
+
+y por el otro, $\semBrcks{\pi \vdash \iota : \theta}C'(\semBrcks{\pi}(h,s)\eta)$ $=$
+$(\semBrcks{\pi}(h,s)\eta) \iota$ $=$ $(\star \star)$,\\
+
+ahora separamos en casos segundo $\theta$.
+
+\begin{itemize}
+\item Supongamos $\theta = \deltaexp$ y $\eta\iota = e$, \\
+
+$(\star)$ $=$ $\eta\iota \circ h$ $=$ $e \circ h$\\
+
+$(\star\star)$ $=$ $e \circ h$, esto ultimo ya que acomodar el ambiente con forma
+$C$ a la forma $C'$, es componer con $h$ a todos los valores del tipo $\deltaexp$.
+
+\item Supongamos $\theta = \commt$ y $\eta\iota = c$,\\
+
+$(\star)$ $=$ $s(\eta\iota)$ $=$ $s \ c$\\
+
+$(\star\star)$ $=$ $s \ c$, como para el caso de $\deltaexp$ pero ahora con valores
+de tipo $\commt$.
+
+\item Supongamos $\theta = \deltaacc$ y $\eta\iota = a$,\\
+
+$(\star)$ $=$ $s \circ \eta\iota$ $=$ $s \circ a$\\
+
+$(\star\star)$ $=$ $s \circ a$, al igual que para $\commt$ y $\deltaexp$.
+
+\item Supongamos $\theta = \theta_0 \rightarrow \theta_1$ y $\eta \iota = f$,\\
+
+$(\star)$ $=$ $\lambda \widehat{C} . \ (\eta\iota)(\overline{C}\concat\widehat{C})$ $=$ 
+$\lambda \widehat{C} . \ f(\overline{C}\concat\widehat{C})$
+
+$(\star\star)$ $=$ $\lambda \widehat{C} . \ f(\overline{C}\concat\widehat{C})$, al igual
+que en los casos anteriores.
+\end{itemize}
+\end{itemize}
+
+\item Casos inductivos
+\begin{itemize}
+\item Supongamos $\pi \vdash \neg e : \boolexp$,\\
+
+$\semBrcks{\boolexp}(h,s)(\semBrcks{\pi \vdash \neg e : \boolexp}C\eta)\sigma'$ $=$\\
+$\semBrcks{\boolexp}(h,s)(\lambda \sigma . \ 
+ (\lambda b. \ \neg b)_{\dbot}(\semBrcks{\pi \vdash e : \boolexp}C\eta\sigma))\sigma'$ $=$\\
+$((\lambda b. \ \neg b)_{\dbot}(\semBrcks{\pi \vdash e : \boolexp}C\eta\sigma) 
+	\circ 
+	h) \sigma'$ $=$ \\
+$(\lambda b. \ \neg b)_{\dbot}(\semBrcks{\pi \vdash e : \boolexp}C\eta(h\sigma'))$ $=$\\
+$(\lambda b. \ \neg b)_{\dbot}
+	((\semBrcks{\pi \vdash e : \boolexp}C\eta \circ h)\sigma'))$ $=$\\
+$(\lambda b. \ \neg b)_{\dbot}
+	(\semBrcks{\boolexp}(h,s)(\semBrcks{\pi \vdash e : \boolexp}C\eta)\sigma')$\\
+	
+hasta ac\'a ha sido simplemente reescribir usando definiciones, de esta manera llegamos
+a poder aplicar la hip\'otesis inductiva,\\
+
+$(\lambda b. \ \neg b)_{\dbot}
+	(\semBrcks{\boolexp}(h,s)(\semBrcks{\pi \vdash e :\boolexp}C\eta)\sigma')$ $=$\\
+$(\lambda b. \ \neg b)_{\dbot}
+	(\semBrcks{\pi \vdash e : \boolexp}C(\semBrcks{\pi}(h,s)\eta)\sigma')$ $=$\\
+$\semBrcks{\pi \vdash \neg e : \boolexp}C(\semBrcks{\pi}(h,s)\eta)\sigma'$
+
+\item (Analogo operadores binarios)
+
+\item Supongamos $\pi \vdash \cifthenelse{b}{e}{e'} : \theta$, para este caso
+nos vamos a enfocar en probar el caso para $\theta = \deltaexp$ ya que los dem\'as
+son an\'alogos o incluso iguales pensando en $\commt$.\\
+
+$\semBrcks{\deltaexp}(h,s)
+	(\semBrcks{\pi \vdash \cifthenelse{b}{e}{e'} : \deltaexp}C\eta)\sigma'$ $=$\\
+$(\semBrcks{\pi \vdash \cifthenelse{b}{e}{e'} : \deltaexp}C\eta \circ h)\sigma'$ $=$\\
+$\semBrcks{\pi \vdash \cifthenelse{b}{e}{e'} : \deltaexp}C\eta (h\sigma')$ $=$\\
+$(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \deltaexp}C \ \eta \ (h\sigma')$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+$else \ \semBrcks{ \pi \vdash e' : \deltaexp}C \ \eta \ (h\sigma'))_{\dbot}$ \\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$(\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ (h\sigma'))$\\
+
+resolviendo el otro lado de la igualdad,\\
+
+$\semBrcks{\pi \vdash \cifthenelse{b}{e}{e'} : \deltaexp}C'
+							(\semBrcks{\pi}(h,s)\eta)\sigma'$ $=$\\
+$(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \deltaexp}C' \ 
+						(\semBrcks{\pi}(h,s)\eta) \ \sigma'$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+$else \ \semBrcks{ \pi \vdash e' : \deltaexp}C' \ 
+						(\semBrcks{\pi}(h,s)\eta) \ \sigma')_{\dbot}$ \\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$(\semBrcks{ \pi \vdash b : \boolexp}C' \ (\semBrcks{\pi}(h,s)\eta) \ \sigma')$\\
+
+ahora vamos a usar hip\'otesis inductiva en el juicio de tipado de $b$,\\
+
+$\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ (h\sigma')$ $=$
+$\semBrcks{ \pi \vdash b : \boolexp}C' \ (\semBrcks{\pi}(h,s)\eta) \ \sigma'$\\
+
+y entonces vamos a suponer que la evaluaci\'on de juicio de tipado
+$\pi \vdash b : \boolexp$ es verdadera, luego tenemos que ver que\\
+
+$\semBrcks{ \pi \vdash e : \deltaexp}C \ \eta \ (h\sigma')$ $=$ 
+$\semBrcks{ \pi \vdash e : \deltaexp}C' \ (\semBrcks{\pi}(h,s)\eta) \ \sigma'$\\
+
+pero esto es directo usando hip\'otesis inductiva. Por otro lado, si supus\'ieramos
+la evaluaci\'on $\pi \vdash b : \boolexp$ es falso, entonces es directo de la misma
+manera que antes.
+
+\item Supongamos $\pi \vdash ee' : \theta'$, \\
+
+$\semBrcks{\pi \vdash ee' : \theta'}C'(\semBrcks{\pi}(h,s)\eta)$ $=$\\
+$\semBrcks{\pi \vdash e' : \theta \rightarrow \theta'}C'
+		(\semBrcks{\pi}(h,s)\eta)\lrangles{}
+		(\semBrcks{\pi \vdash e : \theta}C'(\semBrcks{\pi}(h,s)\eta))$ $=$\\
+$(\semBrcks{\theta \rightarrow \theta'}(h,s)
+	(\semBrcks{\pi \vdash e' : \theta \rightarrow \theta'}C \eta))\lrangles{}
+	(\semBrcks{\theta}(h,s)(\semBrcks{\pi \vdash e : \theta}C\eta))$ $=$\\
+$\semBrcks{\pi \vdash e' : \theta \rightarrow \theta'}C \eta \overline{C}
+	(\semBrcks{\theta}(h,s)(\semBrcks{\pi \vdash e : \theta}C\eta))$\\
+
+hasta ac\'a usamos la definici\'on de la ecuaci\'on sem\'antica de la aplicaci\'on,
+aplicamos hip\'otesis inductiva dos veces y usamos la definici\'on del funtor
+$\semBrcks{\theta \rightarrow \theta'}$ aplicado a $(h,s)$ y 
+$(\semBrcks{\pi \vdash e' : \theta \rightarrow \theta'}C \eta)$, donde 
+$\overline{C}$ es tal que $C \concat \overline{C} = C'$.\\
+Ahora si analizamos un poco mas la definici\'on de este funtor que mencion\'abamos
+nos damos cuenta que $\semBrcks{\pi \vdash e' : \theta \rightarrow \theta'}C \eta$
+es una transformaci\'on natural indexada por objetos de $\C$ que va del funtor
+$\semBrcks{\theta}$ al funtor $\semBrcks{\theta'}$, luego el siguiente diagrama
+debe conmutar,
+
+\begin{center}
+\begin{diagram}
+   \semBrcks{\theta}C & & \rTo^{\semBrcks{\pi \vdash e' : \theta \rightarrow \theta'}C \eta \lrangles{}} & & \semBrcks{\theta'}C \\
+   \dTo^{\semBrcks{\theta}(h,s)} & & & & \dTo^{\semBrcks{\theta'}(h,s)} & \\
+   \semBrcks{\theta}C' & & \rTo^{\semBrcks{\pi \vdash e' :  \theta \rightarrow \theta'}C' \eta \overline{C}} & & \semBrcks{\theta'}C' &
+\end{diagram}
+\end{center}
+
+es decir, la conmutatividad del diagrama anterior nos da la siguiente igualdad,\\
+
+$\semBrcks{\theta'}(h,s) 
+\circ 
+\semBrcks{\pi \vdash e' \theta \rightarrow \theta'}C\eta\lrangles{}$ $=$
+$\semBrcks{\pi \vdash e' \theta \rightarrow \theta'}C\eta\overline{C} 
+\circ
+\semBrcks{\theta}(h,s) 
+$\\
+
+luego usando esta igualdad obtenemos,\\
+
+$\semBrcks{\pi \vdash e' : \theta \rightarrow \theta'}C \eta \overline{C}
+	(\semBrcks{\theta}(h,s)(\semBrcks{\pi \vdash e : \theta}C\eta))$ $=$\\
+$\semBrcks{\theta'}(h,s)(
+\semBrcks{\pi \vdash e' \theta \rightarrow \theta'}C\eta\lrangles{} 
+(\semBrcks{\pi \vdash e \theta}\C\eta))$ $=$\\
+$\semBrcks{\theta'}(h,s)(\semBrcks{\pi \vdash ee' : \theta'}C\eta)$\\
+
+\item Supongamos $\pi \vdash \rec{e} : \theta$, \\
+
+(\textcolor{red}{Me acabo de dar cuenta que tengo cosas que revisar bien para
+escribir esta prueba. ¿ que es una flecha entre transformaciones naturales ?})
+
+\item Supongamos $\pi \vdash \cskip : \commt$,\\
+
+$\semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash \cskip}C\eta)\sigma'$ $=$
+$s(\semBrcks{\pi \vdash \cskip}C\eta)\sigma'$ $=$\\
+$s(\lambda \sigma . \ \iotabot \sigma)\sigma'$ $=$
+$(\lambda \sigmahat . \ (\lambda \sigma. \ \iotabot (
+			\sigma \concat tail_{\overline{C}}\sigmahat))_{\dbot}
+		((\lambda \sigma . \ \iotabot \sigma)(h \sigmahat)))\sigma'$ $=$\\
+$(\lambda \sigma. \iotabot \ (\sigma \concat tail_{\overline{C}}\sigma'))_{\dbot}
+		((\lambda \sigma . \iotabot \sigma)(head_{C} \sigma'))$ $=$\\
+$\iotabot (head_{C} \sigma' \concat tail_{\overline{C}}\sigma')$ $=$ $\iotabot \sigma'$ $=$
+$\semBrcks{\pi \vdash \cskip : \commt}C'(\semBrcks{\pi}(h,s)\eta)\sigma'$\\
+
+\item Supongamos $\pi \vdash \cseq{e}{e'} : \commt$,\\
+
+$\semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash \cseq{e}{e'} : \commt}C\eta)$ $=$\\
+$\semBrcks{\commt}(h,s)
+	((\semBrcks{\pi \vdash e' : \commt}C\eta)_{\dbot} 
+	\circ
+	\semBrcks{\pi \vdash e : \commt}C\eta
+	)$ $=$ \\
+$s((\semBrcks{\pi \vdash e' : \commt}C\eta)_{\dbot} 
+	\circ
+	\semBrcks{\pi \vdash e : \commt}C\eta
+	)$\\
+
+ahora usando la proposici\'on 3 podemos reescribir de la siguiente manera,\\
+
+$s((\semBrcks{\pi \vdash e' : \commt}C\eta)_{\dbot} 
+	\circ
+	\semBrcks{\pi \vdash e : \commt}C\eta
+	)$ $=$\\
+$s(\semBrcks{\pi \vdash e' : \commt}C\eta)_{\dbot} 
+	\circ
+	s(\semBrcks{\pi \vdash e : \commt}C\eta)$ $=$\\
+$\semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash e' : \commt}C\eta)_{\dbot} 
+	\circ
+ \semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash e : \commt}C\eta)$\\
+
+usando ahora hip\'otesis inductiva dos veces obtenemos,\\
+
+$\semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash e' : \commt}C\eta)_{\dbot} 
+	\circ
+ \semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash e : \commt}C\eta)$ $=$\\
+$\semBrcks{\pi \vdash e' : \commt}C'(\semBrcks{\pi}(h,s)\eta)_{\dbot}
+	\circ
+\semBrcks{\pi \vdash e : \commt}C'(\semBrcks{\pi}(h,s)\eta)$ $=$\\
+$\semBrcks{\pi \vdash \cseq{e}{e'} : \commt}C'(\semBrcks{\pi}(h,s)\eta)$
+
+\end{itemize}
+\end{itemize}
+\end{proof}
