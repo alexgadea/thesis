@@ -1499,9 +1499,6 @@ $s(f'_{\dbot} \circ f)$ $=$ $s(f')_{\dbot} \circ s(f)$
 
 \end{proposition}
 
-\begin{proposition}
-\end{proposition}
-
 \begin{theorem}[de naturalidad]
 Dado un juicio de tipado valido $\pi \vdash e : \theta$ y una flecha 
 $C \rTo{(h,s)} C'$ en $\C$ se cumple,
@@ -1515,7 +1512,9 @@ es decir el diagrama anterior conmuta.
 
 \begin{proof}
 Procedamos por inducci\'on en la estructura de la derivaci\'on de los juicios de tipado,
-supongamos un $\eta : \semBrcks{\pi}C$ y un $\sigma' : C'$,
+supongamos un $\eta : \semBrcks{\pi}C$ y un $\sigma' : C'$ tal que $\sigma : C$,
+$\overline{\sigma} : \overline{C}$, $C \concat \overline{C} = C'$ y 
+$\sigma \concat \overline{\sigma} = \sigma'$.
 
 \begin{itemize}
 
@@ -1743,7 +1742,193 @@ $\semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash e' : \commt}C\eta)_{\dbot}
 $\semBrcks{\pi \vdash e' : \commt}C'(\semBrcks{\pi}(h,s)\eta)_{\dbot}
 	\circ
 \semBrcks{\pi \vdash e : \commt}C'(\semBrcks{\pi}(h,s)\eta)$ $=$\\
-$\semBrcks{\pi \vdash \cseq{e}{e'} : \commt}C'(\semBrcks{\pi}(h,s)\eta)$
+$\semBrcks{\pi \vdash \cseq{e}{e'} : \commt}C'(\semBrcks{\pi}(h,s)\eta)$\\
+
+\item Supongamos $\pi \vdash \cwhiledo{b}{e} : \commt$, para este caso
+recordamos que $\sigma \concat \overline{\sigma} = \sigma'$,\\
+
+$\semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash \cwhiledo{b}{e} : \commt}C\eta)\sigma'$ $=$\\
+$s(\semBrcks{\pi \vdash \cwhiledo{b}{e} : \commt}C\eta)\sigma'$ $=$\\
+$(\lambda \sigma. \ \iotabot (\sigma \concat \sigmaover))_{\dbot}
+				(\semBrcks{\pi \vdash \cwhiledo{b}{e} : \commt}C \ \eta \ \sigma)$\\
+
+olvid\'emonos por un momento de $(\lambda \sigma. \ \iotabot (\sigma \concat \sigmaover))_{\dbot}$
+y analicemos $\semBrcks{\pi \vdash \cwhiledo{b}{e} : \commt}C \ \eta \ \sigma$, utilizando
+la definici\'on de la ecuaci\'on\\
+
+$\semBrcks{\pi \vdash \cwhiledo{b}{e} : \commt} C \eta \sigma$ $=$ \\
+\indent \ \ \ \ \ \ \ \
+$\Y_{\semBrcks{\commt}C} (\lambda c . \lambda \sigma . (\lambda b . if \ b$ \\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$then \ c_{\dbot}(\semBrcks{\pi \vdash e : \commt}C \eta \sigma)$ \\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$else \ \iotabot \sigma)_{\dbot} (\semBrcks{\pi \vdash b : \boolexp}C\eta\sigma))\sigma$ \\
+
+podemos notar que si el comando eval\'ua a un $\iotabot\sigmahat$, es porque 
+existieron evaluaciones de $\semBrcks{\pi \vdash e : \commt}C \eta \sigma$
+con resultados $\sigma_0, \sigma_1, \ldots, \sigma_n, \sigmahat$. Adem\'as 
+el resultado de la evaluaci\'on completa ser\'a ,
+$(\lambda \sigma. \ \iotabot (\sigma \concat \sigmaover))_{\dbot} \iotabot \sigmahat$ $=$
+$\iotabot (\sigmahat \concat \sigmaover)$, es decir, solamente modificamos la parte del estado
+con forma $C$. Tomemos ahora el otro lado de la igualdad que queremos probar,\\
+
+$\semBrcks{\pi \vdash \cwhiledo{b}{e} : \commt} C' (\semBrcks{\pi}(h,s)\eta) \sigma'$ $=$ \\
+\indent \ \ \ \ \ \ \ \
+$\Y_{\semBrcks{\commt}C'} (\lambda c' . \lambda \sigma' . (\lambda b . if \ b$ \\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$then \ c'_{\dbot}(\semBrcks{\pi \vdash e : \commt}C'(\semBrcks{\pi}(h,s)\eta) \sigma')$ \\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$else \ \iotabot \sigma')_{\dbot} 
+	(\semBrcks{\pi \vdash b : \boolexp}C'(\semBrcks{\pi}(h,s)\eta)\sigma'))\sigma'$ \\
+
+luego aplicando hip\'otesis inductiva en los juicios de tipado de $b$ y $e$ y reescribiendo
+un poco las ecuaciones obtenemos,\\
+
+$\semBrcks{\pi \vdash \cwhiledo{b}{e} : \commt} C' (\semBrcks{\pi}(h,s)\eta) \sigma'$ $=$ \\
+\indent \ \ \ \ \ \ \ \
+$\Y_{\semBrcks{\commt}C'} (\lambda c' . \lambda \sigma' . (\lambda b . if \ b$ \\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$then \ c'_{\dbot}((\lambda \sigma. \ \sigma \concat \sigmaover)_{\dbot}
+					\semBrcks{\pi \vdash e : \commt}C \eta \sigma)$ \\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$else \ \iotabot \sigma')_{\dbot} 
+	(\semBrcks{\pi \vdash b : \boolexp}C \eta \sigma))\sigma'$ \\
+	
+ahora vamos a suponer, como antes, que existieron evaluaciones de 
+$\semBrcks{\pi \vdash e : \commt}C \eta \sigma$
+con resultados $\sigma_0, \sigma_1, \ldots, \sigma_n, \sigmahat$, luego
+aplicar cada $\sigma_i$ a $(\lambda \sigma . \ \sigma \concat \sigmaover)$ nos
+genera la sucesi\'on de resultados 
+$\sigma_0\concat\sigmaover, \sigma_1\concat\sigmaover, \ldots, 
+\sigma_n\concat\sigmaover, \sigmahat\concat\sigmaover$, por lo tanto el resultado
+de evaluar el comando completo es $\iotabot (\sigmahat\concat\sigmaover)$.
+
+\item Supongamos $\pi \vdash \assig{a}{e} : \commt$, empecemos desarrollando cada
+extremo de la igualdad que queremos probar,\\
+
+$\semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash \assig{a}{e} : \commt}C\eta)\sigma'$ $=$\\
+$(\lambda \sigma. \ \sigma \concat \sigmaover)_{\dbot}
+				(\semBrcks{\pi \vdash \assig{a}{e} : \commt}C\eta\sigma)$ $=$\\
+$(\lambda \sigma. \ \sigma \concat \sigmaover)_{\dbot}(
+	(\lambda v. \ \semBrcks{\pi \vdash a : \deltaacc}C\eta \ v \ \sigma)_{\dbot}
+	(\semBrcks{\pi \vdash e : \deltaexp}C\eta\sigma))$\\
+	
+$\semBrcks{\pi \vdash \assig{a}{e} : \commt}C'(\semBrcks{\pi}(h,s)\eta)\sigma'$ $=$\\
+$(\lambda v. \ 
+	\semBrcks{\pi \vdash a : \deltaacc}C'(\semBrcks{\pi}(h,s)\eta)\ v \ \sigma')_{\dbot}$
+$(\semBrcks{\pi \vdash e : \deltaexp}C'(\semBrcks{\pi}(h,s)\eta)\sigma')$ \\
+
+usando hip\'otesis inductiva dos veces obtenemos por un lado,\\
+
+$\semBrcks{\pi \vdash a : \deltaacc}C'(\semBrcks{\pi}(h,s)\eta)\ v \ \sigma'$ $=$\\
+$\semBrcks{\deltaacc}(h,s)(\semBrcks{\pi \vdash a : \deltaacc}C\eta) v \ \sigma'$ $=$
+$s(\semBrcks{\pi \vdash a : \deltaacc} C \eta \ v)\sigma'$ $=$\\
+$(\lambda \sigma . \sigma \concat \sigmaover)_{\dbot}
+				(\semBrcks{\pi \vdash a : \deltaacc} C \eta \ v \ \sigma)$
+				
+y por otro lado,\\
+
+$\semBrcks{\pi \vdash e : \deltaexp}C'(\semBrcks{\pi}(h,s)\eta)\sigma'$ $=$\\
+$\semBrcks{\deltaexp}(h,s)(\semBrcks{\pi \vdash e : \deltaexp}C \eta)\sigma'$ $=$
+$(\semBrcks{\pi \vdash e : \deltaexp}C \eta \circ h)\sigma'$ $=$\\
+$\semBrcks{\pi \vdash e : \deltaexp}C \eta \sigma$\\
+
+usando estos dos resultados que acabamos de deducir, pasando en limpio tenemos\\
+
+$(\lambda v. \ 
+	\semBrcks{\pi \vdash a : \deltaacc}C'(\semBrcks{\pi}(h,s)\eta)\ v \ \sigma')_{\dbot}$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$(\semBrcks{\pi \vdash e : \deltaexp}C'(\semBrcks{\pi}(h,s)\eta)\sigma')$ $=$\\
+$(\lambda v. \ (\lambda \sigma . \sigma \concat \sigmaover)_{\dbot}
+				(\semBrcks{\pi \vdash a : \deltaacc} C \eta \ v \ \sigma))_{\dbot}$
+$(\semBrcks{\pi \vdash e : \deltaexp}C \eta \sigma)$ \\
+
+luego podemos suponer $\semBrcks{\pi \vdash e : \deltaexp}C \eta \sigma$ $=$ $\iotabot v$ distinto
+de $\bot$,\\
+
+$(\lambda \sigma . \sigma \concat \sigmaover)_{\dbot}
+				(\semBrcks{\pi \vdash a : \deltaacc} C \eta \ v \ \sigma)$ $=$\\
+$(\lambda \sigma . \sigma \concat \sigmaover)_{\dbot}
+	((\semBrcks{\pi \vdash a : \deltaacc} C \eta \ v \ \sigma)_{\dbot}
+			(\semBrcks{\pi \vdash e : \deltaexp}C \eta \sigma))$ $=$\\
+$\semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash \assig{a}{e} : \commt}C\eta)\sigma'$\\
+
+\item Supongamos $\pi \vdash \clambda{\iota}{\theta}{\ e} : \theta \rightarrow \theta'$, tomemos
+$\Chat$ objeto de $\C$ y un $z : \semBrcks{\theta}(C'\concat\Chat)$ \\
+
+$\semBrcks{\theta \rightarrow \theta'}(h,s)
+(\semBrcks{\pi \vdash 
+	\clambda{\iota}{\theta}{\ e} : \theta \rightarrow \theta'}C \eta)\Chat \ z$ $=$\\
+$\semBrcks{\pi \vdash \clambda{\iota}{\theta}{\ e} : \theta \rightarrow \theta'}C 
+	\eta (\Cover \concat \Chat) \ z$ $=$\\
+$\semBrcks{\pi,\iota:\theta \vdash e : \theta'}
+	(C \concat \Cover \concat \Chat)
+	[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:z \ ]$ $=$\\
+$\semBrcks{\pi,\iota:\theta \vdash e : \theta'}
+	(C' \concat \Chat)
+	[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:z \ ]$ $=$\\
+
+ahora bien, empezamos notando que el operador $\concat$ es asociativo por lo tanto
+$(C \concat (\Cover \concat \Chat)) = (C' \concat \Chat)$, luego adem\'as
+$(\hover,\sover) : C \rTo (C \concat \Cover \concat \Chat)$, y por lo tanto
+$(\hover,\sover) : C \rTo (C' \concat \Chat)$.\\
+
+$\semBrcks{\pi \vdash \clambda{\iota}{\theta}{\ e} : \theta \rightarrow \theta'}
+		C'(\semBrcks{\pi}(h,s)\eta)\Chat \ z$ $=$\\
+$\semBrcks{\pi,\iota:\theta \vdash e : \theta'}(C' \concat \Chat)
+			[ \ \semBrcks{\pi}(h',s')(\semBrcks{\pi}(h,s)\eta) \ | \ \iota:z \ ]$\\
+
+donde $(h',s') : C' \rTo (C' \concat \Chat)$,
+ahora si prestamos atenci\'on a las dos expresiones finales que nos quedaron, nos 
+damos cuenta que ya casi estar\'iamos si no fuera por la forma en que acomodamos
+el ambiente, el plan entonces ser\'a probar que $(\hover,\sover) = (h \circ h',s'\circ s)$
+donde por definici\'on $(h \circ h',s'\circ s) = (h',s') \circ (h,s)$, luego usando
+que $\semBrcks{\pi}$ podemos concluir,
+
+\begin{center}
+$\semBrcks{\pi}(\hover,\sover)$ $=$ $\semBrcks{\pi}(h',s') \circ \semBrcks{\pi}(h,s)$
+\end{center}
+
+Empecemos probando que $\hover = h \circ h'$, tomamos un estado 
+$\sigma \concat \sigmaover \concat \sigmahat$ con forma $C' \concat \Chat$\\
+
+$\hover : (C' \concat \Chat) \rightarrow C$\\
+$\hover (\sigma \concat \sigmaover \concat \sigmahat)$ $=$ 
+$head_{C} (\sigma \concat \sigmaover \concat \sigmahat)$ $=$ $\sigma$\\
+
+$h : C' \rightarrow C$\\
+$h' : (C' \concat \Chat) \rightarrow C'$\\
+$(h \circ h') (\sigma \concat \sigmaover \concat \sigmahat)$ $=$
+$head_{C}(head_{C'} (\sigma \concat \sigmaover \concat \sigmahat))$ $=$\\
+$head_{C}(\sigma \concat \sigmaover)$ $=$ $\sigma$\\
+
+probemos ahora $\sover = s' \circ s$, tomemos $c : C \rightarrow C_\bot$ y
+suponemos $c \sigma = \iotabot \sigmatil$\\
+
+$\sover : (C \rightarrow C_\bot) \rightarrow 
+		  ((C' \concat \Chat) \rightarrow (C' \concat \Chat)_\bot)$\\
+$\sover \ c \ (\sigma \concat \sigmaover \concat \sigmahat)$ $=$
+$(\lambda \sigma . \ 
+	\iotabot (\sigma \concat (\sigmaover \concat \sigmahat)))_{\dbot} (c \sigma)$ $=$\\
+$\iotabot (\sigmatil \concat \sigmaover \concat \sigmahat)$\\
+
+$s : (C \rightarrow C_\bot) \rightarrow (C' \rightarrow C'_\bot)$\\
+$s' : (C' \rightarrow C'_\bot) \rightarrow 
+   	  ((C' \concat \Chat) \rightarrow (C' \concat \Chat)_\bot)$\\
+$(s' \circ s) \ c \ (\sigma \concat \sigmaover \concat \sigmahat)$ $=$
+$s' (s \ c) (\sigma \concat \sigmaover \concat \sigmahat)$ $=$\\
+$(\lambda \sigma. \ \iotabot (\sigma \concat \sigmahat))_{\dbot}
+	(s \ c \ (\sigma \concat \sigmaover))$ $=$\\
+$(\lambda \sigma . \ \iotabot (\sigma \concat \sigmahat))_{\dbot}
+((lambda \sigma . \ \iotabot (\sigma \concat \sigmaover))_{\dbot}(c \sigma))$ $=$\\
+$(\lambda \sigma . \ \iotabot (\sigma \concat \sigmahat))_{\dbot}
+(\iotabot (\sigmatil \concat \sigmaover))$ $=$ 
+$\iotabot (\sigmatil \concat \sigmaover \concat \sigmahat)$\\
+
+por lo tanto $(\hover,\sover) = (h \circ h',s'\circ s)$.\\
+
+\item Supongamos $\pi \vdash \newdeltavar{\iota}{ei}{c} : \commt$,\\
+	
 
 \end{itemize}
 \end{itemize}
