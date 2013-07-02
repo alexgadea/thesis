@@ -1920,15 +1920,250 @@ $s' (s \ c) (\sigma \concat \sigmaover \concat \sigmahat)$ $=$\\
 $(\lambda \sigma. \ \iotabot (\sigma \concat \sigmahat))_{\dbot}
 	(s \ c \ (\sigma \concat \sigmaover))$ $=$\\
 $(\lambda \sigma . \ \iotabot (\sigma \concat \sigmahat))_{\dbot}
-((lambda \sigma . \ \iotabot (\sigma \concat \sigmaover))_{\dbot}(c \sigma))$ $=$\\
+((\lambda \sigma . \ \iotabot (\sigma \concat \sigmaover))_{\dbot}(c \sigma))$ $=$\\
 $(\lambda \sigma . \ \iotabot (\sigma \concat \sigmahat))_{\dbot}
 (\iotabot (\sigmatil \concat \sigmaover))$ $=$ 
 $\iotabot (\sigmatil \concat \sigmaover \concat \sigmahat)$\\
 
 por lo tanto $(\hover,\sover) = (h \circ h',s'\circ s)$.\\
 
-\item Supongamos $\pi \vdash \newdeltavar{\iota}{ei}{c} : \commt$,\\
+\item Supongamos $\pi \vdash \newdeltavar{\iota}{ei}{c} : \commt$, la estrategia para
+este juicio de tipado ser\'a, resolver por completo un lado haciendo un par de suposiciones
+hasta llegar a un estado y luego tomar el lado restante para llegar, usando las suposiciones,
+a este mismo estado. Para esto entonces suponemos dos cosas relevantes,
+
+\begin{itemize}
+\item $\semBrcks{\pi \vdash ei : \deltaexp}C\eta\sigma = \iotabot v$
+\item $\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C \concat \lrangles{S_\delta})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ]
+(\sigma\concat \lrangles{v})$ $=$ $\iotabot (\sigmatil \concat \lrangles{\tilde{v}})$
+\end{itemize}
+
+\
+
+$\semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash \newdeltavar{\iota}{ei}{c} : \commt}C\eta)\sigma'$ $=$\\
+$s (\lambda \sigma . \ \Hbot ((\lambda v .$ \\
+\indent \ \ 
+	$\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C \concat \lrangles{S_\delta})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+			$[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ]
+			(\sigma\concat \lrangles{v}))_{\dbot}$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+		$(\semBrcks{\pi \vdash ei : \deltaexp}C\eta\sigma)) ) \sigma'$ $=$\\
+$(\lambda \sigma . \ \sigma \concat \sigmaover)_{\dbot}({head_{C}}_{\bot} ((\lambda v .$ \\
+\indent \ \ 
+	$\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C \concat \lrangles{S_\delta})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+			$[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ]
+			(\sigma\concat \lrangles{v}))_{\dbot}$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+		$(\semBrcks{\pi \vdash ei : \deltaexp}C\eta\sigma)))$ $=$\\
+$(\lambda \sigma . \ \sigma \concat \sigmaover)_{\dbot}({head_{C}}_{\bot} ($ \\
+\indent \ \ 
+	$\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C \concat \lrangles{S_\delta})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+			$[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ]
+			(\sigma\concat \lrangles{v})))$ $=$\\
+$(\lambda \sigma . \ \sigma \concat \sigmaover)_{\dbot}
+({head_{C}}_{\bot} (\iotabot (\sigmatil \concat \lrangles{\tilde{v}})))$ $=$\\
+$((\lambda \sigma . \ \sigma \concat \sigmaover) \circ
+head_{C})_{\dbot} (\iotabot (\sigmatil \concat \lrangles{\tilde{v}}))$ $=$\\
+$\sigmatil \concat \sigmaover$\\
+
+detallando ahora los tipos de algunos componentes que van a ser relevantes
+mas adelante tenemos,\\
+
+$a : S_\delta \rightarrow 
+(C \concat \lrangles{S_\delta}) \rightarrow (C \concat \lrangles{S_\delta})_{\bot}$\\
+$e : (C \concat \lrangles{S_\delta}) \rightarrow (S_\delta)_{\bot}$\\
+$(\hover,\sover) : C \rTo (C \concat \lrangles{S_\delta})$\\
+
+ahora continuemos con el otro extremo de la igualdad que queremos probar, teniendo 
+siempre en cuenta las suposiciones que hicimos al principio de este caso\\
+
+$\semBrcks{\pi \vdash \newdeltavar{\iota}{ei}{c} : \commt}C'(\semBrcks{\pi}(h,s)\eta)\sigma'$ $=$\\
+${head_{C'}}_{\bot} ((\lambda v .$ \\
+\indent \ \ 
+	$\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C' \concat \lrangles{S_\delta})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+			$[ \ \semBrcks{\pi}(h',s')(\semBrcks{\pi}(h,s)\eta) \ | \ \iota:\lrangles{a',e'} \ ]
+			(\sigma' \concat \lrangles{v}))_{\dbot}$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+	$(\semBrcks{\pi \vdash ei : \deltaexp}C'(\semBrcks{\pi}(h,s)\eta)\sigma'))$\\
 	
+donde $a' : S_\delta \rightarrow (C' \concat \lrangles{S_\delta}) 
+			\rightarrow (C' \concat \lrangles{S_\delta})_{\bot}$\\
+$e' : (C' \concat \lrangles{S_\delta}) \rightarrow (S_\delta)_\bot$\\
+$(h',s') : C' \rTo (C' \concat \lrangles{S_\delta})$\\
+
+si nos enfocamos en la expresi\'on 
+$\semBrcks{\pi \vdash ei : \deltaexp}C'(\semBrcks{\pi}(h,s)\eta)\sigma'$ nos damos cuenta
+que podemos aplicar hip\'otesis inductiva, de manera tal que nos quede\\
+
+$\semBrcks{\pi \vdash ei : \deltaexp}C'(\semBrcks{\pi}(h,s)\eta)\sigma'$ $=$\\
+$\semBrcks{\deltaexp}(h,s)(\semBrcks{\pi \vdash ei : \deltaexp}C\eta)\sigma'$ $=$\\
+$(\semBrcks{\pi \vdash ei : \deltaexp}C\eta \circ head_C) \sigma'$ $=$\\
+$\semBrcks{\pi \vdash ei : \deltaexp}C\eta\sigma$ $=$ $\iotabot v$\\
+
+podemos utilizar este resultado entonces para ir reescribiendo\\
+
+${head_{C'}}_{\bot} ((\lambda v .$ \\
+\indent \ \ 
+	$\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C' \concat \lrangles{S_\delta})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+			$[ \ \semBrcks{\pi}(h',s')(\semBrcks{\pi}(h,s)\eta) \ | \ \iota:\lrangles{a',e'} \ ]
+			(\sigma' \concat \lrangles{v}))_{\dbot}$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+ \ \ \ \ \ \ \ \ \ \ \ \ 
+	$(\semBrcks{\pi \vdash ei : \deltaexp}C'(\semBrcks{\pi}(h,s)\eta)\sigma'))$ $=$\\
+${head_{C'}}_{\bot} 
+	(\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C' \concat \lrangles{S_\delta})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+			$[ \ \semBrcks{\pi}(h',s')(\semBrcks{\pi}(h,s)\eta) \ | \ \iota:\lrangles{a',e'} \ ]
+			(\sigma' \concat \lrangles{v}))$\\
+			
+llegado este punto, para continuar, lo ideal ser\'ia poder hacer algo parecido
+a lo que hicimos hace un instante para evaluar el juicio de tipado de $ei$ el problema
+que surge es que no podemos aplicar hip\'otesis inductiva porque nuestro ambiente
+no tiene la forma correcta, es decir, nosotros quisi\'eramos que el ambiente
+fuera algo de la forma $\semBrcks{\pi,\iota:\deltavar}(\hhat,\shat)\widehat{\eta}$, pero
+adem\'as no con cualquiera $\widehat{\eta}$, si no que este sea
+$[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ]$. 
+En resumen, quisi\'eramos que la siguiente igualdad valga
+
+\begin{center}
+$\semBrcks{\pi,\iota:\deltavar}(\hhat,\shat)
+([ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ])$\\ 
+$=$\\
+$[ \ \semBrcks{\pi}(h',s')(\semBrcks{\pi}(h,s)\eta) \ | \ \iota:\lrangles{a',e'} \ ]$
+\end{center}
+
+donde
+$(\hhat,\shat) : (C\concat\lrangles{S_\delta}) \rTo (C'\concat\lrangles{S_\delta})$ 
+
+as\'i que vamos a hacer lo siguiente, vamos a suponer esta igualdad vale, completar la prueba
+y para finalizar probaremos la igualdad. Pero antes, nos falta el detalle importante sobre
+como son las funciones de la flecha $(\hhat,\shat)$, es decir, en general para cualquier
+flecha com\'un podemos saber quienes son las funciones viendo el tipo de la flecha, pero
+en particular el tipo de esta flecha no es una simple extensi\'on, presentemos la definici\'on
+de cada una\\
+
+$\hhat : (C'\concat\lrangles{S_\delta}) \rightarrow (C\concat\lrangles{S_\delta})$\\
+$\hhat \ \sigma = head_{C} (head_{C'}\sigma) \concat tail_{\lrangles{S_{\delta}}}\sigma$\\
+$\shat : ((C\concat\lrangles{S_\delta}) \rightarrow (C\concat\lrangles{S_\delta})_{\bot}) 
+		 \rightarrow
+		 ((C'\concat\lrangles{S_\delta}) \rightarrow (C'\concat\lrangles{S_\delta})_{\bot})$
+$\shat \ f \ \sigma = (\lambda \sigma_{v} . \  
+				(\hover \sigma_{v}) \concat 
+				tail_{\Cover}(tail_{C'}\sigma) \concat
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\dbot} (f (\hhat \sigma))$\\
+
+Entonces, reescribiendo utilizando la igualdad tenemos\\
+
+${head_{C'}}_{\bot}
+	(\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C' \concat \lrangles{S_\delta})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+			$[ \ \semBrcks{\pi}(h',s')(\semBrcks{\pi}(h,s)\eta) \ | \ \iota:\lrangles{a',e'} \ ]
+			(\sigma' \concat \lrangles{v}))$ $=$\\
+${head_{C'}}_{\bot}
+	 (\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C' \concat \lrangles{S_\delta})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+			$(\semBrcks{\pi,\iota:\deltavar}(\hhat,\shat)
+			([ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ]))
+			(\sigma' \concat \lrangles{v}))$ $=$\\
+${head_{C'}}_{\bot}
+	(\semBrcks{\commt}(\hhat,\shat)
+			(\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C \concat \lrangles{S_\delta})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+			$[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ])
+			(\sigma' \concat \lrangles{v}))$ $=$\\
+${head_{C'}}_{\bot}
+	(\shat (\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C \concat \lrangles{S_\delta})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+			$[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ])
+			(\sigma' \concat \lrangles{v}))$ $=$\\
+${head_{C'}}_{\bot}($\\
+$(\lambda \sigma_{v} . \  
+				(\hover \sigma_{v}) \concat 
+				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{v})) \concat
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\dbot}$ \\
+\indent \ \ \ \ \ \ \ \
+$(\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C \concat \lrangles{S_\delta})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ]) 
+(\hhat (\sigma' \concat \lrangles{v}))))$ $=$\\
+${head_{C'}}_{\bot}($\\
+$(\lambda \sigma_{v} . \  
+				(\hover \sigma_{v}) \concat 
+				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{v})) \concat
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\dbot}$ \\
+\indent \ \ \ \ \ \ \ \
+$(\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C \concat \lrangles{S_\delta})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ]) 
+(\sigma \concat \lrangles{v})))$\\
+
+y por fin estamos en condiciones de reescribir usando la segunda suposici\'on sobre
+el juicio de tipado de $c$\\
+
+${head_{C'}}_{\bot}($\\
+$(\lambda \sigma_{v} . \  
+				(\hover \sigma_{v}) \concat 
+				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{v})) \concat
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\dbot}$ \\
+\indent \ \ \ \ \ \ \ \
+$(\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C \concat \lrangles{S_\delta})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ]) 
+(\sigma \concat \lrangles{v})))$ $=$\\
+${head_{C'}}_{\bot}($\\
+$(\lambda \sigma_{v} . \
+				(\hover \sigma_{v}) \concat 
+				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{v})) \concat
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\dbot}$ \\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+  \ \ \ \ \ \ \ \ \ \
+$(\iotabot (\sigmatil \concat \lrangles{\tilde{v}})))$ $=$\\
+${head_{C'}}_{\bot}($\\
+$(\lambda \sigma_{v} . \
+				(\hover \sigma_{v}) \concat 
+				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{v})) \concat
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\dbot}$ \\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+  \ \ \ \ \ \ \ \ \ \
+$(\iotabot (\sigmatil \concat \lrangles{\tilde{v}})))$ $=$\\
+${head_{C'}}_{\bot}($
+$(\lambda \sigma_{v} . \
+				(\hover \sigma_{v}) \concat 
+				\sigmaover \concat
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\dbot}$
+$(\iotabot (\sigmatil \concat \lrangles{\tilde{v}})))$ $=$\\
+$(head_{C'}$
+$\circ$
+$(\lambda \sigma_{v} . \
+				(\hover \sigma_{v}) \concat 
+				\sigmaover \concat
+				tail_{\lrangles{S_\delta}}\sigma_{v}))_{\dbot}$
+$(\iotabot (\sigmatil \concat \lrangles{\tilde{v}}))$ $=$\\
+$head_{C'} (\sigmatil \concat \sigmaover \concat \lrangles{\tilde{v}})$ $=$
+$\sigmatil \concat \sigmaover$\\
+
+por lo tanto, hemos probado la igualdad para el caso del $\cnew \deltavar$. Nos resta 
+probar entonces la suposici\'on que hicimos sobre los ambientes, recordando deber\'iamos
+probar\\
+
+\begin{center}
+$\semBrcks{\pi,\iota:\deltavar}(\hhat,\shat)
+([ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ])$\\ 
+$=$\\
+$[ \ \semBrcks{\pi}(h',s')(\semBrcks{\pi}(h,s)\eta) \ | \ \iota:\lrangles{a',e'} \ ]$
+\end{center}
 
 \end{itemize}
 \end{itemize}
