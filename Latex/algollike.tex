@@ -1151,7 +1151,7 @@ dentro y con los identificadores. Tomamos ambiente y estado vac\'ios, \\
 
 \noindent
 $\semBrcks{\vdash \cseq{\cnew \iota \ }{ \ \cskip} : \commt}\emptyshape\emptyenv\emptystate$ $=$
-$((\semBrcks{\vdash \cskip : \commt}\emptyshape\emptyenv)_{\bot}
+$((\semBrcks{\vdash \cskip : \commt}\emptyshape\emptyenv)_{\dbot}
 \circ 
 \semBrcks{\vdash \cnew \iota : \commt}\emptyshape\emptyenv) \emptystate$\\
 
@@ -1242,7 +1242,7 @@ con $a_\kappa = \lambda v. \ \lambda \sigmahat . \ \iotabot
 	$e_\kappa$ $=$ $ \iotabot \circ last_{S_\intt}$\\
 \indent \indent \ 
 	$(s \circ a_\iota) \ x \ \sigmahat = 
-		(\lambda \sigma . \ \sigma \concat tail_{\lrangles{S_\intt}}\sigmahat)_{\dbot} 
+		(\lambda \sigma . \ \sigma \concat tail_{\lrangles{S_\intt}}\sigmahat)_{\bot} 
 			(a_\iota \ x \ (head_{\lrangles{S_\intt}} \sigmahat))$\\
 \indent \indent \ 
 	$e_\iota \circ h = e_\iota \circ head_{\lrangles{S_\intt}}$.\\
@@ -1361,21 +1361,22 @@ $\semBrcks{\pi_{\iota,\kappa} \vdash \assig{\kappa}{\iota}: \commt}
 ya casi terminando y volviendo a la evaluaci\'on de la composici\'on entre
 $\cnew \iota$ y $\cskip$, \\
 
-$(\semBrcks{\vdash \cskip : \commt}\emptyshape\emptyenv)_{\bot}
+$(\semBrcks{\vdash \cskip : \commt}\emptyshape\emptyenv)_{\dbot}
 (\semBrcks{\vdash \cnew \iota : \commt}\emptyshape\emptyenv\emptystate)$
 $=$\\
 \indent 
-$(\lambda \sigma . \ \sigma)_\bot (H_{\bot} (H_{\bot} \iotabot \lrangles{0,0}))$ $=$\\
+$(\lambda \sigma . \ \iotabot \sigma)_{\dbot} (H_{\bot} (H_{\bot} \iotabot \lrangles{0,0}))$ $=$\\
 \indent
-$(\lambda \sigma . \ \sigma)_\bot 
+$(\lambda \sigma . \ \iotabot \sigma)_{\dbot}
 	((head_{\lrangles{}})_{\bot} ((head_{\lrangles{S_\intt}})_{\bot} \iotabot \lrangles{0,0}))$ $=$\\
 \indent
-$((\lambda \sigma . \ \sigma) \circ 
-	head_{\lrangles{}} \circ head_{\lrangles{S_\intt}})_{\bot} \iotabot \lrangles{0,0}$ $=$\\
+$(\lambda \sigma . \ \iotabot \sigma)_{\dbot}
+	(head_{\lrangles{}} \circ head_{\lrangles{S_\intt}})_{\bot} \iotabot \lrangles{0,0}$ $=$\\
 \indent
-$(\lambda \sigma . \ \sigma) (head_{\lrangles{}} (head_{\lrangles{S_\intt}} \ \lrangles{0,0}))$ $=$
-$(\lambda \sigma . \ \sigma) (head_{\lrangles{}} \lrangles{0})$ $=$ 
-$(\lambda \sigma . \ \sigma)\lrangles{}$ $=$ $\lrangles{}$\\
+$(\lambda \sigma . \ \iotabot \sigma)_{\dbot}
+	((head_{\lrangles{}} (head_{\lrangles{S_\intt}} \ \lrangles{0,0})))$ $=$
+$(\lambda \sigma . \ \iotabot \sigma)_{\dbot} (\iotabot \lrangles{})$ $=$ 
+$\iotabot \lrangles{}$\\
 
 y con esto terminamos la evaluaci\'on del juicio de tipado completo y adem\'as con 
 el resultado esperado.
@@ -1578,22 +1579,22 @@ que en los casos anteriores.
 
 $\semBrcks{\boolexp}(h,s)(\semBrcks{\pi \vdash \neg e : \boolexp}C\eta)\sigma'$ $=$\\
 $\semBrcks{\boolexp}(h,s)(\lambda \sigma . \ 
- (\lambda b. \ \neg b)_{\dbot}(\semBrcks{\pi \vdash e : \boolexp}C\eta\sigma))\sigma'$ $=$\\
-$((\lambda b. \ \neg b)_{\dbot}(\semBrcks{\pi \vdash e : \boolexp}C\eta\sigma) 
+ (\lambda b. \ \iotabot \neg b)_{\dbot}(\semBrcks{\pi \vdash e : \boolexp}C\eta\sigma))\sigma'$ $=$\\
+$((\lambda b. \ \iotabot \neg b)_{\dbot}(\semBrcks{\pi \vdash e : \boolexp}C\eta\sigma) 
 	\circ 
 	h) \sigma'$ $=$ \\
-$(\lambda b. \ \neg b)_{\dbot}(\semBrcks{\pi \vdash e : \boolexp}C\eta(h\sigma'))$ $=$\\
-$(\lambda b. \ \neg b)_{\dbot}
+$(\lambda b. \ \iotabot \neg b)_{\dbot}(\semBrcks{\pi \vdash e : \boolexp}C\eta(h\sigma'))$ $=$\\
+$(\lambda b. \ \iotabot \neg b)_{\dbot}
 	((\semBrcks{\pi \vdash e : \boolexp}C\eta \circ h)\sigma'))$ $=$\\
-$(\lambda b. \ \neg b)_{\dbot}
+$(\lambda b. \ \iotabot \neg b)_{\dbot}
 	(\semBrcks{\boolexp}(h,s)(\semBrcks{\pi \vdash e : \boolexp}C\eta)\sigma')$\\
 	
 hasta ac\'a ha sido simplemente reescribir usando definiciones, de esta manera llegamos
 a poder aplicar la hip\'otesis inductiva,\\
 
-$(\lambda b. \ \neg b)_{\dbot}
+$(\lambda b. \ \iotabot \neg b)_{\dbot}
 	(\semBrcks{\boolexp}(h,s)(\semBrcks{\pi \vdash e :\boolexp}C\eta)\sigma')$ $=$\\
-$(\lambda b. \ \neg b)_{\dbot}
+$(\lambda b. \ \iotabot \neg b)_{\dbot}
 	(\semBrcks{\pi \vdash e : \boolexp}C(\semBrcks{\pi}(h,s)\eta)\sigma')$ $=$\\
 $\semBrcks{\pi \vdash \neg e : \boolexp}C(\semBrcks{\pi}(h,s)\eta)\sigma'$
 
@@ -1700,10 +1701,10 @@ escribir esta prueba. ¿ que es una flecha entre transformaciones naturales ?})
 $\semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash \cskip}C\eta)\sigma'$ $=$
 $s(\semBrcks{\pi \vdash \cskip}C\eta)\sigma'$ $=$\\
 $s(\lambda \sigma . \ \iotabot \sigma)\sigma'$ $=$
-$(\lambda \sigmahat . \ (\lambda \sigma. \ \iotabot (
-			\sigma \concat tail_{\overline{C}}\sigmahat))_{\dbot}
+$(\lambda \sigmahat . \ (\lambda \sigma. \ 
+			\sigma \concat tail_{\overline{C}}\sigmahat)_{\bot}
 		((\lambda \sigma . \ \iotabot \sigma)(h \sigmahat)))\sigma'$ $=$\\
-$(\lambda \sigma. \iotabot \ (\sigma \concat tail_{\overline{C}}\sigma'))_{\dbot}
+$(\lambda \sigma. \ \sigma \concat tail_{\overline{C}}\sigma')_{\bot}
 		((\lambda \sigma . \iotabot \sigma)(head_{C} \sigma'))$ $=$\\
 $\iotabot (head_{C} \sigma' \concat tail_{\overline{C}}\sigma')$ $=$ $\iotabot \sigma'$ $=$
 $\semBrcks{\pi \vdash \cskip : \commt}C'(\semBrcks{\pi}(h,s)\eta)\sigma'$\\
@@ -1749,10 +1750,10 @@ recordamos que $\sigma \concat \overline{\sigma} = \sigma'$,\\
 
 $\semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash \cwhiledo{b}{e} : \commt}C\eta)\sigma'$ $=$\\
 $s(\semBrcks{\pi \vdash \cwhiledo{b}{e} : \commt}C\eta)\sigma'$ $=$\\
-$(\lambda \sigma. \ \iotabot (\sigma \concat \sigmaover))_{\dbot}
+$(\lambda \sigma. \ \sigma \concat \sigmaover)_{\bot}
 				(\semBrcks{\pi \vdash \cwhiledo{b}{e} : \commt}C \ \eta \ \sigma)$\\
 
-olvid\'emonos por un momento de $(\lambda \sigma. \ \iotabot (\sigma \concat \sigmaover))_{\dbot}$
+olvid\'emonos por un momento de $(\lambda \sigma. \ \sigma \concat \sigmaover)_{\bot}$
 y analicemos $\semBrcks{\pi \vdash \cwhiledo{b}{e} : \commt}C \ \eta \ \sigma$, utilizando
 la definici\'on de la ecuaci\'on\\
 
@@ -1768,7 +1769,7 @@ podemos notar que si el comando eval\'ua a un $\iotabot\sigmahat$, es porque
 existieron evaluaciones de $\semBrcks{\pi \vdash e : \commt}C \eta \sigma$
 con resultados $\sigma_0, \sigma_1, \ldots, \sigma_n, \sigmahat$. Adem\'as 
 el resultado de la evaluaci\'on completa ser\'a ,
-$(\lambda \sigma. \ \iotabot (\sigma \concat \sigmaover))_{\dbot} \iotabot \sigmahat$ $=$
+$(\lambda \sigma. \ \sigma \concat \sigmaover)_{\bot} \iotabot \sigmahat$ $=$
 $\iotabot (\sigmahat \concat \sigmaover)$, es decir, solamente modificamos la parte del estado
 con forma $C$. Tomemos ahora el otro lado de la igualdad que queremos probar,\\
 
@@ -1788,7 +1789,7 @@ $\semBrcks{\pi \vdash \cwhiledo{b}{e} : \commt} C' (\semBrcks{\pi}(h,s)\eta) \si
 \indent \ \ \ \ \ \ \ \
 $\Y_{\semBrcks{\commt}C'} (\lambda c' . \lambda \sigma' . (\lambda b . if \ b$ \\
 \indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
-$then \ c'_{\dbot}((\lambda \sigma. \ \sigma \concat \sigmaover)_{\dbot}
+$then \ c'_{\dbot}((\lambda \sigma. \ \sigma \concat \sigmaover)_{\bot}
 					\semBrcks{\pi \vdash e : \commt}C \eta \sigma)$ \\
 \indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
 $else \ \iotabot \sigma')_{\dbot} 
@@ -1807,9 +1808,9 @@ de evaluar el comando completo es $\iotabot (\sigmahat\concat\sigmaover)$.
 extremo de la igualdad que queremos probar,\\
 
 $\semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash \assig{a}{e} : \commt}C\eta)\sigma'$ $=$\\
-$(\lambda \sigma. \ \sigma \concat \sigmaover)_{\dbot}
+$(\lambda \sigma. \ \sigma \concat \sigmaover)_{\bot}
 				(\semBrcks{\pi \vdash \assig{a}{e} : \commt}C\eta\sigma)$ $=$\\
-$(\lambda \sigma. \ \sigma \concat \sigmaover)_{\dbot}(
+$(\lambda \sigma. \ \sigma \concat \sigmaover)_{\bot}(
 	(\lambda v. \ \semBrcks{\pi \vdash a : \deltaacc}C\eta \ v \ \sigma)_{\dbot}
 	(\semBrcks{\pi \vdash e : \deltaexp}C\eta\sigma))$\\
 	
@@ -1823,7 +1824,7 @@ usando hip\'otesis inductiva dos veces obtenemos por un lado,\\
 $\semBrcks{\pi \vdash a : \deltaacc}C'(\semBrcks{\pi}(h,s)\eta)\ v \ \sigma'$ $=$\\
 $\semBrcks{\deltaacc}(h,s)(\semBrcks{\pi \vdash a : \deltaacc}C\eta) v \ \sigma'$ $=$
 $s(\semBrcks{\pi \vdash a : \deltaacc} C \eta \ v)\sigma'$ $=$\\
-$(\lambda \sigma . \sigma \concat \sigmaover)_{\dbot}
+$(\lambda \sigma . \sigma \concat \sigmaover)_{\bot}
 				(\semBrcks{\pi \vdash a : \deltaacc} C \eta \ v \ \sigma)$
 				
 y por otro lado,\\
@@ -1839,16 +1840,16 @@ $(\lambda v. \
 	\semBrcks{\pi \vdash a : \deltaacc}C'(\semBrcks{\pi}(h,s)\eta)\ v \ \sigma')_{\dbot}$\\
 \indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
 $(\semBrcks{\pi \vdash e : \deltaexp}C'(\semBrcks{\pi}(h,s)\eta)\sigma')$ $=$\\
-$(\lambda v. \ (\lambda \sigma . \sigma \concat \sigmaover)_{\dbot}
+$(\lambda v. \ (\lambda \sigma . \sigma \concat \sigmaover)_{\bot}
 				(\semBrcks{\pi \vdash a : \deltaacc} C \eta \ v \ \sigma))_{\dbot}$
 $(\semBrcks{\pi \vdash e : \deltaexp}C \eta \sigma)$ \\
 
 luego podemos suponer $\semBrcks{\pi \vdash e : \deltaexp}C \eta \sigma$ $=$ $\iotabot v$ distinto
 de $\bot$,\\
 
-$(\lambda \sigma . \sigma \concat \sigmaover)_{\dbot}
+$(\lambda \sigma . \sigma \concat \sigmaover)_{\bot}
 				(\semBrcks{\pi \vdash a : \deltaacc} C \eta \ v \ \sigma)$ $=$\\
-$(\lambda \sigma . \sigma \concat \sigmaover)_{\dbot}
+$(\lambda \sigma . \sigma \concat \sigmaover)_{\bot}
 	((\semBrcks{\pi \vdash a : \deltaacc} C \eta \ v \ \sigma)_{\dbot}
 			(\semBrcks{\pi \vdash e : \deltaexp}C \eta \sigma))$ $=$\\
 $\semBrcks{\commt}(h,s)(\semBrcks{\pi \vdash \assig{a}{e} : \commt}C\eta)\sigma'$\\
@@ -1909,7 +1910,7 @@ $\sover : (C \rightarrow C_\bot) \rightarrow
 		  ((C' \concat \Chat) \rightarrow (C' \concat \Chat)_\bot)$\\
 $\sover \ c \ (\sigma \concat \sigmaover \concat \sigmahat)$ $=$
 $(\lambda \sigma . \ 
-	\iotabot (\sigma \concat (\sigmaover \concat \sigmahat)))_{\dbot} (c \sigma)$ $=$\\
+	\sigma \concat (\sigmaover \concat \sigmahat))_{\bot} (c \sigma)$ $=$\\
 $\iotabot (\sigmatil \concat \sigmaover \concat \sigmahat)$\\
 
 $s : (C \rightarrow C_\bot) \rightarrow (C' \rightarrow C'_\bot)$\\
@@ -1917,11 +1918,11 @@ $s' : (C' \rightarrow C'_\bot) \rightarrow
    	  ((C' \concat \Chat) \rightarrow (C' \concat \Chat)_\bot)$\\
 $(s' \circ s) \ c \ (\sigma \concat \sigmaover \concat \sigmahat)$ $=$
 $s' (s \ c) (\sigma \concat \sigmaover \concat \sigmahat)$ $=$\\
-$(\lambda \sigma. \ \iotabot (\sigma \concat \sigmahat))_{\dbot}
+$(\lambda \sigma. \ \sigma \concat \sigmahat)_{\bot}
 	(s \ c \ (\sigma \concat \sigmaover))$ $=$\\
-$(\lambda \sigma . \ \iotabot (\sigma \concat \sigmahat))_{\dbot}
-((\lambda \sigma . \ \iotabot (\sigma \concat \sigmaover))_{\dbot}(c \sigma))$ $=$\\
-$(\lambda \sigma . \ \iotabot (\sigma \concat \sigmahat))_{\dbot}
+$(\lambda \sigma . \ \sigma \concat \sigmahat)_{\bot}
+((\lambda \sigma . \ \sigma \concat \sigmaover)_{\bot}(c \sigma))$ $=$\\
+$(\lambda \sigma . \ \sigma \concat \sigmahat)_{\bot}
 (\iotabot (\sigmatil \concat \sigmaover))$ $=$ 
 $\iotabot (\sigmatil \concat \sigmaover \concat \sigmahat)$\\
 
@@ -1952,7 +1953,7 @@ $s (\lambda \sigma . \ \Hbot ((\lambda v .$ \\
 \indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
  \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
 		$(\semBrcks{\pi \vdash ei : \deltaexp}C\eta\sigma)) ) \sigma'$ $=$\\
-$(\lambda \sigma . \ \sigma \concat \sigmaover)_{\dbot}({head_{C}}_{\bot} ((\lambda v .$ \\
+$(\lambda \sigma . \ \sigma \concat \sigmaover)_{\bot}({head_{C}}_{\bot} ((\lambda v .$ \\
 \indent \ \ 
 	$\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C \concat \lrangles{S_\delta})$\\
 \indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
@@ -1961,17 +1962,17 @@ $(\lambda \sigma . \ \sigma \concat \sigmaover)_{\dbot}({head_{C}}_{\bot} ((\lam
 \indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
  \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
 		$(\semBrcks{\pi \vdash ei : \deltaexp}C\eta\sigma)))$ $=$\\
-$(\lambda \sigma . \ \sigma \concat \sigmaover)_{\dbot}({head_{C}}_{\bot} ($ \\
+$(\lambda \sigma . \ \sigma \concat \sigmaover)_{\bot}({head_{C}}_{\bot} ($ \\
 \indent \ \ 
 	$\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C \concat \lrangles{S_\delta})$\\
 \indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
 			$[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ]
 			(\sigma\concat \lrangles{v})))$ $=$\\
-$(\lambda \sigma . \ \sigma \concat \sigmaover)_{\dbot}
+$(\lambda \sigma . \ \sigma \concat \sigmaover)_{\bot}
 ({head_{C}}_{\bot} (\iotabot (\sigmatil \concat \lrangles{\tilde{v}})))$ $=$\\
 $((\lambda \sigma . \ \sigma \concat \sigmaover) \circ
-head_{C})_{\dbot} (\iotabot (\sigmatil \concat \lrangles{\tilde{v}}))$ $=$\\
-$\sigmatil \concat \sigmaover$\\
+head_{C})_{\bot} (\iotabot (\sigmatil \concat \lrangles{\tilde{v}}))$ $=$\\
+$\iotabot (\sigmatil \concat \sigmaover)$\\
 
 detallando ahora los tipos de algunos componentes que van a ser relevantes
 mas adelante tenemos,\\
@@ -2060,7 +2061,7 @@ $\shat : ((C\concat\lrangles{S_\delta}) \rightarrow (C\concat\lrangles{S_\delta}
 $\shat \ f \ \sigma = (\lambda \sigma_{v} . \  
 				(\hover \sigma_{v}) \concat 
 				tail_{\Cover}(tail_{C'}\sigma) \concat
-				tail_{\lrangles{S_\delta}}\sigma_{v})_{\dbot} (f (\hhat \sigma))$\\
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\bot} (f (\hhat \sigma))$\\
 
 Entonces, reescribiendo utilizando la igualdad tenemos\\
 
@@ -2090,7 +2091,7 @@ ${head_{C'}}_{\bot}($\\
 $(\lambda \sigma_{v} . \  
 				(\hover \sigma_{v}) \concat 
 				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{v})) \concat
-				tail_{\lrangles{S_\delta}}\sigma_{v})_{\dbot}$ \\
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\bot}$ \\
 \indent \ \ \ \ \ \ \ \
 $(\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C \concat \lrangles{S_\delta})$\\
 \indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
@@ -2100,7 +2101,7 @@ ${head_{C'}}_{\bot}($\\
 $(\lambda \sigma_{v} . \  
 				(\hover \sigma_{v}) \concat 
 				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{v})) \concat
-				tail_{\lrangles{S_\delta}}\sigma_{v})_{\dbot}$ \\
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\bot}$ \\
 \indent \ \ \ \ \ \ \ \
 $(\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C \concat \lrangles{S_\delta})$\\
 \indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
@@ -2114,7 +2115,7 @@ ${head_{C'}}_{\bot}($\\
 $(\lambda \sigma_{v} . \  
 				(\hover \sigma_{v}) \concat 
 				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{v})) \concat
-				tail_{\lrangles{S_\delta}}\sigma_{v})_{\dbot}$ \\
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\bot}$ \\
 \indent \ \ \ \ \ \ \ \
 $(\semBrcks{\pi,\iota:\deltavar \vdash c : \commt}(C \concat \lrangles{S_\delta})$\\
 \indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
@@ -2124,7 +2125,7 @@ ${head_{C'}}_{\bot}($\\
 $(\lambda \sigma_{v} . \
 				(\hover \sigma_{v}) \concat 
 				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{v})) \concat
-				tail_{\lrangles{S_\delta}}\sigma_{v})_{\dbot}$ \\
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\bot}$ \\
 \indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
  \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
   \ \ \ \ \ \ \ \ \ \
@@ -2133,7 +2134,7 @@ ${head_{C'}}_{\bot}($\\
 $(\lambda \sigma_{v} . \
 				(\hover \sigma_{v}) \concat 
 				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{v})) \concat
-				tail_{\lrangles{S_\delta}}\sigma_{v})_{\dbot}$ \\
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\bot}$ \\
 \indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
  \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
   \ \ \ \ \ \ \ \ \ \
@@ -2142,17 +2143,17 @@ ${head_{C'}}_{\bot}($
 $(\lambda \sigma_{v} . \
 				(\hover \sigma_{v}) \concat 
 				\sigmaover \concat
-				tail_{\lrangles{S_\delta}}\sigma_{v})_{\dbot}$
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\bot}$
 $(\iotabot (\sigmatil \concat \lrangles{\tilde{v}})))$ $=$\\
 $(head_{C'}$
 $\circ$
 $(\lambda \sigma_{v} . \
 				(\hover \sigma_{v}) \concat 
 				\sigmaover \concat
-				tail_{\lrangles{S_\delta}}\sigma_{v}))_{\dbot}$
+				tail_{\lrangles{S_\delta}}\sigma_{v}))_{\bot}$
 $(\iotabot (\sigmatil \concat \lrangles{\tilde{v}}))$ $=$\\
-$head_{C'} (\sigmatil \concat \sigmaover \concat \lrangles{\tilde{v}})$ $=$
-$\sigmatil \concat \sigmaover$\\
+$\iotabot (head_{C'} (\sigmatil \concat \sigmaover \concat \lrangles{\tilde{v}}))$ $=$
+$\iotabot (\sigmatil \concat \sigmaover)$\\
 
 por lo tanto, hemos probado la igualdad para el caso del $\cnew \deltavar$. Nos resta 
 probar entonces la suposici\'on que hicimos sobre los ambientes, recordando deber\'iamos
@@ -2165,6 +2166,132 @@ $=$\\
 $[ \ \semBrcks{\pi}(h',s')(\semBrcks{\pi}(h,s)\eta) \ | \ \iota:\lrangles{a',e'} \ ]$
 \end{center}
 
+Supongamos un $\kappa$ identificador y dos valores $v$ y $x$ en $S_\delta$, cualesquiera
+
+\begin{itemize}
+\item S\'i $\kappa = \iota$, \\
+
+$(\semBrcks{\pi,\iota:\deltavar}(\hhat,\shat)
+([ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ]))\kappa$ $=$\\
+$\semBrcks{(\pi,\iota:\deltavar) \kappa}(\hhat,\shat)\lrangles{a,e}$ $=$\\
+$\lrangles{\semBrcks{\deltavar}(\hhat,\shat)a,\semBrcks{\deltavar}(\hhat,\shat)e}$\\
+
+$[ \ \semBrcks{\pi}(h',s')(\semBrcks{\pi}(h,s)\eta) \ | \ \iota:\lrangles{a',e'} \ ] \kappa$ $=$
+$\lrangles{a',e'}$\\
+
+probemos ahora que $a' = \semBrcks{\deltavar}(\hhat,\shat)a$ y 
+$e' = \semBrcks{\deltavar}(\hhat,\shat)e$\\
+
+$\semBrcks{\deltavar}(\hhat,\shat) \ e \ (\sigma \concat \sigmaover \concat \lrangles{v})$ $=$
+$e \ (\hhat (\sigma \concat \sigmaover \concat \lrangles{v}))$ $=$\\
+$\iotabot (last_{S_\delta} (\sigma \concat \lrangles{v}))$ $=$ $\iotabot \ v$ $=$
+$\iotabot (last_{S_\delta} (\sigma \concat \sigmaover \concat \lrangles{v}))$ $=$ \\
+$e' (\sigma \concat \sigmaover \concat \lrangles{v})$\\
+
+$\semBrcks{\deltavar}(\hhat,\shat) \ a \ x \ (\sigma \concat \sigmaover \concat \lrangles{v})$ $=$
+$\shat (a \ x) (\sigma \concat \sigmaover \concat \lrangles{v})$ $=$\\
+$(\lambda \sigma_{x} . \  \iotabot (
+				(\hover \sigma_{x}) \concat 
+				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{x})) \concat
+				tail_{\lrangles{S_\delta}}\sigma_{x}))_{\dbot}$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$((a \ x)(\hhat (\sigma \concat \sigmaover \concat \lrangles{v})))$ $=$\\
+$(\lambda \sigma_{x} . \  \iotabot (
+				(\hover \sigma_{x}) \concat 
+				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{x})) \concat
+				tail_{\lrangles{S_\delta}}\sigma_{x}))_{\dbot}$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+ \ \ \ \ \ \ \ \ \ 
+$(\lambda \sigma. \ \iotabot \ 
+		head_{C}\sigma \concat \lrangles{x})(\sigma \concat \lrangles{v})$ $=$\\
+$(\lambda \sigma_{x} . \ \iotabot (
+				(\hover \sigma_{x}) \concat 
+				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{x})) \concat
+				tail_{\lrangles{S_\delta}}\sigma_{x}))_{\dbot}$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$(\iotabot (\sigma \concat \lrangles{x}))$ $=$\\
+$\iotabot (\sigma \concat \sigmaover \concat \lrangles{x})$ $=$\\
+$\iotabot (head_{C'}(\sigma \concat \sigmaover \concat \lrangles{v}) \concat \lrangles{x})$ $=$
+$a' \ x \ (\sigma \concat \sigmaover \concat \lrangles{v})$\\
+
+\item S\'i $\kappa \neq \iota$,\\
+
+$(\semBrcks{\pi,\iota:\deltavar}(\hhat,\shat)
+([ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ]))\kappa$ $=$
+$\semBrcks{\pi,\iota:\deltavar}(\hhat,\shat)(\semBrcks{\pi}(\hover,\sover)\eta) \kappa$\\
+
+$[ \ \semBrcks{\pi}(h',s')(\semBrcks{\pi}(h,s)\eta) \ | \ \iota:\lrangles{a',e'} \ ] \kappa$ $=$
+$\semBrcks{\pi}(h',s')(\semBrcks{\pi}(h,s)\eta)\kappa$\\
+
+para probar esto vamos a utilizar que $\semBrcks{\pi}$ es funtor como ya hemos hecho
+para el caso de la abstracci\'on lambda. Es decir, deber\'iamos probar que 
+$(\hover \circ \hhat,\shat \circ \sover) = (h \circ h',s' \circ s)$. Supongamos
+$f : C \rightarrow C_\bot$\\
+
+$(\hover \circ \hhat) (\sigma \concat \sigmaover \concat \lrangles{v})$ $=$
+$\hover (\hhat (\sigma \concat \sigmaover \concat \lrangles{v}))$ $=$
+$\hover (\sigma \concat \lrangles{v})$ $=$ $\sigma$\\
+
+$(h \circ h') (\sigma \concat \sigmaover \concat \lrangles{v})$ $=$
+$h (h' (\sigma \concat \sigmaover \concat \lrangles{v}))$ $=$
+$h (\sigma \concat \sigmaover)$ $=$ $\sigma$\\
+
+para la segunda funci\'on de la flecha, supongamos adem\'as 
+$f(\hover(\hhat (\sigma \concat \sigmaover \concat \lrangles{v}))) = \iota \sigmatil$ y empecemos
+notando que \\
+$f(\hover(\hhat (\sigma \concat \sigmaover \concat \lrangles{v})))$
+$=$ $f(h(h'(\sigma \concat \sigmaover \concat \lrangles{v})))$ $=$
+$f(h(\sigma \concat \sigmaover))$\\
+
+$(\shat \circ \sover) \ f \ (\sigma \concat \sigmaover \concat \lrangles{v})$ $=$
+$\shat (\sover \ f) \ (\sigma \concat \sigmaover \concat \lrangles{v})$ $=$\\
+$(\lambda \sigma_{v} . \
+				(\hover \sigma_{v}) \concat 
+				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{v})) \concat
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\bot}$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$(\sover \ f (\hhat (\sigma \concat \sigmaover \concat \lrangles{v})))$ $=$\\
+$(\lambda \sigma_{v} . \
+				(\hover \sigma_{v}) \concat 
+				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{v})) \concat
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\bot}$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$((\lambda \sigma . \ \sigma \concat \lrangles{v})_{\bot} 
+	(f (\hover (\hhat (\sigma \concat \sigmaover \concat \lrangles{v}))))$ $=$\\
+$(\lambda \sigma_{v} . \
+				(\hover \sigma_{v}) \concat 
+				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{v})) \concat
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\bot}$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  \ \ \ \ \ \ \ \
+$((\lambda \sigma . \ \sigma \concat \lrangles{v})_{\bot} (\iotabot \sigmatil))$ $=$\\
+$(\lambda \sigma_{v} . \
+				(\hover \sigma_{v}) \concat 
+				tail_{\Cover}(tail_{C'}(\sigma' \concat \lrangles{v})) \concat
+				tail_{\lrangles{S_\delta}}\sigma_{v})_{\bot}$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  \ \ \ \ \ \ \ \  \ \ \ \
+  \ \ \ \ \ \ \ \ \ \ \ \ \
+$(\iotabot (\sigmatil \concat \lrangles{v}))$ $=$\\
+$\iotabot (\sigmatil \concat \sigmaover \concat \lrangles{v})$\\
+
+$(s' \circ s) \ f \ (\sigma \concat \sigmaover \concat \lrangles{v})$ $=$
+$(s' (s \ f) \ (\sigma \concat \sigmaover \concat \lrangles{v})$ $=$\\
+$(\lambda \sigma . \ \sigma \concat \lrangles{v})_{\bot} 
+		((s \ f) (h'(\sigma \concat \sigmaover \concat \lrangles{v})))$ $=$\\
+$(\lambda \sigma . \ \sigma \concat \lrangles{v})_{\bot}
+((\lambda \sigma . \ \sigma \concat \sigmaover)_{\bot} (f \ (h (\sigma \concat \sigmaover))))$ $=$\\
+$(\lambda \sigma . \ \sigma \concat \lrangles{v})_{\bot} 
+		(\iotabot (\sigmatil \concat \sigmaover))$ $=$
+$\iotabot (\sigmatil \concat \sigmaover \concat \lrangles{v})$\\
+
+Finalmente, con la igualdad entre estas flechas que acabamos de probar, hemos completado
+la prueba de naturalidad para el comando $\cnew \deltavar$ y adem\'as hemos completado
+la prueba de naturalidad para nuestro lenguaje $\Alike$.
+\end{itemize}
 \end{itemize}
 \end{itemize}
 \end{proof}
