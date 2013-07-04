@@ -391,12 +391,21 @@ $\texttt{Ty Rule:}$ Expresi\'on condicional.
 \AxiomC{$\pi \vdash e' : \theta$}
 \TrinaryInfC{$\pi \vdash \cifthenelse{b}{e}{e'} : \theta$}
 \DisplayProof
+
+\
+
+con $\theta \in \{\deltavar,\deltaacc,\deltaexp,\commt\}$.\\
 \end{center}
+
 
 Hasta aqu\'i lo que hemos hecho es recompilar y actualizar las reglas de inferencia
 para la parte aplicativa del lenguaje, ahora definamos las regla de los comandos 
 $\cskip$, $\cwhile$ y $\concatdots$ que no presentan ninguna particularidad que valga 
-la pena comentar y luego sigamos con las reglas $\cnew \ \deltavar$ y $\cassig$,
+la pena comentar y luego sigamos con las reglas $\cnew \ \deltavar$ y $\cassig$. Pero
+antes notamos el hecho de que el juicio de tipado para la expresi\'on
+condicional no es todo lo general que plantea el punto 4 del comienzo del capitulo,
+la respuesta para esta decisi\'on se encuentra al momento de definir la ecuaci\'on
+sem\'antica para este comando.
 
 \
 
@@ -941,12 +950,47 @@ $(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \deltaacc}C \ \eta \ 
 $else \ \semBrcks{ \pi \vdash e' : \deltaacc}C \ \eta \ \sigma)_{\dbot}$ 
 $(\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ \sigma)$\\
 
-$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltavar}C$ 
+$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltavar}C\eta$ 
 $=$ \\ 
-\indent \indent \indent 
-$\langle \ \semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltaacc}C$\\
-\indent \indent \indent 
-$, \semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltaexp}C \ \rangle$ \\
+\indent \indent
+$\langle \ \semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltaacc}C\eta$
+$, \semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltaexp}C\eta \ \rangle$ \\
+
+En este punto vamos a hacer un par\'entesis para comentar lo que cuando
+presentamos los juicios de tipado validos para el lenguaje quedo pospuesto.
+Recordado, \'ibamos a evitar que el juicio de tipado
+$\pi \vdash \cifthenelse{b}{e}{e'} : \theta \rightarrow \theta'$, 
+sea valido y, bas\'andonos en las ecuaciones sem\'anticas para los 
+distintos juicios de tipado de la expresi\'on condicional que hemos
+dado, la raz\'on entonces esta en notar que para evaluar el comando
+condicional tenemos que "rescatar" el estado para poder evaluar
+el juicio de la guarda $\pi \vdash b : \boolexp$, entonces para
+el caso de en que nuestra expresi\'on condicional tipa a 
+$\deltaexp$ o $\commt$ es sencillo porque el estado esta "a la mano",
+ya para $\deltaacc$ no es tan cierto pero no es una limitaci\'on vemos
+que primero tenemos que "rescatar" un $z$ y despu\'es reci\'en aparece
+el estado. \\
+Veamos ahora algunas de las complicaciones cuando
+el tipo de nuestro juicio de tipado para la expresi\'on condicional 
+tiene varias flechas($\rightarrow$), supongamos tenemos el juicio
+$\pi \vdash \cifthenelse{b}{f}{f'} : \theta \rightarrow \theta' \rightarrow \theta''$ y
+recordamos que para evaluar algo con tipo flecha, por su tipo, tenemos que
+tener una posible expansi\'on del estado, un valor para agregar al ambiente que
+ser\'a el valor pasado por argumento y finalmente aparece nuestro estado.\\
+¿Como saber cuantos $z'$s y $C'$s hay que rescatar hasta encontrarse el estado?; 
+por ejemplo ac\'a $f$ podr\'ia ser la expresi\'on $\lambda v. ff$ tal que, 
+abusando de notaci\'on, $v : \theta \rightarrow \theta'$. Entonces esto 
+implicar\'ia rescatar un solo $z$ y un solo $C$ para encontrar el estado y
+podemos saber que tipo tiene $v$ por tener tipado explicito, para terminar
+tomar\'iamos  este $z$ y $C$ y evaluar\'iamos cada caso de la expresi\'on
+condicional pasandole estos valores, parecido a como hacemos cuando
+tenemos el tipo $\deltaacc$. Esta entonces parecer\'ia ser una posible 
+soluci\'on, pero surge otra complicaci\'on supongamos $f'$ es igual a
+$(\lambda v . \lambda v'. ff)h$ es decir, $f'$ tipa correctamente pero
+sin embargo no es una abstracci\'on lambda, si no que hay una aplicaci\'on
+y esto implica entonces que rescatar el estado es distinto para una componente
+que para otra de la expresi\'on condicional. En resumen, no es tan sencillo
+saber de que forma rescatar el estado para, recordando, evaluar la guarda.\\
 
 \noindent
 $\texttt{Denotal Sem:}$ Aplicaci\'on.\\
