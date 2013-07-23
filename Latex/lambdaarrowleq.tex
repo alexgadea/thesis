@@ -1,24 +1,18 @@
 \chapter{Calculo lambda simplemente tipado y con subtipos}
 \label{chap:lambdaarrow}
 
-En este cap\'itulo presentamos dos lenguajes, el primer lenguaje, es un
+En este cap\'itulo presentamos dos lenguajes, el primero, es un
 lenguaje funcional con tipado explicito simple. La idea de comenzar con 
 este lenguaje, \'el cual ya tiene sem\'antica bien conocida, es introducir
 conceptos principales sobre los sistemas de tipado simple, as\'i
 como de la sem\'antica denot\'acional del lenguaje, ademas es lo 
 suficientemente simple como para no eclipsar el aprendizaje de 
-conceptos sobre la implementaci\'on utilizando tipos dependientes.
-El segundo lenguaje mantiene las mismas expresiones que el primero
-pero vamos a extender los tipos para que soporten subtipado.\\
+conceptos sobre la implementaci\'on de su evaluador utilizando 
+tipos dependientes.
+El segundo lenguaje mantiene las mismas frases que el primero
+pero vamos a extender los tipos para que soporten subtipado.
 
-El c\'apitulo va a estar separado en dos secciones, el estudio
-de lambda arrow y el estudio de lambda leq. A su vez, en cada
-uno estar\'an las definiciones sint\'acticas, sem\'anticas y de tipos
-relacionadas a cada lenguaje.
-
-\section{Lambda arrow}
-
-\subsection{Sint\'axis}
+\section{Sint\'axis de $\lambdaarrow$}
 
 En esta secci\'on vamos a introducir la sint\'axis de dos lenguajes, 
 la de $\lambdaarrow$ y la del lenguaje de los tipos.
@@ -42,7 +36,7 @@ $\theta \rightarrow \theta'$ sera la representaci\'on del conjunto
 de funciones que acepta valores de tipo $\theta$ y retorna valores
 de tipo $\theta'$. Hay que mencionar que $\rightarrow$ asocia a derecha.\\
 
-Ahora que tenemos el lenguaje de los tipos podemos dar la sint\'axis
+Con el lenguaje de los tipos definido podemos dar la sint\'axis
 abstracta del lenguaje.
 
 \setlength{\grammarindent}{6em}
@@ -76,15 +70,17 @@ $\theta \in \lrangles{Type}$ \
 
 $\odot \in \{-, \neg\}$ y \
 
-$\circledcirc \in \{+,-,*,/,\div,\rem,\wedge,\vee,\Rightarrow,\Leftrightarrow, =,\neq,<,>,\leq,\geq\}$
+$\circledcirc \in \{+,-,*,/,\div,\rem,\wedge,\vee,\Rightarrow,\Leftrightarrow, =,\neq,<,>,\leq,\geq\}$\\
 
-\subsection{Tipos simples}
+Antes de continuar con la sem\'antica de $\lambdaarrow$
+vamos a introducir contextos;que nos van a permitir anotar el tipo
+de los identificadores de las frases, juicio de tipado;que ser\'a una relaci\'on
+entre un contexto, una frase y un tipo, las reglas de inferencia de tipos;
+que nos van a permitir decidir que juicios son validos y cuales no mediante una derivaci\'on, y
+finalmente la sem\'antica de los tipos.\\
 
-Antes de continuar con la sem\'antica del lenguaje del c\'apitulo
-vamos a introducir contextos, juicio de tipado, reglas de inferencia de tipos y
-sem\'antica de los tipos.\\
-
-Un contexto ser\'a una lista de pares que relacionan un identificador 
+Empecemos introduciendo la idea de contexto, este ser\'a una lista 
+de pares que relacionan un identificador 
 con un tipo, con la restricci\'on de que no pueden
 existir identificadores repetidos, esta restricci\'on no es menor y mas
 adelante cuando tengamos definidas las reglas de inferencia vamos a
@@ -104,28 +100,36 @@ Un contexto estar\'a definido por la siguiente gram\'atica,\
 
 \end{grammar}
 
+tal que dado cualquier contexto $\iota_0:\theta_0,\ldots,\iota_n:\theta_n$, los
+identificadores $\iota_0,\ldots,\iota_n$ son todos distintos.
+
 \end{definition}
 
-Ahora que tenemos definido los contextos, podemos definir que es un juicio de 
-tipado. 
+La razón por la que la definici\'on de contextos tiene la restricci\'on de
+no tener identificadores repetidos la
+dejamos para mas adelante cuando terminemos de introducir los juicios de tipado, 
+que es lo que empezaremos a hacer a continuaci\'on.
 
 \begin{definition}\label{lambdaa:typejugment}
 
 Un juicio de tipado sera una relaci\'on entre un contexto $\pi$, una
-expresi\'on del lenguaje $e$ y un tipo $\theta$ que establecer\'a que
+frase del lenguaje $e$ y un tipo $\theta$ que establecer\'a que
 bajo el contexto $\pi$ la expresi\'on $e$ tiene tipo $\theta$.\\
 
-Lo denotaremos como  $\pi \vdash e : \theta$.
+Lo denotaremos como  $\pi \vdash e : \theta$\\
+
+En particular, cuando $\pi = \varnothing$ escribiremos
+$\vdash e : \theta$
 
 \end{definition}
 
-\subsubsection{Reglas de inferencia}
+\section{Reglas de inferencia para $\lambdaarrow$}
 
 Antes definimos los contextos como listas de pares y dimos restricciones 
 en el sentido de que no cualquier lista de pares era una contexto valido,
 ahora necesitamos algo parecido para los juicios de tipado, queremos
 una manera de decidir que juicios son validos y cuales no, para esto
-vamos a definir las reglas de inferencia, pero antes establezcamos algunas
+vamos a definir las reglas de inferencia, empecemos estableciendo algunas
 metavariables generales:
 
 \begin{center}
@@ -139,13 +143,7 @@ metavariables generales:
 \end{center}
 
 \noindent 
-Ahora s\'i presentamos las reglas de inferencia:
-
-\
-
-\
-
-\
+Ahora s\'i presentamos las reglas de inferencia:\\
 
 \noindent
 $\texttt{Ty Rule:}$ Constantes.
@@ -244,7 +242,15 @@ a continuaci\'on con la regla para la abstracci\'on lambda. Ademas el contexto
 no juega ning\'un papel para determinar la valides de un juicio.\\
 
 Veamos ahora las reglas referentes a la parte del calculo lambda simplemente tipado, 
-ademas de la regla para el tipado de un identificador.
+ademas de la regla para el tipado de un identificador.\\
+
+\
+
+\
+
+\
+
+\
 
 \
 
@@ -257,10 +263,6 @@ $\texttt{Ty Rule:}$ Aplicaci\'on.
 \BinaryInfC{$\pi \vdash ee' : \theta'$}
 \DisplayProof
 \end{center}
-
-\
-
-\
 
 \noindent
 $\texttt{Ty Rule:}$ Operador de punto fijo.
@@ -282,8 +284,8 @@ identificador no este libre.
 $\texttt{Ty Rule:}$ Identificador.
 
 \begin{center}
-\AxiomC{}
-\RightLabel{$v:\theta \in \pi$}
+\AxiomC{$v:\theta \in \pi$}
+\RightLabel{}
 \UnaryInfC{$\pi \vdash v : \theta$}
 \DisplayProof
 \end{center}
@@ -326,27 +328,55 @@ $\texttt{Ty Rule:}$ Expresi\'on condicional.
 \DisplayProof
 \end{center}
 
-Ahora que tenemos todas las reglas de inferencia definidas podemos mencionar
-algo que hab\'iamos anticipado cuando definimos contextos, en relaci\'on a la
-restricci\'on que estos tienen. Empecemos considerando la frase 
-$\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota \times \iota}$ y supongamos
-no existe ninguna restricci\'on sobre los contextos, luego podemos dar
-una derivaci\'on con las reglas de inferencia que hemos dado tal que valide 
-el siguiente juicio de tipado 
-$\vdash \clambda{\iota}{\intt}
-		{\clambda{\iota}{\intt} \ \iota \times \iota : \intt \rightarrow \intt \rightarrow \intt}$.
+Ahora que hemos terminado de definir todas las reglas de inferencia, podemos
+mencionar la raz\'on por la cual en la definici\'on de nuestros contexto no
+permitimos tener identificadores repetidos. Una primera raz\'on podr\'ia ser
+que suceder\'ia en el caso en que un contexto tenga dos identificadores 
+iguales pero con distinto tipo, que podr\'ia pasar de intentar dar una 
+derivaci\'on del siguiente juicio de tipado 
+$\vdash 
+	\clambda{\iota}{\intt}{\clambda{\iota}{\realt} \ \iota \times \iota} : 
+		\intt \rightarrow \realt \rightarrow \realt$. Lo que suceder\'ia es
+que nos har\'ian falta mas reglas de inferencia para obtener efectivamente
+una derivaci\'on, siguiente con el ejemplo nos har\'ia falta una regla,
+
+\begin{center}
+\AxiomC{$\pi \vdash e  : \intt$}
+\AxiomC{$\pi \vdash e' : \realt$}
+\BinaryInfC{$\pi \vdash e \times e': \realt$}
+\DisplayProof
+\end{center}
+
+y as\'i para muchos otros casos e incluso quedar\'ian casos por considerar 
+para los cuales no existen reglas que tengan sentido. Una soluci\'on intermedia
+a no permitir la repetici\'on de identificadores podr\'ia ser permitirla
+siempre y cuando, cada vez que quiera agregar un identificador con su 
+respectivo tipo a un contexto, si ya existe este nombre de identificador
+entonces los tipos de cada uno deben coincidir, por ejemplo si consideramos
+el juicio de tipado 
+$\vdash 
+	\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota \times \iota} : 
+		\intt \rightarrow \intt \rightarrow \intt$ y la versi\'on intermedia
+de contextos, entonces podemos efectivamente dar una derivaci\'on del juicio
+de tipado sin tener que agregar reglas nuevas, ni complicar nada.
 		
 La pregunta que surge, ahora que tenemos que este juicio es valido y por lo tanto
-deber\'iamos poder evaluar nuestra frase, esta relacionada con la doble
-ocurrencia de $\iota$. ¿ Cuando aplicamos esta frase a dos frases enteras, 
-que valor debe tomar $\iota$ ?; Para lidiar entonces con esto, es que
-tenemos la restricci\'on sobre los contextos, la idea es que ahora
+deber\'iamos poder evaluarlo. ¿ Cuando aplicamos esta frase a dos frases enteras, 
+que valor debe tomar $\iota$ ?; es decir, supongamos tenemos el juicio anterior
+aplicado a dos frases enteras, 
+$\vdash 
+	(\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota \times \iota}) \ 1 \ 2 : \intt$
+el resultado de tal evaluaci\'on, deber\'ia ser ¿$1$?, ¿$4$? o incluso, por qué no, ¿$2$?.
+Para lidiar entonces con esto, es que tenemos la restricci\'on sobre los contextos, 
+la idea es que ahora
 con la restricci\'on la frase $\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota \times \iota}$
 no pertenece a ning\'un juicio de tipado valido.
 
-\subsubsection{Sem\'antica}
+\section{Sem\'antica para $\lambdaarrow$}
 
-Ahora vamos a definir la sem\'antica de los tipos y los contextos, para esto vamos a
+Ya tenemos definida la sint\'axis de $\lambdaarrow$ en conjunto con las reglas
+de inferencia para los distintos juicios de tipado de cada frase. Empecemos
+esta secci\'on definiendo la sem\'antica de los tipos y los contextos, para esto vamos a
 definir los dominios sem\'anticos usando categor\'ias y las ecuaciones
 sem\'anticas usando sem\'antica denotacional. 
 
@@ -358,17 +388,17 @@ adaptar las ecuaciones sem\'anticas a las distintas caracter\'isticas del lengua
 
 \begin{definition}\label{lambdaa:typescategory}
 La categor\'ia de tipos, que nombraremos $\Theta$, sera una categor\'ia discreta tal que 
-la colecci\'on de objetos esta definida como,
+la colecci\'on de objetos esta definida como,\\
 
-$\Theta_0$ $=$ $\{\theta \ | \ \theta \ \in \lrangles{Type} \}$\\
+$\Theta_0$ $=$ $\{\theta \ | \ \theta \ \in \lrangles{Type} \}$
 
 \end{definition}
 
 \begin{definition}\label{lambdaa:contextcategory}
 La categor\'ia de contextos, que nombraremos $\Pi$, sera una categor\'ia discreta tal que 
-la colecci\'on de objetos esta definida como,
+la colecci\'on de objetos esta definida como,\\
 
-$\Pi_0$ $=$ $\{\pi \ | \ \pi \ \in \lrangles{Context} \}$\\
+$\Pi_0$ $=$ $\{\pi \ | \ \pi \ \in \lrangles{Context} \}$
 
 \end{definition}
 
@@ -387,7 +417,7 @@ de funciones de $D'$ en $D$.\\
 
 Ahora s\'i, con los dominios necesarios, podemos definir dos funtores, 
 uno entre $\Theta$ y $\CD$, y otro entre $\Pi$ y $\CD$. Esto implica definir 
-funciones, que mapee objetos en objetos y flechas en flechas, ahora como $\Theta$ y $\Pi$ 
+funciones, que mapee objetos en objetos y flechas en flechas, como $\Theta$ y $\Pi$ 
 son discreta, la definici\'on de estas ultimas funciones es directa, por lo 
 tanto vamos a definir el mapeo de objetos en objetos.
 En general cuando definamos funtores vamos a hacer uso de los indicies, pero luego
@@ -415,15 +445,14 @@ $\semBrcks{\pi}_0$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}$
 \end{definition}
 
 Notar que como $\CD$ es $\mathcal{CCC}$ entonces tenemos productos finitos, como los
-contextos son siempre finitos, la definici\'on es correcta.
-
-\subsection{Sem\'antica}
+contextos son siempre finitos, la definici\'on es correcta.\\
 
 Estamos en condiciones de definir las ecuaciones sem\'anticas, para quien este
 familiarizado con la definici\'on de sem\'antica denotacional de lenguajes sin tipado
 podemos comentar que las ecuaciones sem\'anticas se definen sobre un juicio 
-de tipado y no sobre las expresiones en s\'i. Esto implica entonces, que para evaluar
-un programa este antes debe haber typecheckeado correctamente.
+de tipado y no sobre las frases en s\'i. Esto implica entonces, que para evaluar
+un programa este antes debe haber pasado por el chequeo de tipos, es decir, 
+tenemos una derivaci\'on del juicio de tipado.
 
 Una ecuaci\'on sem\'antica entonces estar\'a definida por un juicio de tipado valido,
 supongamos $\pi \vdash e : \theta$, un objeto de la categor\'ia $\CD$, determinado por 
@@ -449,6 +478,9 @@ $\semBrcks{\pi \vdash i : \intt} \eta$  $=$ $\iotabot i$\\
 
 $\semBrcks{\pi \vdash r : \realt} \eta$ $=$ $\iotabot r$
 \end{center}
+
+\
+
 \
 
 \noindent
@@ -585,7 +617,9 @@ $\texttt{Denotal Sem:}$ Identificador.\
 $\semBrcks{\pi \vdash \iota : \theta}\eta$ $=$ $\eta \iota$\\
 
 Estas ultimas ecuaciones nos terminan de definir la sem\'antica de nuestro 
-primer lenguaje lambda arrow.\\
+primer lenguaje $\lambdaarrow$.
+
+\section{Continuidad de las ecuaciones sem\'anticas de $\lambdaarrow$}
 
 Ahora que tenemos nuestro lenguaje definido tanto sint\'acticamente como
 sem\'anticamente, veamos algunas propiedades y caracter\'isticas. Tomemos
@@ -626,7 +660,7 @@ vamos a tomar la aplicaci\'on y realizar un an\'alisis categ\'orico, \'el cual
 adem\'as nos servir\'a mas adelante para probar la continuidad de la 
 aplicaci\'on.\\
 
-Empecemos suponiendo tenemos el juicio de tipado $\pi \vdash ee' : \theta'$ y
+Tomemos un juicio de tipado $\pi \vdash ee' : \theta'$ cualquiera y
 recordando adem\'as que dados dos tipos $\theta$ y $\theta'$, $\semBrcks{\theta'}^{\semBrcks{\theta}}$
 era objeto exponencial en $\Dom$, es decir, que adem\'as de este objeto tenemos
 una flecha $\epsilon$ tal que,
@@ -648,8 +682,10 @@ tenemos el siguiente diagrama,
   \semBrcks{\pi} \times \semBrcks{\theta} & & \\
 \end{diagram}
 
-donde claramente $\widetilde{f} = \semBrcks{\pi \vdash e : \theta \rightarrow \theta'}$. Ahora,
-si definimos una flecha $g = \semBrcks{\pi \vdash e' : \theta}$, podemos obtener la siguiente flecha
+donde claramente $\widetilde{f} = \semBrcks{\pi \vdash e : \theta \rightarrow \theta'}$.\\
+
+Ahora, si tomamos una flecha $g$ tal que $g = \semBrcks{\pi \vdash e' : \theta}$, 
+podemos obtener la siguiente flecha,
 
 \begin{diagram}
 \semBrcks{\pi} & \rTo^{\lrangles{1_{\semBrcks{\pi}} , 1_{\semBrcks{\pi}}}} 
@@ -702,15 +738,14 @@ $\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\e
 $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta
 									(\semBrcks{\pi \vdash e' : \theta} \eta)$\\
 
-
 Ahora estamos en condiciones de demostrar una propiedad importante que deben cumplir nuestras 
-ecuaciones sem\'anticas es ser funciones continuas, no hay que olvidar
+ecuaciones sem\'anticas, ser funciones continuas, no hay que olvidar
 que cuando decimos que, dado un juicio $\pi \vdash e : \theta$, el tipo
 de nuestra ecuaci\'on ser\'a $\semBrcks{\pi} \rightarrow \semBrcks{\theta}$, ese 
 tipo representa un conjunto de funciones continuas en $\Dom$. Es decir, para
 verdaderamente estar seguros que las definiciones que hemos dado son 
-correctas, debemos probar que las ecuaciones sem\'anticas son funciones 
-continuas.\\
+correctas, debemos probar que cada ecuaci\'on sem\'antica es una funci\'on
+continua.\\
 
 Empecemos enunciando algunas proposiciones que nos van a hacer \'util para
 la prueba de continuidad.
@@ -767,13 +802,13 @@ de $P \rightarrow D$ en $P_{\bot} \rightarrow D$, es una funci\'on continua.
 
 \end{proposition}
 
-\begin{proposition}
+\begin{theorem}
 
 Dado un juicio de tipado $\pi \vdash e : \theta$ la ecuaci\'on sem\'antica
 \\ 
 $\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua.
 
-\end{proposition}
+\end{theorem}
 
 \begin{proof}
 
@@ -794,7 +829,7 @@ $=$ $\bigsqcup\limits^{\infty}_{i=0} \semBrcks{\pi \vdash e : \theta}\eta_i$.
 \item Casos base.
 
 \begin{itemize}
-\item Para probar los casos base de los juicios de las constantes usamos Prop 1.3.a, 
+\item Para probar los casos base de los juicios de las constantes usamos Prop 1.2.a, 
 que nos asegura que una funci\'on constante es funci\'on continua. 
 
 \item Supongamos ahora que tenemos $\pi \vdash \iota : \theta$, luego \\
@@ -859,7 +894,7 @@ una funci\'on continua.
 \item Supongamos tenemos el juicio de tipado $\pi \vdash \cifthenelse{b}{e}{e'} : \theta$, para
 probar que la ecuaci\'on para este juicio de tipado es continua vamos a definir otra funci\'on
 y probar que esta es continua, luego veremos como obtener la ecuaci\'on de la expresi\'on 
-condicional instanciando de alguna manera esta funci\'on.\\
+condicional instanciando de alguna manera esta funci\'on.
 
 Empecemos definiendo la funci\'on que llamaremos $\IF$ que ir\'a de $D \times D \times \B_\bot$ en
 $D$, con $D$ un dominio y cuya definici\'on es,
@@ -929,7 +964,7 @@ $\bigsqcup\limits^{\infty}_{i=0} t_i$.
 Por lo tanto $\IF (\bigsqcup\limits^{\infty}_{i=0}\lrangles{t_i,f_i,b_i})$ $=$
 $\bigsqcup\limits^{\infty}_{i=0} (\IF \lrangles{t_i,f_i,b_i})$.\\
 
-Luego es claro que $\IF \lrangles{ \semBrcks{\pi \vdash e : \theta}\eta
+Adem\'as es claro que $\IF \lrangles{ \semBrcks{\pi \vdash e : \theta}\eta
 					  			  , \semBrcks{\pi \vdash e' : \theta}\eta
 								  , \semBrcks{\pi \vdash b : \boolt}\eta
 								  }$ $=$
@@ -965,25 +1000,28 @@ $ext_\iota (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ x \ \kappa$ $=$
 $[ \ (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ | \ \iota:x \ ] \kappa$
 
 \begin{itemize}
-\item Supongamos $\kappa = \iota$, luego 
+\item Supongamos $\kappa = \iota$, luego \\
+
 $[ \ (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ | \ \iota:x \ ] \kappa$ $=$
 $x$ $=$ $\bigsqcup\limits^{\infty}_{i=0} x$ $\bigsqcup\limits^{\infty}_{i=0} 
-([ \ \eta_i \ | \ \iota:x \ ] \kappa)$ $=$ $\bigsqcup\limits^{\infty}_{i=0} (ext_\iota \eta_i \ x \ \kappa)$
+([ \ \eta_i \ | \ \iota:x \ ] \kappa)$ $=$ $\bigsqcup\limits^{\infty}_{i=0} (ext_\iota \eta_i \ x \ \kappa)$\\
 
-\item Supongamos $\kappa \neq \iota$, luego
+\item Supongamos $\kappa \neq \iota$, luego \\
+
 $[ \ (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ | \ \iota:x \ ] \kappa$ $=$
 $(\bigsqcup\limits^{\infty}_{i=0} \eta_i) \kappa$ $=$
 $\bigsqcup\limits^{\infty}_{i=0} (\eta_i \kappa)$ $=$
 $\bigsqcup\limits^{\infty}_{i=0} ([ \ \eta_i \ | \ \iota:x \ ] \kappa)$ $=$
-$\bigsqcup\limits^{\infty}_{i=0} (ext_\iota \eta_i \ x \ \kappa)$
+$\bigsqcup\limits^{\infty}_{i=0} (ext_\iota \eta_i \ x \ \kappa)$\\
 \end{itemize}
 
 por lo tanto, $ext_\iota$ es una funci\'on continua y podemos concluir que
 la ecuaci\'on sem\'antica para la abstracci\'on lambda tambi\'en lo es.
-
 \end{itemize}
 \end{itemize}
 \end{proof}
+
+\section{Correcci\'on de la regla-$\beta$ para $\lambdaarrow$}
 
 Lo que vamos a hacer a continuaci\'on es probar que nuestra sem\'antica 
 denotacional es correcta con respecto a la regla de reducci\'on $\beta$, para esto
@@ -993,7 +1031,7 @@ algunos conceptos de substituci\'on, como la idea es no meternos en mucho tecnic
 presentemos r\'apidamente las herramientas que vamos a necesitar.\\
 
 Empecemos introduciendo por parte de la substituci\'on el operador $\delta$ que 
-sera un map entre $\lrangles{Id}$ y $\lrangles{Phrase}$ que representara una
+sera un mapa entre $\lrangles{Id}$ y $\lrangles{Phrase}$ que representara una
 substituci\'on de identificadores por frases, y una funci\'on
 $FV$ de $\lrangles{Phrase}$ en $\lrangles{Id}$ que determinara los
 identificadores libres de una frase.\\
@@ -1009,7 +1047,7 @@ Sean $\pi$ y $\pi'$ contextos, $\delta$ una substituci\'on y supongamos
 tenemos dos juicios de tipado $\pi' \vdash e : \theta$, $\pi \vdash \delta : \pi'$ 
 tal que \\
 
-$\eta'\iota$ $=$ $\semBrcks{\pi \vdash \delta\iota : \pi'\iota}$
+$\eta'\iota$ $=$ $\semBrcks{\pi \vdash \delta\iota : \pi'\iota}\eta$ \ \ \ 
 para todo $\iota \in \ dom \ \pi'$, entonces\\
  
 $\semBrcks{\pi' \vdash e : \theta}\eta'$ $=$ $\semBrcks{\pi \vdash e / \delta : \theta}\eta$.
@@ -1018,10 +1056,9 @@ $\semBrcks{\pi' \vdash e : \theta}\eta'$ $=$ $\semBrcks{\pi \vdash e / \delta : 
 
 
 \begin{proof}
-Procedamos por inducci\'on en la estructura de la derivaci\'on de los juicios de tipado.\\
+Procedamos por inducci\'on en la estructura de la derivaci\'on de los juicios de tipado.
 
 \begin{itemize}
-
 \item Casos base
 \begin{itemize}
 \item Supongamos $\pi \vdash b : \boolt$, luego tenemos 
@@ -1040,11 +1077,12 @@ $\semBrcks{\pi \vdash \iota / \delta : \theta}\eta$.
 \item Casos inductivos,
 \begin{itemize}
 \item Supongamos $\pi' \vdash e \ominus e' : \boolt$, luego tenemos \\
-$\semBrcks{\pi' \vdash e \ominus e' : \boolt}\eta'$ $=$
+$\semBrcks{\pi' \vdash e \ominus e' : \boolt}\eta'$ $=$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \
 	$(\lambda x . 
 		(\lambda x' . \iotabot (x \ominus x'))_{\dbot}
 					\semBrcks{\pi' \vdash e' : \boolt}\eta')_{\dbot}
-						\semBrcks{\pi' \vdash e : \boolt}\eta'$ \\
+						\semBrcks{\pi' \vdash e : \boolt}\eta'$\\
 						
 por hip\'otesis inductiva dos veces\\
 
@@ -1059,7 +1097,8 @@ $\semBrcks{\pi' \vdash (e \ominus e') / \delta : \boolt}\eta$.\\
 \item An\'alogo dem\'as operadores binarios, un\'arios, expresi\'on condicional
 aplicaci\'on y operador de punto fijo.\\
 
-\item Supongamos $\pi' \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'$, luego
+\item Supongamos $\pi' \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'$, luego\\
+
 $\semBrcks{\pi' \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'}\eta'$ $=$
 $\lambda x . \semBrcks{\pi',\iota:\theta \vdash e : \theta'}[ \eta' \ | \ \iota:x ]$ \\
 
@@ -1083,7 +1122,9 @@ $\semBrcks{\pi,\iota':\theta \vdash \delta'\kappa : \widehat{\pi}\kappa}[ \eta \
 Tomamos un $\kappa$ cualquiera, y vamos a separar en dos casos, si $\kappa \not= \iota$ entonces
 es directo aplicando la hip\'otesis. Veamos que sucede si suponemos $\kappa = \iota$,\\
 
-$[ \eta' \ | \ \iota:x ]\kappa$ $=$ $x$ y\\
+$[ \eta' \ | \ \iota:x ]\kappa$ $=$ $x$\\
+
+y\\
 
 $\semBrcks{\pi,\iota':\theta \vdash \delta'\kappa : \widehat{\pi}\kappa}[ \eta \ | \ \iota':x ]$ $=$
 $\semBrcks{\pi,\iota':\theta \vdash \iota' : \theta}[ \eta \ | \ \iota':x ]$ $=$
@@ -1123,7 +1164,7 @@ $(\lambda x . \semBrcks{\pi,\iota:\theta \vdash e : \theta'}[ \ \eta \ | \ \iota
 $(\semBrcks{\pi \vdash e' : \theta}\eta)$ $=$\\
 
 $\semBrcks{\pi,\iota:\theta \vdash e : \theta'}[ \ \eta \ | \ 
-												\iota:(\semBrcks{\pi \vdash e' : \theta}\eta) \ ]$,\\
+	\iota:(\semBrcks{\pi \vdash e' : \theta}\eta) \ ]$,\\
 												
 hasta este punto lo que hemos hecho es usar las definiciones de la aplicaci\'on
 y abstracci\'on, y resolver la aplicaci\'on del operador lambda de nuestro
@@ -1132,10 +1173,11 @@ expresiones y ver como podemos aplicar el teorema de substituci\'on, vamos
 a renombrar $[ \ \eta \ | \ \iota:(\semBrcks{\pi \vdash e' : \theta}\eta) \ ] = \eta'$
 y $\pi,\iota:\theta = \pi'$, luego obtenemos\\
 
-$\semBrcks{\pi' \vdash e : \theta'}\eta'$\\
+$\semBrcks{\pi,\iota:\theta \vdash e : \theta'}[ \ \eta \ | \ 
+	\iota:(\semBrcks{\pi \vdash e' : \theta}\eta) \ ]$ $=$ $\semBrcks{\pi' \vdash e : \theta'}\eta'$\\
 
 ahora, para poder aplicar substituci\'on tenemos que probar antes que
-para todo $\kappa \in \ dom (\pi')$, $\eta' \kappa = \semBrcks{\pi \vdash \delta\kappa : \pi' \kappa}$
+para todo $\kappa \in \ dom (\pi')$, $\eta' \kappa = \semBrcks{\pi \vdash \delta\kappa : \pi' \kappa}\eta$
 donde $\delta$ sera la substituci\'on $\iota:e'$ y la identidad para todo otro $\kappa$. Supongamos
 un $\kappa$ cualquiera,
 
@@ -1157,27 +1199,22 @@ por lo tanto, $\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'}\et
 
 \end{proof}
 
-
-\section{Lambda Leq}
+\section{Subtipado para $\lambdaarrow$ ($\lambdaleq$)}
 
 En la secci\'on anterior definimos la sint\'axis y sem\'antica del lenguaje que llamamos
-lambda arrow, para esto en el transcurso introducimos distintos conceptos sobre el tipado.
-Ahora vamos estudiar a lambda leq, el cual tiene como fin introducir conceptos sobre
+$\lambdaarrow$, para esto en el transcurso introducimos distintos conceptos sobre el tipado.
+Ahora vamos estudiar a $\lambdaleq$, el cual tiene como fin introducir conceptos sobre
 el subtipado, por esta raz\'on el lenguaje se mantiene exactamente igual al lenguaje 
 de la secci\'on anterior. La principal diferencia entonces estar\'a en la definici\'on
 de la categor\'ia de tipos y en que vamos a agregar un nuevo juicio de tipado, como
 consecuencia de esto ultimo, tendremos que agregar nuevas reglas de tipado y ecuaciones 
 sem\'anticas.\\
 
-\subsection{Subtipado}
-
-Entre los tipos del lenguaje lambda arrow, y por lo tanto los de lambda leq, tenemos
+Entre los tipos del lenguaje $\lambdaarrow$, y por lo tanto los de $\lambdaleq$, tenemos
 a $\intt$ y $\realt$ los cuales representan los conjuntos de enteros y reales matem\'aticos.
 Algo interesante a pensar es que, los enteros forman parte de los reales, es decir,
 $\Z \subseteq \R$, luego surge la pregunta, ¿Existir\'a una forma de expresar esta relaci\'on 
 como una relaci\'on entre los $\lrangles{Type}$?, la respuesta es s\'i y es el subtipado.\\
-
-\subsubsection{Reglas de inferencia}
 
 Comencemos introduciendo el nuevo juicio de tipado, este sera una relaci\'on entre tipos,
 sean $\theta$ y $\theta'$ diremos que $\theta$ es subtipo de $\theta'$ cuando $\theta \leq \theta'$.
@@ -1192,11 +1229,7 @@ subtipo de \'el mismo, es decir, los tipos son reflexivos. Para finalizar,
 supongamos tenemos $\theta_0 \leq \theta_0'$ y $\theta_1 \leq \theta_1'$ y adem\'as
 que tenemos una expresi\'on $e$ que tiene tipo $\theta_0' \rightarrow \theta_1$. Luego
 $e$ puede aplicarse a elementos de tipo $\theta_0$ y el resultado de tal aplicaci\'on
-puede ser un elemento de tipo $\theta_1'$.
-
-Empecemos presentando las reglas que representan lo que mencion\'abamos anteriormente.
-
-\
+puede ser un elemento de tipo $\theta_1'$.\\
 
 \noindent
 $\texttt{Ty Rule:}$ Subsumption.
@@ -1219,6 +1252,10 @@ $\texttt{Ty Rule:}$ Trans.
 \BinaryInfC{$\theta \leq \theta''$}
 \DisplayProof
 \end{center}
+
+\
+
+\
 
 \
 
@@ -1245,7 +1282,7 @@ $\texttt{Ty Rule:}$ Func.
 
 Estas reglas que mencionamos tiene la particularidad de ser generales para
 cualquier sistema de tipado, definamos ahora mas reglas en relaci\'on a nuestros
-tipos y lenguaje concreto, esto sera definir la relaci\'on entre enteros y reales
+tipos y lenguaje concreto, esto ser\'a definir la relaci\'on entre enteros y reales
 y vamos a agregar una mas, tal vez no sea lo mas recomendado en cuanto al diseño
 del lenguaje pero es practico considerarla, que es la relaci\'on entre booleanos
 y enteros.
@@ -1270,7 +1307,7 @@ $\texttt{Ty Rule:}$ intToreal.
 \DisplayProof
 \end{center}
 
-\subsubsection{Sem\'antica}
+\section{Sem\'antica para $\lambdaleq$}
 
 Ahora que tenemos definido el nuevo juicio de tipado y la relaci\'on entre los 
 tipos, vamos a actualizar nuestra categor\'ia de tipos, esta dejara de ser
@@ -1278,11 +1315,11 @@ una categor\'ia discreta y la clave esta en que ahora nuestra relaci\'on entre
 los tipos determinara las flechas.
 
 \begin{definition}\label{lambdal:typescategory}
-La categor\'ia de tipos, que nombraremos $\Theta$, se define como sigue
+La categor\'ia de tipos, que nombraremos $\Theta$, se define como sigue\\
 
 $\Theta_0$ $=$ $\{\theta \ | \ \theta \ \in \lrangles{Type} \}$\\
 \indent
-$\Theta_1(\theta,\theta')$ $=$ $\{\theta \rTo \theta' \ | \ \theta \leq \theta'\}$\\
+$\Theta_1(\theta,\theta')$ $=$ $\{\theta \rTo \theta' \ | \ \theta \leq \theta'\}$
 
 \end{definition}
 
@@ -1290,12 +1327,12 @@ Esta nueva categor\'ia coincide con el pre-orden de tipos con la relaci\'on de o
 $\leq$ visto como categor\'ia, por lo tanto se desprende que dados
 dos tipos $\theta$ y $\theta'$, $| \ \Theta_1(\theta,\theta') \ | \leq \ 1$.
 
-Ademas esta nueva definici\'on nos impacta directamente en el
+Adem\'as esta nueva definici\'on nos impacta directamente en el
 funtor sem\'antico $\semBrcks{ \ } : \Theta \rightarrow \CD$, ahora tenemos que 
-definir como actua el funtor con respecto a las flechas.
+definir como act\'ua el funtor con respecto a las flechas.
 
 \begin{definition}\label{lambdal:typesemfunctor}
-Sea $\semBrcks{ \ } : \Theta \rightarrow \CD$ un funtor, tal que
+Sea $\semBrcks{ \ } : \Theta \rightarrow \CD$ un funtor, tal que\\
 
 $\semBrcks{\delta}_0$ $=$ $(S_\delta)_\bot$\\
 \indent
@@ -1365,10 +1402,10 @@ La definici\'on de la relaci\'on $\leq$ entre tipos nos permite ademas actualiza
 la definici\'on de la categor\'ia de contexto, de manera tal de definir $\leq$ entre
 contextos para que luego, como pasa con los tipos, esta relaci\'on sea una flecha 
 en la categor\'ia. Dados $\pi$ y $\pi'$ tal que $dom \ \pi$ $=$ $dom \ \pi'$, diremos
-que $\pi \leq \pi'$ cuando para todo $\iota \in dom \ \pi$ se cumple $\pi \iota \leq \pi' \iota$.
+que $\pi \leq \pi'$ cuando para todo $\iota \in dom \ \pi$ se cumple $\pi \iota \leq \pi' \iota$.\\
 
 \begin{definition}\label{lambdal:contextcategory}
-La categor\'ia de contextos, que nombraremos $\Pi$, se define como sigue
+La categor\'ia de contextos, que nombraremos $\Pi$, se define como sigue\\
 
 $\Pi_0$ $=$ $\{\pi \ | \ \pi \ \in \lrangles{Context} \}$\\
 \indent
@@ -1380,7 +1417,7 @@ De igual manera que cuando dimos la nueva definici\'on de $\Theta$, podemos dar
 una actualizaci\'on a la definici\'on de $\Pi$.
 
 \begin{definition}\label{lambdal:contextsemfunctor}
-Sea $\semBrcks{ \ } : \Pi \rightarrow \CD$ un funtor, tal que
+Sea $\semBrcks{ \ } : \Pi \rightarrow \CD$ un funtor, tal que\\
 
 $\semBrcks{\pi}_0$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}$\\
 \indent
@@ -1391,8 +1428,6 @@ $\semBrcks{\pi \leq \pi'}_1$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\
 Esta ultima definici\'on da por terminado el trabajo de acomodar los
 dominios categoricos, ademas de las nuevos jucios de tipado y su 
 sem\'antica respectiva.
-
-\subsection{Sem\'antica}
 
 Para completar la sem\'antica del lenguaje lambda leq, nos falta 
 definir una ecuaci\'on sem\'antica que relacione un juicio de tipado
@@ -1406,3 +1441,39 @@ $\texttt{Denotal Sem:}$ Subsumption.\
 \
 
 $\semBrcks{\pi \vdash e : \theta'}$ $=$ $\semBrcks{\theta \leq \theta'} \circ \semBrcks{\pi \vdash e : \theta}$
+
+\section{Continuidad de las ecuaciones sem\'anticas de $\lambdaleq$}
+
+Al igual que como hicimos para el lenguaje $\lambdaarrow$ vamos a probar la
+continuidad de las ecuaciones sem\'anticas de $\lambdaleq$. En cuanto a 
+esta prueba lo interesante es que es realmente simple, ya que usando la 
+prueba de continuidad de $\lambdaarrow$ simplemente nos resta probar 
+la continuidad de Subsumption.
+
+\begin{theorem}
+
+Dado un juicio de tipado $\pi \vdash e : \theta$ la ecuaci\'on sem\'antica
+\\ 
+$\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua.
+
+\end{theorem}
+
+\begin{proof}
+
+En la prueba vamos a proceder por inducci\'on es la estructura de la derivaci\'on 
+de los juicios de tipado. Adem\'as como ya mencionamos antes, solamente nos resta
+probar el caso inductivo para la sem\'antica denotacional de subsumption, supongamos
+entonces un juicio de tipado $\pi \vdash e : \theta'$, luego\\
+
+$\semBrcks{\pi \vdash e : \theta'}$ $=$ $\semBrcks{\theta \leq \theta'} \circ \semBrcks{\pi \vdash e : \theta}$\\
+
+por hip\'otesis inductiva obtenemos $\semBrcks{\pi \vdash e : \theta}$ es una funci\'on
+continua, adem\'as por construcci\'on de nuestra categ\'oria de tipos
+tenemos que $\semBrcks{\theta \leq \theta'}$ es una funci\'on continua tambi\'en, 
+por lo tanto utilizando que la composici\'on de funciones continuas es una funci\'on
+continua concluimos que $\semBrcks{\pi \vdash e : \theta'}$ es funci\'on continua y
+damos por completada la prueba de continuidad para las ecuaciones sem\'anticas
+de $\lambdaleq$.
+
+\end{proof}
+
