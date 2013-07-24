@@ -1,10 +1,10 @@
 \chapter{Lenguaje Algol-like}
 \label{chap:algollike}
 
-En el final del cap\'itulo anterior terminamos con el estudio
-del lenguaje lambda leq, este era un lenguaje funcional con subtipado.
-En este cap\'itulo vamos a tomar a lambda leq y vamos a agregar
-aspectos imperativos, este nuevo lenguaje lo llamaremos \Alike.
+Al final del cap\'itulo anterior terminamos con el estudio
+del lenguaje $\lambdaleq$, este era un lenguaje funcional con subtipado.
+En este cap\'itulo vamos a tomar a $\lambdaleq$ y vamos a agregar
+aspectos imperativos, este nuevo lenguaje lo llamaremos $\Alike$.
 
 Este nuevo lenguaje que vamos a estudiar pertenecer\'a a la clase
 de lenguaje Algol-like estos combinan
@@ -12,9 +12,10 @@ aspectos funcionales con imperativos y se basan en evaluaci\'on
 normal. Una propiedad importante de este tipo de lenguajes es
 la forma en la que se eval\'ua la aplicaci\'on de procedimientos
 en un programa, lo que sucede es que la evaluaci\'on del programa
-ocurre en dos partes, en la primera se reduce el programa hasta que
+ocurre en dos etapas, en la primera se reduce el programa hasta que
 la aplicaci\'on del procedimiento desaparece quedando de esta manera 
-la parte imperativa por evaluar y que es exactamente la segunda parte.
+la parte imperativa por evaluar, que es lo que se realiza en una segunda
+etapa.
 
 A continuaci\'on presentamos los cinco principio que (ref de the essence of algol)
 cree que captura la esencia de los lenguajes Algol-like.
@@ -46,12 +47,12 @@ en la cual no tenemos stack discipline. Lo interesante es que lo vamos a lograr 
 realmente muy poco sobre las ecuaciones sem\'anticas y los dominios originales que
 si contemplan stack discipline.
 
-\section{Sintaxis}
+\section{Sintaxis de $\Alike$}
 
-Como ya mencionamos \Alike sera una extensi\'on de lambda leq, agregando las
+Como ya mencionamos $\Alike$ sera una extensi\'on de $\lambdaleq$, agregando las
 construcciones para un lenguaje imperativo simple. Pero antes de hacer esta extensi\'on
-hay algo a acomodar en cuantos a los lenguajes de donde se extiende \Alike y
-esta en el hecho de que el lenguaje de tipos de lambda leq es demasiado simple debemos
+hay algo a acomodar en cuantos a los lenguajes de donde se extiende $\Alike$ y
+esta en el hecho de que el lenguaje de tipos de $\lambdaleq$ es demasiado simple debemos
 extenderlo seg\'un el punto dos de los principios de algol.
 
 Comencemos entonces acomodando nuestro sistema de tipos, empecemos tomando los tipos
@@ -91,8 +92,8 @@ representar a un identificador de variables como un almac\'en de valores.
 
 \end{grammar}
 
-Ahora que hemos actualizado el lenguaje de tipos necesario para \Alike, presentemos
-la gram\'atica, como mencionamos anteriormente este lenguaje va a ser una extensi\'on de lambda leq, agregando los construcciones para un lenguaje imperativo simple. Estas construcciones 
+Ahora que hemos actualizado el lenguaje de tipos necesario para $\Alike$, presentemos
+la gram\'atica, como mencionamos anteriormente este lenguaje va a ser una extensi\'on de $\lambdaleq$, agregando los construcciones para un lenguaje imperativo simple. Estas construcciones 
 ser\'an los comandos para la declaraci\'on de variables ($\cnew \deltavar$), 
 asignaci\'on($\cassig$), comando neutro ($\cskip$), concatenaci\'on de comandos ($\concatdots$)
 y un comando para iteraciones ($\cwhile$).
@@ -134,13 +135,13 @@ $\odot \in \{-, \neg\}$ y \
 
 $\circledcirc \in \{+,-,*,/,\div,\rem,\wedge,\vee,\Rightarrow,\Leftrightarrow, =,\neq,<,>,\leq,\geq\}$
 
-\subsection{Reglas de inferencia}
+\section{Reglas de inferencia para $\Alike$}
 
 La modificaci\'on de los tipos nos obliga a actualizar las reglas de inferencia 
 concretas del subtipado, ya que ahora como mencion\'abamos antes el tipo de una
 expresi\'on entera no sera $\intt$ si no $\intexp$. Pero antes de acomodar esto
 definamos una nueva relaci\'on de orden para los tipos de $\dataTypes$, en esta
-nueva relaci\'on vamos a retirar $\boolt \leq \intt$, cuyo fin en lambda leq
+nueva relaci\'on vamos a retirar $\boolt \leq \intt$, cuyo fin en $\lambdaleq$
 era tener casos interesantes de transitividad entre los tipos, luego nos quedara 
 la siguiente relaci\'on entre los tipos,
 
@@ -155,20 +156,30 @@ de $\realt$ y que no ocurre nada mas interesante, presentamos la relaci\'on de l
 tipos de $\phraseTypes$,
 
 \begin{diagram}[loose,height=2em,width=3em]
-   \realexp & & \intacc  & \\
+   \intacc & & \realexp  & \\
    \dLine & \rdLine(2,4) \ldLine(2,4) & \dLine   & \\
-   \intexp  & & \realacc & &    \boolexp    &      &    \boolacc  & \\
+   \realacc  & & \intexp & &    \boolacc    &      &    \boolexp  & \\
    \dLine   & & \dLine   & &        &    \rdLine(1,2)  \ldLine(1,2)     &     & \\
-   \intvar  & & \realvar & &        &       \boolvar   &            & \commt
+   \realvar  & & \intvar & &        &       \boolvar   &            & \commt
 \end{diagram}
 
 Expliquemos un poco que estamos viendo, por un lado respetando la idea de que
 $\intt$ es ahora $\intexp$ y $\realt$ es $\realexp$, entonces vamos a tener
 $\intexp \leq \realexp$, esta relaci\'on se da vuelta si pensamos en el tipo
-de los aceptadores y entonces tenemos $\realacc \leq \intacc$. Finalmente 
+de los aceptadores, ya que si podemos almacenaren un valor de 
+tipo $\realexp$ entonces podemos almacenar un valor de tipo $\intexp$
+y entonces tenemos $\realacc \leq \intacc$. Finalmente 
 si pensamos que una variable puede ser usada tanto como valor o contenedor,
 vamos a tener que, tomando $\delta \in \dataTypes$, $\deltavar \leq \deltaexp$ y
-$\deltavar \leq \deltaacc$.\\
+$\deltavar \leq \deltaacc$.
+
+Por ultimo podemos prestar especial atenci\'on al supremo que aparece
+entre $\realvar$ e $\intvar$, el cual podr\'ia determinar un tipo particular
+de variable que vista como aceptador tiene tipo $\intacc$ y vista como 
+valor tiene tipo $\realexp$. De hecho, si nuestro lenguaje soportara el 
+operador de tipos intersecci\'on ($\&$), podr\'iamos definir a
+este tipo particular de variable como $\intacc$ $\&$ $\realexp$ y mas aun, 
+podr\'iamos definir a nuestro tipo actual $\deltavar$ como $\deltaacc$ $\&$ $\deltaexp$.\\
 
 Dicho esto escribamos las nuevas reglas de tipado para estas relaciones nuevas
 y aprovechemos para actualizar nuestras metavaribles en relaci\'on a nuestros
@@ -224,7 +235,7 @@ $\texttt{Ty Rule:}$ $\delta$varTo$\delta$acc.
 
 Adem\'as de estas reglas de inferencia para el subtipado, nos van a hacer
 falta actualizar las reglas de inferencia de lambda leq con los tipos correspondientes
-del lenguaje \Alike y luego faltara tambi\'en agregar reglas para los juicios de 
+del lenguaje $\Alike$ y luego faltara tambi\'en agregar reglas para los juicios de 
 tipado de las nuevas frases. Pero antes vamos a necesitar definir el nuevo lenguaje
 de los contextos, como ha venido ocurriendo, esto ser\'a actualizar los tipos
 viejos por los nuevos.
@@ -239,9 +250,12 @@ Un contexto estar\'a definido por la siguiente gram\'atica,\
 
 \end{grammar}
 
+tal que dado cualquier contexto $\iota_0:\theta_0,\ldots,\iota_n:\theta_n$, los
+identificadores $\iota_0,\ldots,\iota_n$ son todos distintos.
+
 \end{definition}
 
-Ahora s\'i, reescribamos las reglas de lambda leq con los nuevos tipos, b\'asicamente
+Ahora s\'i, reescribamos las reglas de $\lambdaleq$ con los nuevos tipos, b\'asicamente
 lo que vamos a hacer es cambiar un tipo $\delta$ por $\deltaexp$,
 
 \
@@ -263,7 +277,7 @@ $\texttt{Ty Rule:}$ Constantes.
 \DisplayProof
 \end{center}
 
-\
+\newpage
 
 \noindent
 $\texttt{Ty Rule:}$ Operadores b\'asicos.
@@ -380,7 +394,7 @@ $\texttt{Ty Rule:}$ Abstracci\'on lambda.
 \DisplayProof
 \end{center}
 
-\
+\newpage
 
 \noindent
 $\texttt{Ty Rule:}$ Expresi\'on condicional.
@@ -482,47 +496,45 @@ $\texttt{Ty Rule:}$ Asignaci\'on.
 \end{center}
 
 
-\section{Sem\'antica}
+\section{Sem\'antica para $\Alike$}
 
-A nivel sint\'actico vimos que \Alike esta compuesto por las frases
-de lambda leq mas frases que representan la parte imperativa, de hecho al 
-presentar las reglas de inferencia para las frases de \Alike, las
-reglas de la parte de lambda leq sufrieron un \'unico cambio simple
+A nivel sint\'actico vimos que $\Alike$ esta compuesto por las frases
+de $\lambdaleq$ mas frases que representan la parte imperativa, de hecho al 
+presentar las reglas de inferencia para las frases de $\Alike$, las
+reglas de la parte de $\lambdaleq$ sufrieron un \'unico cambio simple
 en cuanto a los nombre de los tipos y pudimos aprovechar la definici\'on
 completa. Ahora que vamos a dar la sem\'antica 
-de \Alike y no vamos a poder hacer algo similar con la sem\'antica, es decir aprovechar las
-ecuaciones sem\'anticas que definimos para lambda leq, la raz\'on principal es
+de $\Alike$ y no vamos a poder hacer algo similar con la sem\'antica, es decir aprovechar las
+ecuaciones sem\'anticas que definimos para $\lambdaleq$, la raz\'on principal es
 que el significado de nuestros tipos ya no ser\'a tan simple debido a que
 nos aparecen cuestiones relacionadas con el stack discipline. \\
 
-Adem\'as para definir las dos sem\'anticas que pretendemos para \Alike,
+Adem\'as para definir las dos sem\'anticas que pretendemos para $\Alike$,
 con y sin stack discipline, vamos a tener definiciones extras, una
 para el juicio de tipado de la declaraci\'on de variables imperativas
 y otra para la categor\'ia de estados de la parte imperativa. 
-Lo interesante de notar sobre lo anterior es que dadas todas las ecuaciones
+Lo interesante de notar sobre estas definiciones extras es que dadas todas las ecuaciones
 sem\'anticas de nuestro lenguaje, con solo seleccionar una sola
 ecuaci\'on vamos a decidir sobre el tipo de implementaci\'on en
-relaci\'on al stack discipline.
-
-\subsection{Categor\'ias de \Alike}
+relaci\'on al stack discipline.\\
 
 Comencemos adaptando la categor\'ia de tipos $\Theta$, lo \'unico 
-por hacer ser\'a cambiar la clase de tipos de lambda leq por los de
-Algol-like.
+por hacer ser\'a cambiar la clase de tipos de $\lambdaleq$ por los de
+$\Alike$.
 
 \begin{definition}\label{algol:typescategory}
-La categor\'ia de tipos, que nombraremos $\Theta$, se define como sigue
+La categor\'ia de tipos, que nombraremos $\Theta$, se define como sigue\\
 
 $\Theta_0$ $=$ $\{\theta \ | \ \theta \ \in \phraseTypes \}$\\
 \indent
-$\Theta_1(\theta,\theta')$ $=$ $\{\theta \rTo \theta' \ | \ \theta \leq \theta'\}$\\
+$\Theta_1(\theta,\theta')$ $=$ $\{\theta \rTo \theta' \ | \ \theta \leq \theta'\}$
 
 \end{definition}
 
 Sobre la categor\'ia de contextos no hay nada que cambiar, luego
 lo que nos queda por actualizar es la categor\'ia $\CD$, esta 
-en lambda leq la hab\'iamos definido como la categor\'ia concreta
-$\Dom$, la cuesti\'on es que ahora esta no nos alcanza solamente con esta y vamos a 
+en $\lambdaleq$ la hab\'iamos definido como la categor\'ia concreta
+$\Dom$, la cuesti\'on es que ahora es que no nos alcanza solamente con esta y vamos a 
 necesitar un enfoque bastante distinto debido a que la separaci\'on 
 que existe entre el calculo lambda y la parte imperativa nos induce
 una separac\'ion entre los ambientes y los estados. As\'i por ejemplo
@@ -559,10 +571,10 @@ $head$, $tail$ y $last$.
 
 Sea $\sigma$ un estado con forma $\alpha \concat \alpha'$ luego definimos
 $head_\alpha \sigma$ y $tail_\alpha¿ \sigma$ como los \'unicos
-estados tal que $head_\alpha \sigma \concat tail_\alpha¿ \sigma$ $=$ $\sigma$.
+estados tal que $head_\alpha \sigma \concat tail_\alpha¿ \sigma$ $=$ $\sigma$.\\
 
-Adem\'as dado un estado $\sigma$ con forma $\lrangles{S}$, tenemos que $last_S \sigma$ sera el
-\'unico valor contenido en el estado $\sigma$.\\
+Adem\'as dado un estado $\sigma$ con forma $alpha \concat \lrangles{S}$, 
+tenemos que $last_S \sigma$ sera el ultimo valor contenido en el estado $\sigma$.
 
 \end{definition}
 
@@ -658,9 +670,7 @@ parece existir un problema seg\'un se menciona en (ref Oles, Functor categories 
 store shapes, Chap. 11.) que tiene que ver con que $\Dom^\C$ parece no ser $\CCC$
 a pesar de que $\Dom$ lo sea y hab\'iamos mencionado que \'ibamos a querer que
 nuestra categor\'ia $\CD$ sea $\CCC$. En esta ultima referencia entonces se
-plantea el uso de $\PDom$, luego $\CD$ nos queda como la categor\'ia funtorial $\PDom^\C$.
-
-\subsection{Ecuaciones sem\'anticas}
+plantea el uso de $\PDom$, luego $\CD$ nos queda como la categor\'ia funtorial $\PDom^\C$.\\
 
 Para la definici\'on de las ecuaciones sem\'anticas primero vamos a tener
 que acomodar la sem\'antica de nuestros tipos y contextos, antes ya mencionamos
@@ -829,8 +839,10 @@ $\semBrcks{\pi}(h,s) : \semBrcks{\pi}C \rightarrow \semBrcks{\pi}C'$ y\\
 
 $\semBrcks{\pi \rTo^{\leq} \pi'}_1C : \semBrcks{\pi}C \rightarrow \semBrcks{\pi'}C$\\
 
+\newpage
+
 \begin{definition}\label{algol:contextsemfunctor}
-Sea $\semBrcks{ \_ } : \Pi \rightarrow \CD$ un funtor, tal que
+Sea $\semBrcks{ \_ } : \Pi \rightarrow \CD$ un funtor, tal que\\
 
 $\semBrcks{\pi}_0C$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}C$\\
 \
@@ -974,23 +986,28 @@ Veamos ahora algunas de las complicaciones cuando
 el tipo de nuestro juicio de tipado para la expresi\'on condicional 
 tiene varias flechas($\rightarrow$), supongamos tenemos el juicio
 $\pi \vdash \cifthenelse{b}{f}{f'} : \theta \rightarrow \theta' \rightarrow \theta''$ y
-recordamos que para evaluar algo con tipo flecha, por su tipo, tenemos que
-tener una posible expansi\'on del estado, un valor para agregar al ambiente que
-ser\'a el valor pasado por argumento y finalmente aparece nuestro estado.\\
+recordemos que la sem\'antica de $\theta_0 \rightarrow \theta_1$ se puede 
+resumir en, tomar una posible expansi\'on del estado, un valor para agregar 
+al ambiente que
+ser\'a el valor pasado por argumento y finalmente aparece nuestro estado 
+en alguna de las formas que sabemos "rescatarlo" siempre y cuando $\theta_1$
+no sea algo de tipo flecha.\\
+La pregunta que surge entonces es 
 ¿Como saber cuantos $z'$s y $C'$s hay que rescatar hasta encontrarse el estado?; 
-por ejemplo ac\'a $f$ podr\'ia ser la expresi\'on $\lambda v. ff$ tal que, 
-abusando de notaci\'on, $v : \theta \rightarrow \theta'$. Entonces esto 
-implicar\'ia rescatar un solo $z$ y un solo $C$ para encontrar el estado y
-podemos saber que tipo tiene $v$ por tener tipado explicito, para terminar
-tomar\'iamos  este $z$ y $C$ y evaluar\'iamos cada caso de la expresi\'on
-condicional pasandole estos valores, parecido a como hacemos cuando
+continuando con el ejemplo, $f$ podr\'ia ser la expresi\'on $\lambda v. ff$ tal que, 
+abusando de notaci\'on, $v : \theta \rightarrow \theta'$. Esto 
+implicar\'ia rescatar un solo $z$ y un solo $C$ para encontrar el estado, una 
+primera idea podr\'ia ser usar la informaci\'on del tipo de $v$ ya que tenemos
+tipado explicito, luego 
+tomar\'iamos este $z$ y $C$ y evaluar\'iamos cada caso de la expresi\'on
+condicional pasando estos valores, parecido a como hacemos cuando
 tenemos el tipo $\deltaacc$. Esta entonces parecer\'ia ser una posible 
 soluci\'on, pero surge otra complicaci\'on supongamos $f'$ es igual a
-$(\lambda v . \lambda v'. ff)h$ es decir, $f'$ tipa correctamente pero
+$(\lambda v' . \lambda v . ff)h$ es decir, $f'$ tipa correctamente pero
 sin embargo no es una abstracci\'on lambda, si no que hay una aplicaci\'on
 y esto implica entonces que rescatar el estado es distinto para una componente
 que para otra de la expresi\'on condicional. En resumen, no es tan sencillo
-saber de que forma rescatar el estado para, recordando, evaluar la guarda.\\
+saber de que forma "rescatar" el estado para, recordando, evaluar la guarda.\\
 
 \noindent
 $\texttt{Denotal Sem:}$ Aplicaci\'on.\\
@@ -1123,7 +1140,7 @@ Repasemos con un ejemplo todo lo comentado anteriormente.\\
 
 \noindent
 \textbf{Ejemplo}
-Supongamos tenemos un comando,\\
+Supongamos tenemos un comando (programa),\\
 
 $\cnew \ \intvar \ \assig{\iota}{0} \ \cin$\\
 \indent \indent
@@ -1136,7 +1153,9 @@ $\cskip$\\
 y la siguiente derivaci\'on que nos prueba que esta bien tipado para
 obtener el juicio de tipado $\vdash \cseq{\cnew \iota \ }{ \ \cskip} : \commt$, donde
 $\cnew \iota$ es el primer comando $\cnew \intvar$, adem\'as vamos a
-llamar $\cnew \kappa$ al otro comando $\cnew \intvar$.
+llamar $\cnew \kappa$ al otro comando $\cnew \intvar$. Dividimos la derivaci\'on
+en tres partes, en las que $\pi_{\xi_0,\ldots,\xi_n}$, representa el contexto
+con $\xi_0,\ldots,\xi_n$ identificadores.
 
 \begin{center}
 \AxiomC{}
@@ -1258,7 +1277,7 @@ $[ \ \iota : \lrangles{s \circ a_\iota,e_\iota \circ h} \ ]$\\
 ahora si podemos extender el ambiente 
 $[ \ \iota : \lrangles{s \circ a_\iota,e_\iota \circ h} \ | \
 	\kappa : \lrangles{a_\kappa,e_\kappa}\ ]$ y este sera nuestro nuevo ambiente $\eta_{new}$.
-Luego podemos avanzar un poco mas con la evaluaci\'on y pasar el limpio la ultima ecuaci\'on,\\
+Luego podemos avanzar un poco mas con la evaluaci\'on y pasar en limpio la ultima ecuaci\'on,\\
 
 \noindent
 $\semBrcks{\pi_\iota \vdash \cnew \kappa : \commt}
@@ -1293,7 +1312,11 @@ luego acomodando esto al introducir $\kappa$, lo que sucede es que usar como exp
 a $\iota$ es utilizar $e_\iota \circ head_{\lrangles{S_\intt}}$, es decir, dado
 un estado con forma $\lrangles{S_\intt, S_\intt}$, primero nos quedamos con la
 parte inicial sin la extensi\'on del identificador $\kappa$ y luego ya podemos
-utilizar $e_\iota$ en un estado con forma $\lrangles{S_\intt}$.\\
+utilizar $e_\iota$ en un estado con forma $\lrangles{S_\intt}$. Notar que
+si fuera el caso general de agregar $n$ variables imperativas anidadas, supongamos
+$\xi_1,\ldots,\xi_n$, entonces para rescatar
+la variable $i$-esima vamos a hacer $n-i$ $head's$ y luego aparece la definici\'on
+$e_{\xi_i}$ original de cuando se introdujo el identificador.\\
 Si en cambio usamos a $\iota$ como aceptador de valor, entonces ser\'a utilizar
 $a_\iota$ que sabe recortar un estado con forma $\lrangles{S_\intt}$ de manera
 de perder justo el valor asociado a $\iota$, como pasaba con antes, al agregar
@@ -1351,8 +1374,8 @@ $\semBrcks{ \pi_{\iota,\kappa} \vdash \iota : \intexp }
 	$(e_\iota \circ h) \ \lrangles{0,1}$ $=$\\
 	\indent
 	$(e_\iota \circ head_{\lrangles{S_\intt}}) \lrangles{0,1}$ $=$
-	$last_{S_\intt} (head_{\lrangles{S_\intt}} \ \lrangles{0,1})$ $=$
-	$last_{S_\intt} \lrangles{0}$ $=$ $0$\\
+	$\iotabot (last_{S_\intt} (head_{\lrangles{S_\intt}} \ \lrangles{0,1}))$ $=$
+	$\iotabot (last_{S_\intt} \lrangles{0})$ $=$ $\iotabot 0$\\
 	
 volviendo ahora con $\iota$ evaluado como expresi\'on\\
 
@@ -1430,7 +1453,7 @@ que, para esta segunda versi\'on, \'ibamos a abandonar el hecho de que los estad
 forma, ahora que avanzamos mas podemos comentar la raz\'on, uno puede pensar para la
 versi\'on con stack discipline que la forma del estado esta totalmente relacionada
 con la cantidad, y el tipo, de identificadores que se han introducido y son accesibles
-en cierto comando interno del $\cnew \deltavar$, de esta manera cuando termin\'abamos 
+en cierto comando anidado del $\cnew \deltavar$, de esta manera cuando termin\'abamos 
 de evaluar un $\cnew \deltavar$ autom\'aticamente perd\'iamos un elemento del estado.
 La cuesti\'on ahora es que, nosotros queremos que la cantidad de valores de un
 estado no tenga relaci\'on con la cantidad de comandos para introducir identificadores.\\
@@ -1483,7 +1506,8 @@ un problema ya que $(\lambda v . v)_{\intt}$ espera algo de tipo entero y
 $\sigma \iota$ es algo de tipo booleano, para manejar esto deber\'iamos 
 introducir todo un manejo extra de errores de tipos en momento de evaluaci\'on, 
 y como consecuencia nuestra sem\'antica sin stack discipline generar\'ia una
-nueva clase de errores que la sem\'antica con stack discipline no genera.\\
+nueva clase de errores que la sem\'antica con stack discipline no genera ya que,
+seg\'un el primer principio, todos los errores de tipos deben ser sint\'acticos. \\
 
 Para solucionar esto podemos pensar en que casos nuestra sem\'antica sin
 stack discipline generar\'ia estos errores, nos damos cuenta que esto puede pasar
@@ -1500,18 +1524,18 @@ como comando a evaluar, sin que este sea subcomando de uno o varios $\cnew \delt
 y por lo tanto el tipo del valor asociado al identificador en el estado no sea el 
 correcto.\\
 
-La soluci\'on a esto entonces es pensar que, para los programas que vamos a
+La soluci\'on a esto es pensar que, para los programas que vamos a
 querer evaluar o que pretendemos sean programas validos a evaluar, nunca 
 son no cerrados, por lo tanto este comportamiento extraño que podr\'ia llegar
 a tener nuestro evaluador sin stack discipline puede ser despreciable bas\'andonos
 en este hecho, y que ser\'a una restricci\'on importante en caso de comparar
-las sem\'anticas de uno y otro.\\
+las sem\'anticas de uno y otro.
 
 \section{Naturalidad de las ecuaciones sem\'anticas}
 
-Para el lenguaje lambda arrow, y por lo tanto tambi\'en para lambda leq, probamos
+Para el lenguaje $\lambdaarrow$, y por lo tanto tambi\'en para $\lambdaleq$, probamos
 que las ecuaciones estuvieran bien definidas, es decir que fueran funciones continuas.
-Ahora vamos a hacer lo mismo para las ecuaciones de \Alike con la diferencia de que
+Ahora vamos a hacer lo mismo para las ecuaciones de $\Alike$ con la diferencia de que
 por las definiciones categ\'oricas que hicimos vamos a probar que nuestras ecuaciones
 sean transformaciones naturales. Dado un juicio de tipado valido, $\pi \vdash e : \theta$,
 vamos a querer probar que el siguiente diagrama conmuta dada una flecha $C \rTo{(h,s)} C'$
