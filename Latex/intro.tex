@@ -2,36 +2,72 @@
 \label{chap:intro}
 
 Como lo sugiere el titulo de la tesis, esta tratara sobre el estudio
-de las sem\'anticas para el lenguaje Forsythe propuesto por John C. Reynolds
-(ref ac\'a). B\'asicamente cuando hablamos de estudiar las sem\'anticas del 
-lenguaje a lo que nos referimos es, dada la sintaxis definida por Reynolds
-queremos interpretar las palabras que se forman en base a esta. Para interpretar
-las palabras vamos necesitar un modelo matem\'atico de manera de que
-cada palabra del lenguaje se corresponda con un elemento de este modelo, 
-en general vamos a hacer uso de dos modelos, el categ\'orico y el conjuntista.\\
+de sem\'anticas categ\'oricas para lenguajes Algol-like. Para esto
+vamos a estudiar tres lenguajes, $\lambdaarrow$, $\lambdaleq$ y $\Alike$,
+este ultimo perteneciente a la clase de lenguajes Algol-like y para el cual
+vamos a dar dos definiciones sem\'anticas.
+La base de los lenguajes que vamos a estudiar se puede encontrar en los
+cap\'itulos 10 y 19 de (ref a reynolds TheoriesOf...), la idea de estudiar
+categ\'oricamente estos es en realidad motivado por la doble definici\'on
+sem\'antica que pretendemos dar de $\Alike$. Vamos a querer mostrar, 
+en alg\'un sentido se hizo, que podemos cambiar el significado
+sem\'antico de un lenguaje sin cambiar sus ecuaciones, simplemente
+cambiando ciertas categor\'ias. Adem\'as algo interesante de dar
+la sem\'antica utilizando categor\'ias ser\'a en las pruebas que demos 
+de cada lenguaje en el sentido de propiedades que utilizamos sobre los
+dominios que de otra manera habr\'ia que probar por otro lado.\\
 
-Para llegar a definir la sem\'antica de Forsythe vamos a definir tres lenguajes
-mas simples, empezando con un lenguaje funcional con tipado simple el cual 
-llamaremos Lambda arrow, luego extenderemos \'unicamente el sistema de tipos para 
-que soporte ahora subtipado, este se llamara Lambda leq y finalmente extenderemos 
-el lenguaje y los tipos con el fin de obtener un lenguaje funcional e imperativo 
-cuyo nombre sera Algol-like, este ultimo ya bastante cercano a Forsythe. 
+El trabajo empezar\'a definiendo el lenguaje $\lambdaarrow$, este ser\'a
+un lenguaje funcional con tipado simple que mas allá
+de su sem\'antica conocida sirve como punto de partida para la introducci\'on
+de conceptos generales sobre los lenguajes que vamos a estudiar, como pueden
+ser los contextos, la sem\'antica intr\'inseca para los tipos o la definici\'on
+de sem\'antica para un juicio de tipado como manera de representar el significado
+de las frases de nuestro lenguaje, entre otras cuestiones relacionas. Adem\'as
+la idea es presentar una implementaci\'on, para cada lenguaje, en un 
+lenguaje de programaci\'on con tipos dependientes, en particular para esta 
+tarea ser\'a bastante \'util empezar considerando este lenguaje simple.\\
 
-Por otro lado ademas de las definiciones teoricas de los lenguajes, vamos a 
-implementar los evaluadores correspondientes para cada uno, para esto nos va a 
-hacer falta usar un lenguaje de programación con soporte para tipos dependientes.
+El siguiente paso va a ser tomar a $\lambdaarrow$ y extender su sistema de 
+tipos para que incluya subtipado, a este nuevo lenguaje lo llamaremos
+$\lambdaleq$ el cual entonces seguir\'a siendo un lenguaje funcional
+pero ahora con un sistema de tipos con subtipado. Algo interesante de
+esta extensi\'on del lenguaje $\lambdaarrow$, que nos define $\lambdaleq$,
+es que vamos a reutilizar completamente todas las definiciones que hicimos
+en $\lambdaarrow$. Siguiendo con esta idea adem\'as distintos conceptos sobre 
+el subtipado que introduzcamos en $\lambdaleq$ van a ser generales para
+cualquier lenguaje con subtipos, en particular para nuestro lenguaje final
+$\Alike$.
 
-El segundo cap\'itulo de la tesis va a incluir la definici\'on de los lenguajes
-lambda arrow y lambda leq, esto ser\'a presentar la sint\'axis y las ecuaciones
+Por otro lado, adem\'as de las definiciones, vamos a dar algunas pruebas
+interesantes sobre propiedades de estos lenguajes, algo bueno, y que tiene
+que ver con lo que mencion\'abamos antes, es que las pruebas que realicemos
+para $\lambdaarrow$ van a ser, o totalmente validas para $\lambdaleq$, o
+van a servir para completar pasos en las pruebas de $\lambdaleq$.\\
+
+Para finalizar vamos a extender el lenguaje $\lambdaleq$, ac\'a extender
+ya no ser\'a tan simple y directo como paso de $\lambdaarrow$ a $\lambdaleq$
+y habr\'a casi que empezar desde cero, mas si tenemos en cuenta que vamos a
+dar dos definiciones sem\'anticas distintas, a este lenguaje entonces lo 
+llamaremos $\Alike$. Este ser\'a un lenguaje Algol-like el cual
+combina aspectos imperativos y funcionales, este tipo de lenguajes adem\'as
+consideran stack discipline, que ser\'a la raz\'on por la cual vamos a
+definir dos sem\'anticas, una que lo considere y otra
+que no, lo interesante ser\'a poder lograrlo cambiando la menor
+cantidad de definiciones posibles. Adem\'as, como sucedi\'o para nuestros
+lenguajes anteriores, vamos a probar algunas propiedades de $\Alike$.\\
+
+El segundo cap\'itulo, puntualmente va a incluir la definici\'on de los lenguajes
+$\lambdaarrow$ y $\lambdaleq$, esto ser\'a presentar la sint\'axis y las ecuaciones
 sem\'anticas, ademas vamos a introducir todos los conceptos relacionados al 
-sistemas de tipo simple y con subtipado.
+sistemas de tipo simple y con subtipado, para finalizar vamos a dar pruebas de
+continuidad de las ecuaciones sem\'anticas y vamos a probar la correcci\'on
+de $\lambdaarrow$ con respecto a la regla-$\beta$.\\
 
-El tercer cap\'itulo tratar\'a sobre el lenguaje Algol-like, como en el segundo
-cap\'itulo, vamos a presentar la sint\'axis y las ecuaciones sem\'anticas, ademas
-con la base de tipos del cap\'itulo anterior vamos a actualizar la sint\'axis y
-sem\'antica de estos tipos.
-
-¿El cuarto trata de Forsythe?\\
+El tercer cap\'itulo tratar\'a sobre el lenguaje $\Alike$, como en el segundo
+cap\'itulo, vamos a presentar la sint\'axis y las ecuaciones sem\'anticas. Para
+este lenguaje, como ya mencionamos, vamos a dar dos sem\'anticas distintas, adem\'as
+vamos a dar una prueba de la naturalidad de las ecuaciones sem\'anticas.\\
 
 La tesis requerir\'a conocimientos previos sobre teor\'ia de dominios 
 (predominios, dominios y funciones continuas), teor\'ia
