@@ -957,9 +957,9 @@ $(\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ \sigma)$\\
 $\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \commt}C \ \eta \ \sigma$ 
 $=$ \\
 \indent \indent \indent 
-$(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \deltaacc}C \ \eta \ \sigma$\\
+$(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \commt}C \ \eta \ \sigma$\\
 \indent \indent \indent \indent \indent \ \ \ \
-$else \ \semBrcks{ \pi \vdash e' : \deltaacc}C \ \eta \ \sigma)_{\dbot}$ 
+$else \ \semBrcks{ \pi \vdash e' : \commt}C \ \eta \ \sigma)_{\dbot}$ 
 $(\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ \sigma)$\\
 
 $\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltavar}C\eta$ 
@@ -977,7 +977,7 @@ distintos juicios de tipado de la expresi\'on condicional que hemos
 dado, la raz\'on entonces esta en notar que para evaluar el comando
 condicional tenemos que "rescatar" el estado para poder evaluar
 el juicio de la guarda $\pi \vdash b : \boolexp$, entonces para
-el caso de en que nuestra expresi\'on condicional tipa a 
+el caso en que nuestra expresi\'on condicional tipa a 
 $\deltaexp$ o $\commt$ es sencillo porque el estado esta "a la mano",
 ya para $\deltaacc$ no es tan cierto pero no es una limitaci\'on vemos
 que primero tenemos que "rescatar" un $z$ y despu\'es reci\'en aparece
@@ -1008,6 +1008,68 @@ sin embargo no es una abstracci\'on lambda, si no que hay una aplicaci\'on
 y esto implica entonces que rescatar el estado es distinto para una componente
 que para otra de la expresi\'on condicional. En resumen, no es tan sencillo
 saber de que forma "rescatar" el estado para, recordando, evaluar la guarda.\\
+
+Una soluci\'on podr\'ia llegar a tener que ver con siempre tener el estado
+"a mano" para poder "rescatarlo", con esta idea en mente proponemos entonces
+la siguiente idea. Lo primero ser\'a agregar un tipo nuevo a nuestros 
+$\phraseTypes$, para esto entonces vamos a tener que acomodar la sintaxis y dar
+nuevas reglas de tipado, adem\'as de dar el significado sem\'antico, tanto
+del tipo nuevo como de su nuevo juicio de tipado.
+
+\setlength{\grammarindent}{8em}
+\begin{grammar}
+
+<Phrase Types> ::= <Phrase Types> | $\IF$ <Phrase Types>
+
+\end{grammar}
+
+Ahora con este nuevo tipo entonces lo que hacemos es actualizar el juicio de
+tipado de la expresi\'on condicional de la siguiente manera\\
+
+\begin{center}
+\AxiomC{$\pi \vdash b  : \boolexp$}
+\AxiomC{$\pi \vdash e  : \theta$}
+\AxiomC{$\pi \vdash e' : \theta$}
+\TrinaryInfC{$\pi \vdash \cifthenelse{b}{e}{e'} : \IF \ \theta$}
+\DisplayProof
+\end{center}
+
+prestando especial atenci\'on a que ahora no restringimos $\theta$, sacando 
+$\rightarrow$. Donde el significado de nuestro tipo $\IF \ \theta$ ser\'a
+un funtor de $\C \rTo \D$ tal que, tomando una flecha $(h,s) : C \rTo C'$\\
+
+$\semBrcks{ \IF \ \theta }C$ $:$ $\D$\\
+\indent
+$\semBrcks{ \IF \ \theta }C$ $=$ $C \rightarrow \semBrcks{\theta}C$\\
+
+$\semBrcks{ \IF \ \theta }(h,s)$ $:$ $\semBrcks{ \IF \ \theta }C 
+										\rTo 
+										\semBrcks{ \IF \ \theta }C'$\\
+\indent
+$\semBrcks{ \IF \ \theta }(h,s) \ if$ $=$ $if \circ h$\\
+
+para finalizar, actualizamos nuestra ecuaci\'on sem\'antica para el 
+juicio de tipado. Es interesante que con esta nueva definici\'on no nos
+har\'an falta separa por casos en el tipo $\theta$\\
+
+$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \IF \ \theta}C \ \eta$
+$:$ $\semBrcks{ \IF \ \theta }C$\\
+\indent
+$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \IF \ \theta}C \ \eta$
+$:$ $C \rightarrow \semBrcks{\theta}C$\\
+\indent
+$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \IF \ \theta}C \ \eta \ \sigma$ 
+$=$ \\
+\indent \indent \indent 
+$(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \theta}C \ \eta $\\
+\indent \indent \indent \indent \indent \ \ \ \
+$else \ \semBrcks{ \pi \vdash e' : \theta}C \ \eta)_{\dbot}$ 
+$(\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ \sigma)$\\
+
+Ahora bien, esta posible soluci\'on no ser\'a estudiada en detalle y solamente
+vale como ejercicio para tener una idea mas formal de lo que ser\'ia practico
+tener como ecuaci\'on sem\'antica para la expresi\'on condicional. En el resto 
+del cap\'itulo vamos a seguir considerando la idea original.\\
 
 \noindent
 $\texttt{Denotal Sem:}$ Aplicaci\'on.\\
