@@ -2417,3 +2417,519 @@ la prueba de naturalidad para nuestro lenguaje $\Alike$.
 \end{itemize}
 \end{itemize}
 \end{proof}
+
+\section{Implementaci\'on en Idris}
+
+\begin{code}
+-- Módulo que representa los tipos de dato básicos del lenguaje.
+module DataType
+
+-- Gramática de los tipos básicos.
+-- <Data types> ::= Int | Real | Bool
+data DataType = IntDT | RealDT | BoolDT
+
+instance Eq DataType where
+    IntDT  == IntDT  = True
+    RealDT == RealDT = True
+    BoolDT == BoolDT = True
+    _ == _ = False
+
+{- Semántica de los data type.
+    [[Int]]  = \Z
+    [[Real]] = \R
+    [[Bool]] = {true,false}
+-}
+evalDTy : DataType -> Type
+evalDTy IntDT  = Int
+evalDTy RealDT = Float
+evalDTy BoolDT = Bool
+
+-- Módulo que representa los tipos de dato básicos para las frases del
+-- lenguaje.
+module PhraseType
+
+import Shp
+
+-- Operador flecha para phrase types.
+infixr 10 :->
+-- Juicio de tipado para el subtipado.
+infixr 10 <~
+
+-- Tipo de dato para los identificadores de variable.
+data Identifier = Id String
+
+instance Eq Identifier where
+    (Id s) == (Id s') = s == s'
+
+{- Gramática de los tipos de las frases del lenguaje.
+   <Phrase type> ::= IntExp | RealExp | BoolExp
+                  |  IntAcc | RealAcc | BoolAcc
+                  |  IntVar | RealVar | BoolVar
+                  |  <Phrase type> :-> <Phrase type>
+                  |  Comm
+
+-}
+data PhraseType = IntExp | RealExp | BoolExp 
+                | IntAcc | RealAcc | BoolAcc
+                | IntVar | RealVar | BoolVar
+                | (:->) PhraseType PhraseType
+                | Comm
+
+dtTOacc : DataType -> PhraseType
+dtTOacc IntDT  = IntAcc
+dtTOacc RealDT = RealAcc
+dtTOacc BoolDT = BoolAcc
+
+dtTOexp : DataType -> PhraseType
+dtTOexp IntDT  = IntExp
+dtTOexp RealDT = RealExp
+dtTOexp BoolDT = BoolExp
+
+dtTOvar : DataType -> PhraseType
+dtTOvar IntDT  = IntVar
+dtTOvar RealDT = RealVar
+dtTOvar BoolDT = BoolVar
+
+evalTyArgs : PhraseType -> Type
+evalTyArgs IntExp  = Int
+evalTyArgs RealExp = Float
+evalTyArgs BoolExp = Bool
+
+ptToDt : PhraseType -> DataType
+ptToDt IntExp  = IntDT
+ptToDt RealExp = RealDT
+ptToDt BoolExp = BoolDT
+
+-- Semántica para los phrase types aplicada a objetos con forma.
+evalTyO : PhraseType -> Shp -> Type
+evalTyO IntExp             C = shapes C -> Int
+evalTyO RealExp            C = shapes C -> Float
+evalTyO BoolExp            C = shapes C -> Bool
+evalTyO IntAcc             C = Int -> evalTyO Comm C
+evalTyO RealAcc            C = Float -> evalTyO Comm C
+evalTyO BoolAcc            C = Bool -> evalTyO Comm C
+evalTyO IntVar             C = (evalTyO IntAcc  C, evalTyO IntExp C)
+evalTyO RealVar            C = (evalTyO RealAcc C, evalTyO RealExp C)
+evalTyO BoolVar            C = (evalTyO BoolAcc C, evalTyO BoolExp C)
+evalTyO Comm               C = shapes C -> shapes C
+evalTyO (Theta :-> Theta') C = (C':Shp) -> 
+                               evalTyO Theta (C ++ C') -> 
+                               evalTyO Theta' (C ++ C')
+
+-- Transforma la semántica de un tipo en un cierto objeto c, en la semántica
+-- de un tipo en otro objeto c', pero mientras c=c' .
+convEvTyCtx : {Pt : PhraseType} -> (C : Shp) -> (C' : Shp) -> C = C' -> 
+              evalTyO Pt C -> evalTyO Pt C'
+convEvTyCtx c c refl eval = eval
+
+-- Semántica para los phrase types aplicada a morfismos entre objetos.
+evalTyM : {C:Shp} -> {C':Shp} -> 
+          (t:PhraseType) -> C <= C' -> evalTyO t C -> evalTyO t C'
+evalTyM IntExp             (morp (h,s,_)) e         = e . h
+evalTyM RealExp            (morp (h,s,_)) e         = e . h
+evalTyM BoolExp            (morp (h,s,_)) e         = e . h
+evalTyM IntAcc             (morp (h,s,_)) a         = s . a
+evalTyM RealAcc            (morp (h,s,_)) a         = s . a
+evalTyM BoolAcc            (morp (h,s,_)) a         = s . a
+evalTyM IntVar             (morp (h,s,_)) (a,e)     = (s . a, e . h)
+evalTyM BoolVar            (morp (h,s,_)) (a,e)     = (s . a, e . h)
+evalTyM RealVar            (morp (h,s,_)) (a,e)     = (s . a, e . h)
+evalTyM Comm               (morp (h,s,_)) c         = s c
+evalTyM {C=c} {C'=c'} (Theta :-> Theta') (morp (h,s,(c1 ** p))) f = 
+                    \c'' => \v => contract c'' (f (c1++c'') (expand c'' v))
+    where
+        p' : (c'':Shp) -> c' ++ c'' = (c++c1) ++ c''
+        p' c'' = eqConcat c' (c++c1) c'' p
+        p'' : (c'':Shp) -> (c++c1)++c'' = c++(c1++c'')
+        p'' c'' = assocR c c1 c''
+        p''' : (c'':Shp) -> c' ++ c'' = c ++ (c1 ++ c'')
+        p''' c'' = trans (p' c'') (p'' c'')
+        p'''' : (c'':Shp) -> c ++ (c1 ++ c'') = c' ++ c''
+        p'''' c'' = symmShp (p''' c'')
+        expand : (c'':Shp) -> evalTyO Theta (c'++c'') -> evalTyO Theta (c++(c1++c''))
+        expand c'' v = convEvTyCtx (c'++c'') (c ++ (c1 ++ c'')) (p''' c'') v
+        contract : (c'':Shp) -> evalTyO Theta' (c++(c1++c'')) -> evalTyO Theta' (c'++c'')
+        contract c'' v = convEvTyCtx (c ++ (c1 ++ c'')) (c'++c'') (p'''' c'') v
+
+-- Propiedad de que la semántica de un tipo en un objeto c, es la semántica
+-- de ese tipo en el objeto c++ShpUnit.
+convL : {Pt : PhraseType} -> {C : Shp} -> evalTyO Pt C -> evalTyO Pt (C ++ ShpUnit)
+convL {C=c} eval = convEvTyCtx c (c++ShpUnit) (neutDShp c) eval
+
+-- Propiedad de que la semántica de un tipo en un objeto c++ShpUnit, es la semántica
+-- de ese tipo en el objeto c.
+convR : {Pt : PhraseType} -> {C : Shp} -> evalTyO Pt (C ++ ShpUnit) -> evalTyO Pt C
+convR {C=c} eval = convEvTyCtx (c++ShpUnit) c (neutLShp c) eval
+
+toAcc : {c:Shp} -> {pt:PhraseType} -> 
+        (d:DataType) -> evalTyO pt c -> evalDTy d -> shapes c -> shapes c
+toAcc {pt=IntAcc}  IntDT  p = p
+toAcc {pt=RealAcc} RealDT p = p
+toAcc {pt=BoolAcc} BoolDT p = p
+
+toExp : {c:Shp} -> {pt:PhraseType} -> 
+        (d:DataType) -> evalTyO pt c -> shapes c -> evalDTy d
+toExp {pt=IntExp}  IntDT  p = p
+toExp {pt=RealExp} RealDT p = p
+toExp {pt=BoolExp} BoolDT p = p
+
+toComm : {c:Shp} -> {pt:PhraseType} -> evalTyO pt c -> shapes c -> shapes c
+toComm {pt=Comm} p = p
+
+fromAcc : {c:Shp} -> {pt:PhraseType} -> 
+          (d:DataType) -> (evalDTy d -> shapes c -> shapes c) -> evalTyO pt c
+fromAcc {pt=IntAcc}  IntDT  p = p
+fromAcc {pt=RealAcc} RealDT p = p
+fromAcc {pt=BoolAcc} BoolDT p = p
+
+fromExp : {c:Shp} -> {pt:PhraseType} -> 
+        (d:DataType) -> (shapes c -> evalDTy d) -> evalTyO pt c
+fromExp {pt=IntExp}  IntDT  p = p
+fromExp {pt=RealExp} RealDT p = p
+fromExp {pt=BoolExp} BoolDT p = p
+
+fromFun : {c:Shp} -> (pt,pt',pt'':PhraseType) -> 
+          ((c':Shp) -> evalTyO pt (c++c') -> evalTyO pt' (c++c')) -> evalTyO pt'' c
+fromFun pt pt' (pt:->pt') p = p
+
+fromVar : {c:Shp} -> {pt:PhraseType} -> 
+        (d:DataType) -> ( evalDTy d -> shapes c -> shapes c
+                        , shapes c -> evalDTy d
+                        ) -> evalTyO pt c
+fromVar {pt=IntVar}  IntDT  p = p
+fromVar {pt=RealVar} RealDT p = p
+fromVar {pt=BoolVar} BoolDT p = p
+
+-- Módulo que representa el contexto de variables.
+module Ctx
+
+import Shp
+import PhraseType
+
+-- ################## Versión sintácticas ##################
+mutual
+    -- Representación de un contexto sintáctico.
+    data Ctx : Type where
+        CtxUnit : Ctx
+        Prepend : (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) -> 
+                  Fresh p i -> Ctx
+    -- Representa si un identificador es fresco para un contexto.
+    data Fresh : Ctx -> Identifier -> Type where
+        FUnit : (i:Identifier) -> Fresh CtxUnit i
+        FCons : (i:Identifier) -> (pt':PhraseType) -> (i':Identifier) -> 
+                (p:Ctx) -> (fi':Fresh p i') -> so (i/=i') -> (Fresh p i) -> 
+                Fresh (Prepend p i' pt' fi') i
+
+-- Representa la pertenencia de un identificador en un contexto.
+data InCtx : Ctx -> Identifier -> Type where
+    InHead : (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) -> 
+             (fi:Fresh p i) -> InCtx (Prepend p i pt fi) i
+    InTail : (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) -> 
+             (j:Identifier) -> (fj:Fresh p j) -> 
+             InCtx p i -> InCtx (Prepend p j pt fj) i
+
+-- ################## Versión semánticas ##################
+
+-- Semántica de un contexto en un objeto con forma.
+-- Representación de un contexto semántico.
+evalCtxO : Ctx -> Shp -> Type
+evalCtxO CtxUnit C = ()
+evalCtxO (Prepend p _ pt _) C = (evalCtxO p C, evalTyO pt C)
+
+-- Semántica de un contexto aplicado a morfismos entre objetos.
+evalCtxM : {C:Shp} -> {C':Shp} -> 
+           (p:Ctx) -> C <= C' -> evalCtxO p C -> evalCtxO p C'
+evalCtxM CtxUnit m _ = ()
+evalCtxM (Prepend p i pt _) m (eta,etai) = (evalCtxM p m eta, evalTyM pt m etai)
+
+-- Transforma un environment con forma C, en uno con forma C ~: Dt
+liftEta : (c:Shp) -> (dt:DataType) -> (p:Ctx) -> 
+          evalCtxO p c -> evalCtxO p (c ~: dt)
+liftEta c dt p eta = evalCtxM p (c >>> (ShpUnit ~: dt)) eta
+
+-- Transforma un environment con forma C, en uno con forma C++C'
+liftEta' : (c:Shp) -> (c':Shp) -> (p:Ctx) -> evalCtxO p c -> 
+           evalCtxO p (c ++ c')
+liftEta' c c' p eta = evalCtxM p (c >>> c') eta
+
+-- Buscar el valor de un identificador en un contexto semántico.
+search : (c:Shp) -> (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) ->
+         InCtx p i -> evalCtxO p c -> evalTyO pt c
+search _ (Prepend _ i pt _) i pt (InHead _ i pt fi) (eta,v) = v
+search c (Prepend ctx j pt _) i pt (InTail _ _ pt j _ inc) (eta,_) = search c ctx i pt inc eta
+
+-- Actualizar el valor de un identificador.
+update : (c:Shp) -> (p:Ctx) -> evalCtxO p c -> (i:Identifier) -> 
+         (pt:PhraseType) -> evalTyO pt c -> (fi:Fresh p i) -> evalCtxO (Prepend p i pt fi) c
+update _ p eta i pt z fi = (eta,z)
+
+-- Módulo que representa los objetos con forma y los morfismos entre
+-- esos objetos.
+module Shp
+
+import DataType
+
+-- Constructor de morfismo entre dos objetos con forma.
+infixr 10 >>>
+-- Pegar por detras para objetos con forma.
+infixr 10 ~:
+-- Concatenar objetos con forma.
+infixl 8 ++
+-- Concatenar shapes.
+infixl 8 <++>
+
+-- Representa la forma del estado de la parte imperativa.
+data Shp = ShpUnit | (~:) Shp DataType
+
+instance Eq Shp where
+    ShpUnit == ShpUnit = True
+    (c~:dt) == (c'~:dt') = dt == dt' && c == c'
+    _ == _ = False
+
+-- Transformación de un objeto con forma a la representación
+-- de un conjunto de estados con esa forma.
+shapes : Shp -> Type
+shapes ShpUnit = ()
+shapes (c~:dt) = (shapes c,evalDTy dt)
+
+-- Concatena objetos con forma.
+(++) : Shp -> Shp -> Shp
+C' ++ ShpUnit = C'
+C' ++ (c ~: dt) = (C' ++ c) ~: dt
+
+-- Establece la igualdad cuando pegamos por delante a objetos con forma.
+cong : (C:Shp) -> (C':Shp) -> (C=C') -> (C ~: dt = C' ~: dt)
+cong c c refl = refl
+
+-- Propiedad de simetria para los objetos con forma.
+symmShp : {C : Shp} -> {C' : Shp} -> C = C' -> C' = C
+symmShp cEqc' = sym cEqc'
+
+eqConcat : (C : Shp) -> (C' : Shp) -> (C'':Shp) -> C = C' -> C++C'' = C'++C''
+eqConcat c c c'' refl = refl
+
+trans : {C : Shp} -> {C' : Shp} -> {C'' : Shp} -> C = C' -> C' = C'' -> C = C''
+trans refl refl = refl
+
+assocL : (C : Shp) -> (C' : Shp) -> (C'' : Shp) -> C ++ (C' ++ C'') = (C ++ C') ++ C''
+assocL c c' ShpUnit = refl
+assocL c c' (c'' ~: dt) = cong (c++(c'++c'')) ((c++c')++c'') (assocL c c' c'')
+
+assocR : (C : Shp) -> (C' : Shp) -> (C'' : Shp) -> (C ++ C') ++ C'' = C ++ (C' ++ C'')
+assocR c c' ShpUnit = refl
+assocR c c' (c'' ~: dt) = cong ((c++c')++c'') (c++(c'++c'')) (assocR c c' c'')
+
+-- Propiedad de neutro a derecha.
+neutDShp : (C:Shp) -> C = (C ++ ShpUnit)
+neutDShp ShpUnit = refl
+neutDShp (c ~: dt) = cong c (c ++ ShpUnit) (neutDShp c)
+
+-- Propiedad de neutro a izquierda.
+neutLShp : (C:Shp) -> (C ++ ShpUnit) = C
+neutLShp ShpUnit = refl
+neutLShp (c ~: dt) = cong (c ++ ShpUnit) c (neutLShp c)
+
+-- Toma el tramo inicial con forma C, de un estado con forma C++C'
+head : (C : Shp) -> (C' : Shp) -> shapes (C ++ C') -> shapes C
+head c ShpUnit shp = shp
+head c (c' ~: dt) (s,d') = head c c' s
+
+-- Toma el tramo final con forma C', de un estado con forma C++C'
+tail : (C : Shp) -> (C' : Shp) -> shapes (C ++ C') -> shapes C'
+tail c ShpUnit shp = ()
+tail c (c' ~: dt) (s,d')  = (tail c c' s,d')
+
+-- Toma el ultimo elemento de tipo Dt del estado con forma C.
+last : (C : Shp) -> (Dt:DataType) -> shapes C -> evalDTy Dt
+last (c ~: dt) dt (s,v) = v
+
+-- Concatena shapes.
+(<++>) : {C:Shp} -> {C' : Shp} -> shapes C -> shapes C' -> shapes (C ++ C')
+(<++>) {C'=ShpUnit} s _ = s
+(<++>) {C'=c~:dt} s (s',d) = (s <++> s',d)
+
+-- Agrega un valor por detras al estado.
+prependShp : {c:Shp} -> {dt:DataType} -> 
+            shapes c -> evalDTy dt -> shapes (c ~: dt)
+prependShp s z = (s,z)
+
+eqShape : Shp -> Shp -> Shp -> Type
+eqShape c c' c'' = c' = c ++ c''
+
+-- Representa un morfismo entre dos objetos con forma.
+data (<=) : Shp -> Shp -> Type where 
+        morp : {C:Shp} -> {C':Shp} -> 
+               ( shapes C' -> shapes C
+               , (shapes C -> shapes C) -> (shapes C' -> shapes C')
+               , ( c'' : Shp ** eqShape C C' c'')
+               ) -> C <= C'
+
+-- Constructor de un morfismo entre dos objetos.
+(>>>) : (C : Shp) -> (C' : Shp) -> C <= (C ++ C')
+c >>> c' = morp (head c c', sim, (c' ** refl))
+    where
+        sim : (shapes c -> shapes c) -> (shapes (c ++ c') -> shapes (c ++ c'))
+        sim f sigma' = f (head c c' sigma') <++> tail c c' sigma'
+
+-- Módulo que representa los juicios de tipado del lenguaje.
+module TypeJudgement
+
+import Ctx
+import Shp
+import DataType
+import PhraseType
+
+-- Operador de punto fijo.
+fix : (a -> a) -> a
+fix f = f (fix f)
+
+-- Representa el jucio de tipado para el subtipado.
+data (<~) : PhraseType -> PhraseType -> Type where
+    VarToAcc : BoolVar <~ BoolAcc
+    VarToExp : BoolVar <~ BoolExp
+    
+    IntExpToRealExp : IntExp <~ RealExp
+    RealAccToIntAcc : RealAcc <~ IntAcc
+    
+    Reflx : (t:PhraseType) -> t <~ t
+    Trans : {t:PhraseType} -> {t':PhraseType} -> {t'':PhraseType} -> 
+            t <~ t' -> t' <~ t'' -> t <~ t''
+    
+    SubsFun : {t0:PhraseType} -> {t0':PhraseType} -> 
+              {t1:PhraseType} -> {t1':PhraseType} -> 
+              t0 <~ t0' -> t1 <~ t1' -> (t0' :-> t1) <~ (t0 :-> t1')
+
+-- Definimos la semántica para los juicios de subtipado del lenguaje.
+evalLeq : t <~ t' -> (C:Shp) -> evalTyO t C -> evalTyO t' C
+evalLeq VarToAcc c (a,e)    = a
+evalLeq VarToExp c (a,e)    = e
+evalLeq IntExpToRealExp c f = prim__intToFloat . f
+evalLeq {t'=t} (Reflx t) c f = f
+evalLeq (Trans leq leq') c f = evalLeq leq' c \$ evalLeq leq c f
+evalLeq (SubsFun leq leq') c f = \c' => evalLeq leq' (c ++ c') . (f c') . evalLeq leq (c ++ c')
+
+-- Representa las frases del lenguaje.
+using (Pi:Ctx,Theta:PhraseType,Theta':PhraseType)
+    data Phrase : Ctx -> PhraseType -> Type where
+        Skip    : Phrase Pi Comm
+        Seq     : Phrase Pi Comm -> Phrase Pi Comm -> Phrase Pi Comm
+        While   : Phrase Pi BoolExp -> Phrase Pi Comm -> Phrase Pi Comm
+        If      : {pt :PhraseType} -> Phrase Pi BoolExp -> 
+                  Phrase Pi pt -> Phrase Pi pt -> Phrase Pi pt
+        
+        I       : (i:Identifier) -> InCtx Pi i -> Phrase Pi Theta
+        Assig   : (d:DataType) -> Phrase Pi (dtTOacc d) -> 
+                  Phrase Pi (dtTOexp d) -> Phrase Pi Comm
+        NewVar : (d:DataType) -> (i:Identifier) -> Phrase Pi (dtTOexp d) -> 
+                 (fi:Fresh Pi i) -> Phrase (Prepend Pi i (dtTOvar d) fi) Comm -> 
+                 Phrase Pi Comm
+        
+        CInt    : Int   -> Phrase Pi IntExp
+        CFloat  : Float -> Phrase Pi RealExp
+        CBool   : Bool  -> Phrase Pi BoolExp
+        
+        BinOp : {a : DataType} -> {b : DataType} -> {d : DataType} -> 
+                (evalDTy a -> evalDTy b -> evalDTy d) -> 
+                Phrase Pi (dtTOexp a) -> Phrase Pi (dtTOexp b) -> Phrase Pi (dtTOexp d)
+        UnOp  : {a:DataType} -> {b:DataType} -> 
+                (evalDTy a -> evalDTy b) -> 
+                Phrase Pi (dtTOexp a)  -> Phrase Pi (dtTOexp b) 
+
+        Lam   : (i:Identifier) -> (pt:PhraseType) -> (fi:Fresh Pi i) ->
+                Phrase (Prepend Pi i pt fi) Theta' -> 
+                Phrase Pi (pt :-> Theta')
+        App    : Phrase Pi (Theta :-> Theta') -> Phrase Pi Theta -> 
+                 Phrase Pi Theta'
+        Rec    : Phrase Pi (Theta :-> Theta) -> Phrase Pi Theta
+        
+        Subs   : t <~ t' -> Phrase Pi t -> Phrase Pi t'
+
+-- Semántica de las frases del lenguaje.
+-- [[\pi |-- e : \theta]]C : [[\pi]]*C -> [[\theta]]]C
+evalPhrase : {Pi:Ctx} -> {Theta:PhraseType} ->
+             Phrase Pi Theta -> (C:Shp) -> evalCtxO Pi C -> evalTyO Theta C
+evalPhrase (Subs leq var) c eta = evalLeq leq c (evalPhrase var c eta)
+-- Semántica para los comandos.
+evalPhrase (Assig d a e) c eta = \sigma => (\x => evalAcc x sigma) (evalExp sigma)
+    where
+        evalAcc : evalDTy d -> shapes c -> shapes c
+        evalAcc = toAcc d \$ evalPhrase a c eta
+        evalExp : shapes c -> evalDTy d
+        evalExp = toExp d \$ evalPhrase e c eta
+evalPhrase Skip c eta = \sigma => sigma
+evalPhrase (Seq comm comm') c eta = \sigma => evalPhrase comm' c eta (evalPhrase comm c eta sigma)
+evalPhrase (While b comm) c eta = fix (\f => \sigma => 
+                                            if evalPhrase b c eta sigma 
+                                                then f (evalPhrase comm c eta sigma)
+                                                else sigma)
+evalPhrase {Pi=p} {Theta=pt} (I i iIn) c eta = search c p i pt iIn eta
+-- Semántica para los valores constantes.
+evalPhrase (CInt i)   c eta = \sigma => i
+evalPhrase (CFloat r) c eta = \sigma => r
+evalPhrase (CBool b)  c eta = \sigma => b
+evalPhrase (BinOp {a} {b} {d} op x y) c eta = fromExp d (\sigma => (op (z sigma) (z' sigma)))
+    where z : shapes c -> evalDTy a
+          z = toExp a \$ evalPhrase x c eta
+          z' : shapes c -> evalDTy b
+          z' = toExp b \$ evalPhrase y c eta
+evalPhrase (UnOp {a} {b} op x) c eta = fromExp b (\sigma => op (z sigma))
+    where
+        z : shapes c -> evalDTy a
+        z = toExp a \$ evalPhrase x c eta
+evalPhrase {Theta=(pt :-> t')} {Pi=p} (Lam i pt fi b) c eta = evalLambda
+    where
+        newLeta : (C':Shp) -> evalTyO pt (c ++ C') -> evalCtxO (Prepend p i pt fi) (c ++ C')
+        newLeta c' z = update (c++c') p (liftEta' c c' p eta) i pt z fi
+        
+        evalLambda : (C':Shp) -> evalTyO pt (c ++ C') -> evalTyO t' (c ++ C')
+        evalLambda c' z = evalPhrase b (c++c') (newLeta c' z)
+evalPhrase (App e e') c eta = convR \$ (evalPhrase e c eta ShpUnit) (convL \$ evalPhrase e' c eta)
+evalPhrase (Rec e) c eta = fix \$ convR . (evalPhrase e c eta ShpUnit) . convL
+evalPhrase {Theta=pt} (If {pt} b e e') c eta =
+            case pt of
+                Comm        => makeComm Comm
+                IntExp      => makeExp IntDT
+                RealExp     => makeExp RealDT
+                BoolExp     => makeExp BoolDT
+                IntAcc      => makeAcc IntDT
+                RealAcc     => makeAcc RealDT
+                BoolAcc     => makeAcc BoolDT
+    where
+        makeComm : (pt:PhraseType) -> evalTyO pt c
+        makeComm Comm = \sigma => if evalPhrase b c eta sigma
+                                    then toComm (evalPhrase e c eta) sigma
+                                    else toComm (evalPhrase e' c eta) sigma
+        makeAcc : DataType -> evalTyO pt c
+        makeAcc dt = fromAcc dt (\z => \sigma => if evalPhrase b c eta sigma
+                                                    then toAcc dt (evalPhrase e c eta) z sigma
+                                                    else toAcc dt (evalPhrase e' c eta) z sigma)
+        makeExp : DataType -> evalTyO pt c
+        makeExp dt = fromExp dt (\sigma => if evalPhrase b c eta sigma
+                                                then toExp dt (evalPhrase e c eta) sigma
+                                                else toExp dt (evalPhrase e' c eta) sigma)
+
+evalPhrase {Pi=p} (NewVar d i vInit fi comm) c eta = 
+        \sigma => head c shpDT (evalComm (prependShp {dt=d} sigma (evalInit sigma)))
+    where
+        shpDT : Shp
+        shpDT = ShpUnit ~: d
+        
+        a : evalDTy d -> shapes (c ~: d) -> shapes (c ~: d)
+        a = \x => \sigma' => prependShp (head c shpDT sigma') x
+        e : shapes (c ~: d) -> evalDTy d
+        e = last (c ~: d) d
+        
+        evalInit : shapes c -> evalDTy d
+        evalInit = toExp d \$ evalPhrase vInit c eta
+        
+        zvar : evalTyO (dtTOvar d) (c ~: d)
+        zvar = fromVar d (a,e)
+        
+        newAeta : evalCtxO (Prepend p i (dtTOvar d) fi) (c ~: d)
+        newAeta = update (c ~: d) p (liftEta c d p eta) i (dtTOvar d) zvar fi
+        
+        evalComm : evalTyO Comm (c ~: d)
+        evalComm = evalPhrase comm (c ~: d) newAeta
+
+\end{code}
+
