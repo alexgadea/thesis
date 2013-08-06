@@ -2420,61 +2420,30 @@ la prueba de naturalidad para nuestro lenguaje $\Alike$.
 
 \section{Implementaci\'on en Idris}
 
+Sintaxis de los tipos de dato b\'asicos de $\Alike$
+
 \begin{code}
--- Módulo que representa los tipos de dato básicos del lenguaje.
-module DataType
-
--- Gramática de los tipos básicos.
--- <Data types> ::= Int | Real | Bool
 data DataType = IntDT | RealDT | BoolDT
+\end{code}
 
-instance Eq DataType where
-    IntDT  == IntDT  = True
-    RealDT == RealDT = True
-    BoolDT == BoolDT = True
-    _ == _ = False
+\noindent Sem\'antica de los tipos de dato b\'asicos de $\Alike$
 
-{- Semántica de los data type.
-    [[Int]]  = \Z
-    [[Real]] = \R
-    [[Bool]] = {true,false}
--}
+\begin{code}
 evalDTy : DataType -> Type
 evalDTy IntDT  = Int
 evalDTy RealDT = Float
 evalDTy BoolDT = Bool
+\end{code}
 
--- Módulo que representa los tipos de dato básicos para las frases del
--- lenguaje.
-module PhraseType
-
-import Shp
-
--- Operador flecha para phrase types.
-infixr 10 :->
--- Juicio de tipado para el subtipado.
-infixr 10 <~
-
--- Tipo de dato para los identificadores de variable.
-data Identifier = Id String
-
-instance Eq Identifier where
-    (Id s) == (Id s') = s == s'
-
-{- Gramática de los tipos de las frases del lenguaje.
-   <Phrase type> ::= IntExp | RealExp | BoolExp
-                  |  IntAcc | RealAcc | BoolAcc
-                  |  IntVar | RealVar | BoolVar
-                  |  <Phrase type> :-> <Phrase type>
-                  |  Comm
-
--}
+\noindent Sintaxis de los tipos de las frases de $\Alike$
+\begin{code}
 data PhraseType = IntExp | RealExp | BoolExp 
                 | IntAcc | RealAcc | BoolAcc
                 | IntVar | RealVar | BoolVar
-                | (:->) PhraseType PhraseType
+                | PhraseType :-> PhraseType
                 | Comm
 
+-- Conversión entre tipos
 dtTOacc : DataType -> PhraseType
 dtTOacc IntDT  = IntAcc
 dtTOacc RealDT = RealAcc
@@ -2500,6 +2469,10 @@ ptToDt IntExp  = IntDT
 ptToDt RealExp = RealDT
 ptToDt BoolExp = BoolDT
 
+\end{code}
+
+\noindent Sem\'antica de los tipos de las frases de $\Alike$
+\begin{code}
 -- Semántica para los phrase types aplicada a objetos con forma.
 evalTyO : PhraseType -> Shp -> Type
 evalTyO IntExp             C = shapes C -> Int
@@ -2512,9 +2485,7 @@ evalTyO IntVar             C = (evalTyO IntAcc  C, evalTyO IntExp C)
 evalTyO RealVar            C = (evalTyO RealAcc C, evalTyO RealExp C)
 evalTyO BoolVar            C = (evalTyO BoolAcc C, evalTyO BoolExp C)
 evalTyO Comm               C = shapes C -> shapes C
-evalTyO (Theta :-> Theta') C = (C':Shp) -> 
-                               evalTyO Theta (C ++ C') -> 
-                               evalTyO Theta' (C ++ C')
+evalTyO (Theta :-> Theta') C = (C':Shp) -> evalTyO Theta (C ++ C') -> evalTyO Theta' (C ++ C')
 
 -- Transforma la semántica de un tipo en un cierto objeto c, en la semántica
 -- de un tipo en otro objeto c', pero mientras c=c' .
@@ -2523,8 +2494,7 @@ convEvTyCtx : {Pt : PhraseType} -> (C : Shp) -> (C' : Shp) -> C = C' ->
 convEvTyCtx c c refl eval = eval
 
 -- Semántica para los phrase types aplicada a morfismos entre objetos.
-evalTyM : {C:Shp} -> {C':Shp} -> 
-          (t:PhraseType) -> C <= C' -> evalTyO t C -> evalTyO t C'
+evalTyM : {C:Shp} -> {C':Shp} -> (t:PhraseType) -> C <= C' -> evalTyO t C -> evalTyO t C'
 evalTyM IntExp             (morp (h,s,_)) e         = e . h
 evalTyM RealExp            (morp (h,s,_)) e         = e . h
 evalTyM BoolExp            (morp (h,s,_)) e         = e . h
@@ -2538,18 +2508,23 @@ evalTyM Comm               (morp (h,s,_)) c         = s c
 evalTyM {C=c} {C'=c'} (Theta :-> Theta') (morp (h,s,(c1 ** p))) f = 
                     \c'' => \v => contract c'' (f (c1++c'') (expand c'' v))
     where
-        p' : (c'':Shp) -> c' ++ c'' = (c++c1) ++ c''
-        p' c'' = eqConcat c' (c++c1) c'' p
-        p'' : (c'':Shp) -> (c++c1)++c'' = c++(c1++c'')
-        p'' c'' = assocR c c1 c''
-        p''' : (c'':Shp) -> c' ++ c'' = c ++ (c1 ++ c'')
-        p''' c'' = trans (p' c'') (p'' c'')
-        p'''' : (c'':Shp) -> c ++ (c1 ++ c'') = c' ++ c''
-        p'''' c'' = symmShp (p''' c'')
+        concatProof : (c'':Shp) -> c' ++ c'' = (c++c1) ++ c''
+        concatProof c'' = eqConcat c' (c++c1) c'' p
+        
+        assocRProof : (c'':Shp) -> (c++c1)++c'' = c++(c1++c'')
+        assocRProof c'' = assocR c c1 c''
+        
+        transProof : (c'':Shp) -> c' ++ c'' = c ++ (c1 ++ c'')
+        transProof c'' = trans (concatProof c'') (assocRProof c'')
+        
+        symmProof : (c'':Shp) -> c ++ (c1 ++ c'') = c' ++ c''
+        symmProof c'' = symmShp (transProof c'')
+        
         expand : (c'':Shp) -> evalTyO Theta (c'++c'') -> evalTyO Theta (c++(c1++c''))
-        expand c'' v = convEvTyCtx (c'++c'') (c ++ (c1 ++ c'')) (p''' c'') v
-        contract : (c'':Shp) -> evalTyO Theta' (c++(c1++c'')) -> evalTyO Theta' (c'++c'')
-        contract c'' v = convEvTyCtx (c ++ (c1 ++ c'')) (c'++c'') (p'''' c'') v
+        expand c'' v = convEvTyCtx (c'++c'') (c ++ (c1 ++ c'')) (transProof c'') v
+        
+           contract : (c'':Shp) -> evalTyO Theta' (c++(c1++c'')) -> evalTyO Theta' (c'++c'')
+        contract c'' v = convEvTyCtx (c ++ (c1 ++ c'')) (c'++c'') (symmProof c'') v
 
 -- Propiedad de que la semántica de un tipo en un objeto c, es la semántica
 -- de ese tipo en el objeto c++ShpUnit.
@@ -2599,13 +2574,10 @@ fromVar : {c:Shp} -> {pt:PhraseType} ->
 fromVar {pt=IntVar}  IntDT  p = p
 fromVar {pt=RealVar} RealDT p = p
 fromVar {pt=BoolVar} BoolDT p = p
+\end{code}
 
--- Módulo que representa el contexto de variables.
-module Ctx
-
-import Shp
-import PhraseType
-
+\noindent Sintaxis y sem\'antica de los contexto de $\Alike$
+\begin{code}
 -- ################## Versión sintácticas ##################
 mutual
     -- Representación de un contexto sintáctico.
@@ -2662,13 +2634,10 @@ search c (Prepend ctx j pt _) i pt (InTail _ _ pt j _ inc) (eta,_) = search c ct
 update : (c:Shp) -> (p:Ctx) -> evalCtxO p c -> (i:Identifier) -> 
          (pt:PhraseType) -> evalTyO pt c -> (fi:Fresh p i) -> evalCtxO (Prepend p i pt fi) c
 update _ p eta i pt z fi = (eta,z)
+\end{code}
 
--- Módulo que representa los objetos con forma y los morfismos entre
--- esos objetos.
-module Shp
-
-import DataType
-
+\noindent Representaci\'on de la categor\'ia de formas
+\begin{code}
 -- Constructor de morfismo entre dos objetos con forma.
 infixr 10 >>>
 -- Pegar por detras para objetos con forma.
@@ -2770,20 +2739,10 @@ c >>> c' = morp (head c c', sim, (c' ** refl))
     where
         sim : (shapes c -> shapes c) -> (shapes (c ++ c') -> shapes (c ++ c'))
         sim f sigma' = f (head c c' sigma') <++> tail c c' sigma'
+\end{code}
 
--- Módulo que representa los juicios de tipado del lenguaje.
-module TypeJudgement
-
-import Ctx
-import Shp
-import DataType
-import PhraseType
-
--- Operador de punto fijo.
-fix : (a -> a) -> a
-fix f = f (fix f)
-
--- Representa el jucio de tipado para el subtipado.
+\noindent Sintaxis del subtipado.
+\begin{code}
 data (<~) : PhraseType -> PhraseType -> Type where
     VarToAcc : BoolVar <~ BoolAcc
     VarToExp : BoolVar <~ BoolExp
@@ -2798,17 +2757,21 @@ data (<~) : PhraseType -> PhraseType -> Type where
     SubsFun : {t0:PhraseType} -> {t0':PhraseType} -> 
               {t1:PhraseType} -> {t1':PhraseType} -> 
               t0 <~ t0' -> t1 <~ t1' -> (t0' :-> t1) <~ (t0 :-> t1')
+\end{code}
 
--- Definimos la semántica para los juicios de subtipado del lenguaje.
+\noindent Sem\'antica del subtipado
+\begin{code}
 evalLeq : t <~ t' -> (C:Shp) -> evalTyO t C -> evalTyO t' C
 evalLeq VarToAcc c (a,e)    = a
 evalLeq VarToExp c (a,e)    = e
 evalLeq IntExpToRealExp c f = prim__intToFloat . f
 evalLeq {t'=t} (Reflx t) c f = f
-evalLeq (Trans leq leq') c f = evalLeq leq' c \$ evalLeq leq c f
+evalLeq (Trans leq leq') c f = evalLeq leq' c $ evalLeq leq c f
 evalLeq (SubsFun leq leq') c f = \c' => evalLeq leq' (c ++ c') . (f c') . evalLeq leq (c ++ c')
+\end{code}
 
--- Representa las frases del lenguaje.
+\noindent Juicios de tipado del lenguaje $\Alike$
+\begin{code}
 using (Pi:Ctx,Theta:PhraseType,Theta':PhraseType)
     data Phrase : Ctx -> PhraseType -> Type where
         Skip    : Phrase Pi Comm
@@ -2843,19 +2806,20 @@ using (Pi:Ctx,Theta:PhraseType,Theta':PhraseType)
         Rec    : Phrase Pi (Theta :-> Theta) -> Phrase Pi Theta
         
         Subs   : t <~ t' -> Phrase Pi t -> Phrase Pi t'
+\end{code}
 
--- Semántica de las frases del lenguaje.
--- [[\pi |-- e : \theta]]C : [[\pi]]*C -> [[\theta]]]C
-evalPhrase : {Pi:Ctx} -> {Theta:PhraseType} ->
+\noindent Sem\'antica de las frases de $\Alike$
+\begin{code}
+evalPhrase : {Pi:Ctx} -> {Theta:PhraseType} -> 
              Phrase Pi Theta -> (C:Shp) -> evalCtxO Pi C -> evalTyO Theta C
 evalPhrase (Subs leq var) c eta = evalLeq leq c (evalPhrase var c eta)
 -- Semántica para los comandos.
 evalPhrase (Assig d a e) c eta = \sigma => (\x => evalAcc x sigma) (evalExp sigma)
     where
         evalAcc : evalDTy d -> shapes c -> shapes c
-        evalAcc = toAcc d \$ evalPhrase a c eta
+        evalAcc = toAcc d $ evalPhrase a c eta
         evalExp : shapes c -> evalDTy d
-        evalExp = toExp d \$ evalPhrase e c eta
+        evalExp = toExp d $ evalPhrase e c eta
 evalPhrase Skip c eta = \sigma => sigma
 evalPhrase (Seq comm comm') c eta = \sigma => evalPhrase comm' c eta (evalPhrase comm c eta sigma)
 evalPhrase (While b comm) c eta = fix (\f => \sigma => 
@@ -2869,13 +2833,13 @@ evalPhrase (CFloat r) c eta = \sigma => r
 evalPhrase (CBool b)  c eta = \sigma => b
 evalPhrase (BinOp {a} {b} {d} op x y) c eta = fromExp d (\sigma => (op (z sigma) (z' sigma)))
     where z : shapes c -> evalDTy a
-          z = toExp a \$ evalPhrase x c eta
+          z = toExp a $ evalPhrase x c eta
           z' : shapes c -> evalDTy b
-          z' = toExp b \$ evalPhrase y c eta
+          z' = toExp b $ evalPhrase y c eta
 evalPhrase (UnOp {a} {b} op x) c eta = fromExp b (\sigma => op (z sigma))
     where
         z : shapes c -> evalDTy a
-        z = toExp a \$ evalPhrase x c eta
+        z = toExp a $ evalPhrase x c eta
 evalPhrase {Theta=(pt :-> t')} {Pi=p} (Lam i pt fi b) c eta = evalLambda
     where
         newLeta : (C':Shp) -> evalTyO pt (c ++ C') -> evalCtxO (Prepend p i pt fi) (c ++ C')
@@ -2883,8 +2847,8 @@ evalPhrase {Theta=(pt :-> t')} {Pi=p} (Lam i pt fi b) c eta = evalLambda
         
         evalLambda : (C':Shp) -> evalTyO pt (c ++ C') -> evalTyO t' (c ++ C')
         evalLambda c' z = evalPhrase b (c++c') (newLeta c' z)
-evalPhrase (App e e') c eta = convR \$ (evalPhrase e c eta ShpUnit) (convL \$ evalPhrase e' c eta)
-evalPhrase (Rec e) c eta = fix \$ convR . (evalPhrase e c eta ShpUnit) . convL
+evalPhrase (App e e') c eta = convR $ (evalPhrase e c eta ShpUnit) (convL $ evalPhrase e' c eta)
+evalPhrase (Rec e) c eta = fix $ convR . (evalPhrase e c eta ShpUnit) . convL
 evalPhrase {Theta=pt} (If {pt} b e e') c eta =
             case pt of
                 Comm        => makeComm Comm
@@ -2907,7 +2871,6 @@ evalPhrase {Theta=pt} (If {pt} b e e') c eta =
         makeExp dt = fromExp dt (\sigma => if evalPhrase b c eta sigma
                                                 then toExp dt (evalPhrase e c eta) sigma
                                                 else toExp dt (evalPhrase e' c eta) sigma)
-
 evalPhrase {Pi=p} (NewVar d i vInit fi comm) c eta = 
         \sigma => head c shpDT (evalComm (prependShp {dt=d} sigma (evalInit sigma)))
     where
@@ -2920,7 +2883,7 @@ evalPhrase {Pi=p} (NewVar d i vInit fi comm) c eta =
         e = last (c ~: d) d
         
         evalInit : shapes c -> evalDTy d
-        evalInit = toExp d \$ evalPhrase vInit c eta
+        evalInit = toExp d $ evalPhrase vInit c eta
         
         zvar : evalTyO (dtTOvar d) (c ~: d)
         zvar = fromVar d (a,e)
@@ -2932,4 +2895,3 @@ evalPhrase {Pi=p} (NewVar d i vInit fi comm) c eta =
         evalComm = evalPhrase comm (c ~: d) newAeta
 
 \end{code}
-

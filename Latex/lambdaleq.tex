@@ -1,10 +1,10 @@
 \chapter{Calculo lambda tipado con subtipos}
 
-En la secci\'on anterior definimos la sint\'axis y sem\'antica del lenguaje que llamamos
+En el cap\'itulo anterior definimos la sint\'axis y sem\'antica del lenguaje que llamamos
 $\lambdaarrow$, para esto en el transcurso introducimos distintos conceptos sobre el tipado.
 Ahora vamos estudiar a $\lambdaleq$, el cual tiene como fin introducir conceptos sobre
 el subtipado, por esta raz\'on el lenguaje se mantiene exactamente igual al lenguaje 
-de la secci\'on anterior. La principal diferencia entonces estar\'a en la definici\'on
+del capitulo anterior. La principal diferencia entonces estar\'a en la definici\'on
 de la categor\'ia de tipos y en que vamos a agregar un nuevo juicio de tipado, como
 consecuencia de esto ultimo, tendremos que agregar nuevas reglas de tipado y ecuaciones 
 sem\'anticas.\\
@@ -13,7 +13,9 @@ Entre los tipos del lenguaje $\lambdaarrow$, y por lo tanto los de $\lambdaleq$,
 a $\intt$ y $\realt$ los cuales representan los conjuntos de enteros y reales matem\'aticos.
 Algo interesante a pensar es que, los enteros forman parte de los reales, es decir,
 $\Z \subseteq \R$, luego surge la pregunta, ¿Existir\'a una forma de expresar esta relaci\'on 
-como una relaci\'on entre los $\lrangles{Type}$?, la respuesta es s\'i y es el subtipado.\\
+como una relaci\'on entre los $\lrangles{Type}$?, la respuesta es s\'i y es el subtipado.
+
+\section{Sintaxis para el subtipado}
 
 Comencemos introduciendo el nuevo juicio de tipado, este sera una relaci\'on entre tipos,
 sean $\theta$ y $\theta'$ diremos que $\theta$ es subtipo de $\theta'$ cuando $\theta \leq \theta'$.
@@ -51,10 +53,6 @@ $\texttt{Ty Rule:}$ Trans.
 \BinaryInfC{$\theta \leq \theta''$}
 \DisplayProof
 \end{center}
-
-\
-
-\
 
 \
 
@@ -278,24 +276,8 @@ de $\lambdaleq$.
 
 \section{Implementaci\'on en Idris}
 
+Sintaxis del subtipado
 \begin{code}
--- Prototipo de evaluador para un lenguaje con tipos simples + subtipado.
-module TypeJudgment
-
-import Ctx
-import PhraseType
-
--- Operador de punto fijo.
-fix : (a -> a) -> a
-fix f = f (fix f)
-
-infixr 10 <~
-
-prim__boolToInt : Bool -> Int
-prim__boolToInt True = 0
-prim__boolToInt False = 1
-
--- Representa el jucio de tipado para el subtipado.
 data (<~) : PhraseType -> PhraseType -> Type where
     IntExpToRealExp : IntExp  <~ RealExp
     BoolExpToIntExp : BoolExp <~ IntExp
@@ -307,27 +289,21 @@ data (<~) : PhraseType -> PhraseType -> Type where
     SubsFun : {t0:PhraseType} -> {t0':PhraseType} -> 
               {t1:PhraseType} -> {t1':PhraseType} -> 
               t0 <~ t0' -> t1 <~ t1' -> (t0' :-> t1) <~ (t0 :-> t1')
+\end{code}
 
--- Definimos la semántica para los juicios de subtipado del lenguaje.
-evalLeq : {t:PhraseType} -> {t':PhraseType} -> t <~ t' -> evalTy t -> evalTy t'
--- [[Int <~ Real]] = J, con J inyección de enteros en reales.
+\noindent Sem\'antica para el subtipado
+\begin{code}
+evalLeq : {t:PType} -> {t':PType} -> t <~ t' -> evalTy t -> evalTy t'
 evalLeq IntExpToRealExp    = prim__intToFloat
--- [[Bool <~ Int]] = if True then 0 else 1.
 evalLeq BoolExpToIntExp    = prim__boolToInt
--- [[theta <~ theta]] = id_[[Theta]]
 evalLeq {t'=t} (Reflx t)   = id
--- [[theta <~ theta'']] = [[theta' <~ theta'']] . [[theta <~ theta']]
 evalLeq (Trans leq leq')   = evalLeq leq' . evalLeq leq
--- [[theta0' :-> theta1 <~ theta0 <~ theta1']] = 
--- \f : [[theta0']] -> [[theta1]] => [[theta1 <~ theta1']] . f . [[theta0 <~ theta0']]
 evalLeq (SubsFun leq leq') = \f => evalLeq leq' . f . evalLeq leq
+\end{code}
 
-using (Pi:Ctx, Theta:PhraseType, Theta':PhraseType)
-    -- Este tipo representa un juicio de tipado
-    -- pi : Vect PhraseType n
-    -- theta : PhraseType
-    -- pi |-- e : theta
-    -- Donde e son las frases del lenguaje.
+\noindent Sem\'antica para el lenguaje $\lambdaleq$
+\begin{code}
+using (Pi:Ctx, Theta:PType, Theta':PType)
     data TypeJugdmnt : Ctx -> PhraseType -> Type where
         I     : (i:Identifier) -> InCtx Pi i -> TypeJugdmnt Pi Theta
         CInt  : Int   -> TypeJugdmnt Pi IntExp
@@ -349,35 +325,17 @@ using (Pi:Ctx, Theta:PhraseType, Theta':PhraseType)
         
         Subs    : Theta <~ Theta' -> TypeJugdmnt Pi Theta -> TypeJugdmnt Pi Theta'
 
--- Definimos la semántica para los juicios de tipado del lenguaje.
-eval : {Pi:Ctx} -> {Theta:PhraseType} ->
-       TypeJugdmnt Pi Theta -> evalCtx Pi -> evalTy Theta
--- [[Pi |--  : theta]] eta = eta i
-eval (Subs leq p) eta = evalLeq leq \$ eval p eta
--- [[Pi |-- Var i : theta]] eta = eta i
+eval : {Pi:Ctx} -> {Theta:PType} -> TypeJugdmnt Pi Theta -> evalCtx Pi -> evalTy Theta
+eval (Subs leq p) eta = evalLeq leq $ eval p eta
 eval {Pi=p} {Theta=pt} (I i iIn) eta = search p i pt iIn eta
--- [[Pi |-- CInt x : IntExp]] eta = x
 eval (CInt x)    eta = x
--- [[Pi |-- CBool x : IntExp]] eta = x
 eval (CBool x)    eta = x
--- [[Pi |-- CReal x : IntExp]] eta = x
 eval (CReal x)    eta = x
--- [[Pi |-- \-> b : theta :-> theta']] eta = \z -> [[Pi,z:theta |-- b : theta']] (eta|z)
 eval {Pi=p} (Lam i pt fi b) eta = \z => eval b (update p eta i pt z fi)
--- [[Pi |-- ee' : theta']]eta = ([[Pi |-- e: theta :-> theta']] eta) ([[Pi |-- e:theta]] eta)
 eval (App e e')   eta = (eval e eta) (eval e' eta)
--- [[Pi |-- rec e : theta]]eta = Y_[[theta]] ([[Pi |-- e : theta -> theta]] eta)
 eval (Rec e) eta = fix (eval e eta)
--- [[Pi |-- if b then e else e' : theta]] eta = 
---                  if [[Pi |-- b : BoolExp]] eta 
---                     then [[Pi |-- e:theta]] eta 
---                     else [[Pi |-- e':theta]] eta 
 eval (If b e e')  eta = if eval b eta then eval e eta else eval e' eta
--- [[Pi |-- x op y : theta'']] eta = [[Pi |-- x:theta]] eta op [[Pi |-- y:theta']] eta
--- con op : theta -> theta' -> theta''.
 eval (BinOp op x y) eta = op (eval x eta) (eval y eta)
--- [[Pi |-- op x : theta']]eta = op [[Pi |-- x:theta]] eta
--- con op : theta -> theta'.
 eval (UnOp op x) eta = op (eval x eta)
 
 \end{code}

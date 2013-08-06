@@ -1,16 +1,14 @@
 \chapter{Calculo lambda simplemente tipado}
 \label{chap:lambdaarrow}
 
-En este cap\'itulo presentamos dos lenguajes, el primero, es un
-lenguaje funcional con tipado explicito simple. La idea de comenzar con 
+En este cap\'itulo presentaremos un lenguaje funcional con tipado 
+explicito simple. La idea de comenzar con 
 este lenguaje, \'el cual ya tiene sem\'antica bien conocida, es introducir
 conceptos principales sobre los sistemas de tipado simple, as\'i
 como de la sem\'antica denot\'acional del lenguaje, ademas es lo 
 suficientemente simple como para no eclipsar el aprendizaje de 
 conceptos sobre la implementaci\'on de su evaluador utilizando 
 tipos dependientes.
-El segundo lenguaje mantiene las mismas frases que el primero
-pero vamos a extender los tipos para que soporten subtipado.
 
 \section{Sintaxis de $\lambdaarrow$}
 
@@ -1201,119 +1199,88 @@ por lo tanto, $\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'}\et
 
 \section{Implementaci\'on en Idris}
 
+Sintaxis de los tipos
 \begin{code}
--- Módulo que representa los tipos de dato básicos para las frases del
--- lenguaje.
-module PhraseType
+data PType = IntExp | RealExp | BoolExp 
+          | PType :-> PType
+\end{code}
 
--- Operador flecha para phrase types.
-infixr 10 :->
-
--- Esto representa los tipos de las frases de nuetro lenguaje.
-data PhraseType = IntExp | RealExp | BoolExp 
-                | (:->) PhraseType PhraseType
-
-infixr 10 :->
-
--- Tipo de dato para los identificadores de variable.
-data Identifier = Id String
-
-instance Eq Identifier where
-    (Id i) == (Id i') = i == i'
-
-{- 
-Semántica para los tipos 
-    [[IntExp]]  = int
-    [[RealExp]] = real
-    [[BoolExp]] = bool
-    [[Theta :-> Theta]] = [[Theta]] -> [[Theta]]
--}
-evalTy : PhraseType -> Type
+\noindent
+Sem\'antica de los tipos
+\begin{code}
+evalTy : PType -> Type
 evalTy IntExp    = Int
 evalTy RealExp   = Float
 evalTy BoolExp   = Bool
 evalTy (Theta :-> Theta') = evalTy Theta -> evalTy Theta'
+\end{code}
 
+\noindent
 
-{- Módulo que representa el contexto de identificadores.
-
-Los contextos los vamos a separar en dos "versiones" la sintactica
-y la semántica, la idea es implementar los contextos sintacticos de
+Los contextos los vamos a separar en dos "versiones" la sint\'actica
+y la semántica, la idea es implementar los contextos sint\'acticos de
 forma que no haya repetición de nombres de identificador. Es decir,
-un contexto va a ser una lista de identificadores y phrase types;
+un contexto va a ser una lista de identificadores y types;
 
-i_0:pt_0, ... , i_n:pt_n
+\begin{center}
+$i_0 : pt_0, \ldots , i_n:pt_n$
+\end{center}
 
 para contextos semánticos simplemente es una lista de la siguiente manera,
 
-evalTy pt_0, ... , evalTy pt_n
+\begin{center}
+$evalTy \ pt_0, \ldots , evalTy \ pt_n$
+\end{center}
 
 y tenemos una correspondencia lugar a lugar con el contexto sintáctico para
-buscar el valor.
+buscar el valor.\\
 
--}
-module Ctx
-
-import PhraseType
-
--- ################## Versión sintácticas ##################
+\noindent Versi\'on sint\'actica
+\begin{code}
 mutual
-    -- Representación de un contexto sintáctico.
     data Ctx : Type where
         CtxUnit : Ctx
-        Prepend : (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) -> 
+        Prepend : (p:Ctx) -> (i:Identifier) -> (pt:PType) -> 
                   Fresh p i -> Ctx
     -- Representa si un identificador es fresco para un contexto.
     data Fresh : Ctx -> Identifier -> Type where
         FUnit : (i:Identifier) -> Fresh CtxUnit i
-        FCons : (i:Identifier) -> (pt':PhraseType) -> (i':Identifier) -> 
+        FCons : (i:Identifier) -> (pt':PType) -> (i':Identifier) -> 
                 (p:Ctx) -> (fi':Fresh p i') -> so (i/=i') -> (Fresh p i) -> 
                 Fresh (Prepend p i' pt' fi') i
 
 -- Representa la pertenencia de un identificador en un contexto.
 data InCtx : Ctx -> Identifier -> Type where
-    InHead : (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) -> 
+    InHead : (p:Ctx) -> (i:Identifier) -> (pt:PType) -> 
              (fi:Fresh p i) -> InCtx (Prepend p i pt fi) i
     InTail : (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) -> 
              (j:Identifier) -> (fj:Fresh p j) -> 
              InCtx p i -> InCtx (Prepend p j pt fj) i
+\end{code}
 
--- ################## Versión semánticas ##################
-
--- Representación de un contexto semántico.
+\noindent Versi\'on sem\'antica
+\begin{code}
 evalCtx : Ctx -> Type
 evalCtx CtxUnit = ()
 evalCtx (Prepend p _ pt _) = (evalCtx p, evalTy pt)
 
 -- Buscar el valor de un identificador en un contexto semántico.
-search : (p:Ctx) -> (i:Identifier) -> (pt:PhraseType) ->
+search : (p:Ctx) -> (i:Identifier) -> (pt:PType) ->
          InCtx p i -> evalCtx p -> evalTy pt
 search (Prepend _ i pt _) i pt (InHead _ i pt fi) (eta,v) = v
 search (Prepend ctx j pt _) i pt (InTail _ _ pt j _ inc) (eta,_) = search ctx i pt inc eta
 
 -- Actualizar el valor de un identificador.
 update : (p:Ctx) -> evalCtx p -> (i:Identifier) -> 
-         (pt:PhraseType) -> evalTy pt -> (fi:Fresh p i) -> evalCtx (Prepend p i pt fi)
+         (pt:PType) -> evalTy pt -> (fi:Fresh p i) -> evalCtx (Prepend p i pt fi)
 update p eta i pt z fi = (eta,z)
+\end{code}
 
--- Primer prototipo de evaluador para un lenguaje con tipos simples.
-module TypeJudgment
-
-import Ctx
-import PhraseType
-
--- Operador de punto fijo.
-fix : (a -> a) -> a
-fix f = f (fix f)
-
-using (Pi:Ctx, Theta:PhraseType, Theta':PhraseType)
-    -- Este tipo representa un juicio de tipado
-    -- pi : Vect PhraseType n
-    -- theta : PhraseType
-    -- pi |-- e : theta
-    -- Donde e son las frases del lenguaje.
-    
-    data TypeJugdmnt : Ctx -> PhraseType -> Type where
+\noindent
+Sintaxis de $\lambdaarrow$
+\begin{code}
+using (Pi:Ctx, Theta:PType, Theta':PType)    
+    data TypeJugdmnt : Ctx -> PType -> Type where
         I     : (i:Identifier) -> InCtx Pi i -> TypeJugdmnt Pi Theta
         
         CInt  : Int   -> TypeJugdmnt Pi IntExp
@@ -1335,34 +1302,20 @@ using (Pi:Ctx, Theta:PhraseType, Theta':PhraseType)
                 TypeJugdmnt Pi a -> TypeJugdmnt Pi b -> TypeJugdmnt Pi c
         UnOp  : (evalTy a -> evalTy b) -> 
                 TypeJugdmnt Pi a -> TypeJugdmnt Pi b
+\end{code}
 
--- Definimos la semántica para los juicios de tipado del lenguaje.
-eval : {Pi:Ctx} -> {Theta:PhraseType} ->
-       TypeJugdmnt Pi Theta -> evalCtx Pi -> evalTy Theta
--- [[Pi |-- Var i : theta]]eta = eta i
+\noindent
+Sem\'antica de $\lambdaarrow$
+\begin{code}
+eval : {Pi:Ctx} -> {Theta:PType} -> TypeJugdmnt Pi Theta -> evalCtx Pi -> evalTy Theta
 eval {Pi=p} {Theta=pt} (I i iIn) eta = search p i pt iIn eta
--- [[Pi |-- CInt x : IntExp]]eta = x
 eval (CInt x) eta = x
--- [[Pi |-- CBool x : IntExp]]eta = x
 eval (CBool x) eta = x
--- [[Pi |-- CReal x : IntExp]]eta = x
 eval (CReal x) eta = x
--- [[Pi |-- \-> b : theta :-> theta']]eta = \x -> [[Pi,x:theta |-- b : theta']](x|eta)
 eval {Pi=p} (Lam i pt fi b) eta = \z => eval b (update p eta i pt z fi)
--- [[Pi |-- ee' : theta']]eta = ([[Pi |-- e: theta :-> theta']]eta)([[Pi |-- e:theta]]eta)
 eval (App e e')   eta = (eval e eta) (eval e' eta)
--- [[Pi |-- rec e : theta]]eta = Y_[[theta]] ([[Pi |-- e : theta -> theta]]eta)
 eval (Rec e) eta = fix (eval e eta)
--- [[Pi |-- if b then e else e' : theta]]eta = 
---                  if [[Pi |-- b : BoolExp]]eta 
---                     then [[Pi |-- e:theta]]eta 
---                     else [[Pi |-- e':theta]]eta 
 eval (If b e e')  eta = if eval b eta then eval e eta else eval e' eta
--- [[Pi |-- x op y : theta]]eta = [[Pi |-- x:theta]]eta op [[Pi |-- y:theta]]eta
--- con op : theta -> theta -> theta.
 eval (BinOp op x y) eta = op (eval x eta) (eval y eta)
--- [[Pi |-- op x : theta]]eta = op [[Pi |-- x:theta]]eta
--- con op : theta -> theta.
 eval (UnOp op x) eta = op (eval x eta)
-
 \end{code}

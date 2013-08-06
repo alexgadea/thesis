@@ -92,18 +92,23 @@ evalTyM Comm               (morp (h,s,_)) c         = s c
 evalTyM {C=c} {C'=c'} (Theta :-> Theta') (morp (h,s,(c1 ** p))) f = 
                     \c'' => \v => contract c'' (f (c1++c'') (expand c'' v))
     where
-        p' : (c'':Shp) -> c' ++ c'' = (c++c1) ++ c''
-        p' c'' = eqConcat c' (c++c1) c'' p
-        p'' : (c'':Shp) -> (c++c1)++c'' = c++(c1++c'')
-        p'' c'' = assocR c c1 c''
-        p''' : (c'':Shp) -> c' ++ c'' = c ++ (c1 ++ c'')
-        p''' c'' = trans (p' c'') (p'' c'')
-        p'''' : (c'':Shp) -> c ++ (c1 ++ c'') = c' ++ c''
-        p'''' c'' = symmShp (p''' c'')
+        concatProof : (c'':Shp) -> c' ++ c'' = (c++c1) ++ c''
+        concatProof c'' = eqConcat c' (c++c1) c'' p
+        
+        assocRProof : (c'':Shp) -> (c++c1)++c'' = c++(c1++c'')
+        assocRProof c'' = assocR c c1 c''
+        
+        transProof : (c'':Shp) -> c' ++ c'' = c ++ (c1 ++ c'')
+        transProof c'' = trans (concatProof c'') (assocRProof c'')
+        
+        symmProof : (c'':Shp) -> c ++ (c1 ++ c'') = c' ++ c''
+        symmProof c'' = symmShp (transProof c'')
+        
         expand : (c'':Shp) -> evalTyO Theta (c'++c'') -> evalTyO Theta (c++(c1++c''))
-        expand c'' v = convEvTyCtx (c'++c'') (c ++ (c1 ++ c'')) (p''' c'') v
+        expand c'' v = convEvTyCtx (c'++c'') (c ++ (c1 ++ c'')) (transProof c'') v
+        
         contract : (c'':Shp) -> evalTyO Theta' (c++(c1++c'')) -> evalTyO Theta' (c'++c'')
-        contract c'' v = convEvTyCtx (c ++ (c1 ++ c'')) (c'++c'') (p'''' c'') v
+        contract c'' v = convEvTyCtx (c ++ (c1 ++ c'')) (c'++c'') (symmProof c'') v
 
 -- Propiedad de que la semántica de un tipo en un objeto c, es la semántica
 -- de ese tipo en el objeto c++ShpUnit.
