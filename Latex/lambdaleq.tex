@@ -239,13 +239,22 @@ $\texttt{Denotal Sem:}$ Subsumption.\
 
 $\semBrcks{\pi \vdash e : \theta'}$ $=$ $\semBrcks{\theta \leq \theta'} \circ \semBrcks{\pi \vdash e : \theta}$
 
-\section{Continuidad de las ecuaciones sem\'anticas de $\lambdaleq$}
+\section{Continuidad y coherencia}
 
 Al igual que como hicimos para el lenguaje $\lambdaarrow$ vamos a probar la
 continuidad de las ecuaciones sem\'anticas de $\lambdaleq$. En cuanto a 
 esta prueba lo interesante es que es realmente simple, ya que usando la 
 prueba de continuidad de $\lambdaarrow$ simplemente nos resta probar 
-la continuidad de Subsumption.
+la continuidad de Subsumption. Por otro lado adem\'as vamos a probar coherencia,
+esta propiedad describe que dados dos o mas derivaciones para un mismo
+juicio de tipado, todas estas derivaciones tiene el mismo significado
+sem\'antico. Coherencia se vuelve interesante para nuestro lenguaje $\lambdaleq$
+ya que este tiene subtipado y esto es el que genera que un juicio pueda
+tener mas de una derivaci\'on, claramente esto no pasa para $\lambdaarrow$ para
+el cual por cada juicio existe una sola derivaci\'on.\\
+
+Empecemos probando la continuidad de las ecuaciones sem\'anticas y luego
+introduzcamos mas detalles sobre la coherencia de $\lambdaleq$.
 
 \begin{theorem}
 
@@ -271,6 +280,120 @@ por lo tanto utilizando que la composici\'on de funciones continuas es una funci
 continua concluimos que $\semBrcks{\pi \vdash e : \theta'}$ es funci\'on continua y
 damos por completada la prueba de continuidad para las ecuaciones sem\'anticas
 de $\lambdaleq$.
+
+\end{proof}
+
+Retomemos coherencia con un ejemplo simple considerando el identificador
+$\iota$ con tipo $\realt$, para esta frase y tipo existen cuatro derivaciones 
+posibles.\\
+
+Usando Subsumption:
+\begin{center}
+\AxiomC{$\intt \leq \realt$}
+\AxiomC{$\iota : \intt \in \pi$}
+\UnaryInfC{$\pi \vdash \iota : \intt$}
+\BinaryInfC{$\pi \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+
+\
+
+Usando Subsumption$'$:
+\begin{center}
+\AxiomC{$\intt \leq \realt$}
+\AxiomC{$\boolt \leq \intt$}
+\AxiomC{$\iota : \boolt \in \pi'$}
+\UnaryInfC{$\pi' \vdash \iota : \boolt$}
+\BinaryInfC{$\pi' \vdash \iota : \intt$}
+\BinaryInfC{$\pi' \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+
+\
+
+\
+
+Usando Subsumption$''$:
+\begin{center}
+\AxiomC{$\boolt \leq \intt$}
+\AxiomC{$\intt \leq \realt$}
+\BinaryInfC{$\boolt \leq \realt$}
+\AxiomC{$\iota : \boolt \in \pi''$}
+\UnaryInfC{$\pi'' \vdash \iota : \boolt$}
+\BinaryInfC{$\pi'' \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+
+\
+
+\
+
+Usando la regla del identificador:
+\begin{center}
+\AxiomC{$\iota : \realt \in \pi'''$}
+\UnaryInfC{$\pi''' \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+
+\
+
+Ahora bien, algo importante a notar es que mencion\'abamos que coherencia 
+enunciaba la igualdad sem\'antica de mismos juicios de tipado y en nuestro 
+ejemplo estamos considerando juicios de tipado que no son iguales debido 
+a los diferentes contextos. Esto se debe por un lado a que tiene sentido
+hablar de coherencia de juicios de tipado cuando consideramos juicios 
+para frases cerradas ya que en ese caso siempre consideramos el contexto 
+vac\'io, pero por otro lado coherencia en general enuncia la igualdad 
+sem\'antica de derivaciones de un juicio de tipado para una frases con 
+determinado tipo, independientemente del contexto.\\
+
+Otra cosa que surge de analizar este ejemplo es como saber cuantas derivaciones
+posibles existen para una determinada frase y tipo, acabamos de ver que
+incluso para el identificador con un tipo simple existen muchas opciones.
+Recordando que nos interesa seriamente saber la cantidad de derivaciones 
+que pueda tener una frase para poder asegurar que todas tienen exactamente
+el mismo significado sem\'antico. Para hacer frente a esto es que usamos 
+el lema de inversi\'on, pero antes de enunciarlo hagamos una ultima observaci\'on.
+Adelantando que vamos a utilizar inducci\'on estructural en la derivaci\'on
+del juicio de tipado para probar coherencia, notar que podemos agrupar
+tres de las derivaciones en un solo paso que es aplicar 
+subsumption como ultima regla para obtener el juicio de tipado final. En
+conclusi\'on nuestro lema de inversi\'on nos dir\'a que dado un juicio de 
+tipado cualquiera la ultima regla aplicada para concluirlo fue, o bien
+la regla respectiva a su frase o bien subsumption.
+
+\begin{lemma}[De inversi\'on]
+Sea $\pi \vdash e : \theta$ un juicio de tipado valido cualquiera, entonces
+sucedi\'o alguna de la siguientes:
+
+\begin{itemize}
+\item Si $e$ es constante, la ultima regla aplicada fue (Constantes) o (Subsumption)
+\item Si $e$ es identificador, la ultima regla aplicada fue (Identificador) o (Subsumption)
+\item Si $e = \odot e'$, la ultima regla aplicada fue ($\odot$) o (Subsumption)
+\item Si $e = e' \circledcirc e''$, la ultima regla aplicada fue 
+($\circledcirc$) o (Subsumption)
+\item Si $e = \cifthenelse{b}{e'}{e''}$, la ultima regla aplicada fue 
+(Expresi\'on condicional) o (Subsumption)
+\item Si $e = e'e''$, la ultima regla aplicada fue (Aplicaci\'on) o (Subsumption)
+\item Si $e = \clambda{\iota}{\theta}{e'}$, la ultima regla aplicada fue 
+(Abstracci\'on lambda) o (Subsumption)
+\item Si $e = \rec{e'}$, la ultima regla aplicada fue (Operador de punto fijo) o (Subsumption)
+\end{itemize}
+
+\end{lemma}
+
+\begin{theorem}[De coherencia]
+Sean $e$ una frase y $\theta$ un tipo cualesquiera y tal que tenemos 
+$D_1,\ldots,D_n$ derivaciones de los juicios de tipado
+$\pi_1 \vdash e : \theta, \ldots, \pi_n \vdash e : \theta$, entonces
+
+\begin{center}
+$\semBrcks{\pi_1 \vdash e : \theta} = \ldots = \semBrcks{\pi_n \vdash e : \theta}$
+\end{center}
+
+\end{theorem}
+
+\begin{proof}
 
 \end{proof}
 
