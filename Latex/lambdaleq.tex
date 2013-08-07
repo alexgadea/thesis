@@ -382,18 +382,280 @@ sucedi\'o alguna de la siguientes:
 
 \end{lemma}
 
+Antes de enunciar y comenzar con la prueba de coherencia vamos a definir informalmente una 
+funci\'on que ser\'a de utilidad para agilizar la prueba y definir algunas
+propiedades. Esta funci\'on estricta la nombraremos $\J_{\theta}^{\theta'}$ tal que
+va de $\semBrcks{\theta}$ en $\semBrcks{\theta'}$ y los posibles casos se defininen as\'i\\
+
+$\J_{\boolt}^{\intt} = \lambda b .$ if $b$ then $0$ else $1$\\
+\indent
+
+$\J_{\intt}^{\realt} = \J$ (la inyecci\'on en los reales)\\
+\indent
+
+$\J_{\boolt}^{\realt} = \J_{\intt}^{\realt} \circ \J_{\boolt}^{\intt}$\\
+
+\begin{proposition}
+Sea $\J_{\theta}^{\theta'}$, dados $z$, $z'$ en $\semBrcks{\theta}$, dos operadores
+unarios $\odot : \semBrcks{\theta} \rightarrow \semBrcks{\theta}$ y 
+$\odot' : \semBrcks{\theta'} \rightarrow \semBrcks{\theta'}$ y dos operadores
+binarios $\circledcirc : \semBrcks{\theta} \rightarrow 
+		\semBrcks{\theta} \rightarrow \semBrcks{\theta}$ y
+$\circledcirc' : \semBrcks{\theta'} \rightarrow 
+		\semBrcks{\theta'} \rightarrow \semBrcks{\theta'}$
+cualesquiera entonces vale
+
+\begin{itemize}
+\item $\J_{\theta}^{\theta'} (\iotabot z) = \iotabot (\J_{\theta}^{\theta'} z)$
+\item $\J_{\theta}^{\theta'} (\iotabot (\odot z)) = \iotabot (\odot' (\J_{\theta}^{\theta'} z))$
+\item $\J_{\theta}^{\theta'} (\iotabot (z \circledcirc z')) = 
+	   \iotabot ((\J_{\theta}^{\theta'} z) \circledcirc' (\J_{\theta}^{\theta'} z'))$
+
+\end{itemize}
+
+\end{proposition}
+
+
 \begin{theorem}[De coherencia]
 Sean $e$ una frase y $\theta$ un tipo cualesquiera y tal que tenemos 
-$D_1,\ldots,D_n$ derivaciones de los juicios de tipado
-$\pi_1 \vdash e : \theta, \ldots, \pi_n \vdash e : \theta$, entonces
+$n$ derivaciones de los juicios de tipado
+$\pi_1 \vdash e : \theta, \ldots, \pi_n \vdash e : \theta$, donde
+$\pi_i \leq \pi_j$ o $\pi_j \leq \pi_i$ para $i,j = 1 \ldots n$ y
+$\eta_i : \semBrcks{\pi_i}$ para $i = 1 \ldots n$, entonces
 
 \begin{center}
-$\semBrcks{\pi_1 \vdash e : \theta} = \ldots = \semBrcks{\pi_n \vdash e : \theta}$
+$\semBrcks{\pi_1 \vdash e : \theta}\eta_1 = \ldots = \semBrcks{\pi_n \vdash e : \theta}\eta_n$
 \end{center}
 
 \end{theorem}
 
 \begin{proof}
+En la prueba vamos a proceder por inducci\'on es la estructura de la derivaci\'on 
+de los juicios de tipado, como ya mencionamos antes, la idea es usar inversi\'on.\\
+
+\begin{itemize}
+
+\item Casos base
+\begin{itemize}
+\item Supongamos $e$ es constante y tomemos un $\eta : \semBrcks{\pi}$ cualquiera, 
+luego por inversi\'on tenemos\\
+
+Usando (Constante)\\
+
+$\semBrcks{\pi \vdash e : \theta}\eta = \iotabot e$\\
+
+Usando (Subsumption)\\
+
+$\semBrcks{\pi \vdash e : \theta}\eta = 
+\semBrcks{\theta' \leq \theta}(\semBrcks{\pi \vdash e : \theta'}\eta)$ $=$
+$\J_{\theta'}^{\theta} (\iotabot e)$ $=$ $\iotabot (\J_{\theta'}^{\theta} e)$\\
+
+Empecemos notando que por la definici\'on que hicimos de la funci\'on $\J_{\theta}^{\theta'}$
+podemos suponer sin que se nos escape ning\'un caso de que cuando usamos primero
+subsumption, despu\'es $\semBrcks{\pi \vdash e : \theta} = \iotabot e$. Por otro lado
+restar\'ia probar para este caso que $e : \semBrcks{\theta}$  es igual a 
+$\J_{\theta'}^{\theta} e : \semBrcks{\theta}$, pero esto es directo de la definici\'on
+de la funci\'on $\J_{\theta'}^{\theta}$.
+
+\item Supongamos $e = \iota$ y tomemos $\eta : \semBrcks{\pi}$, $\eta' : \semBrcks{\pi'}$
+cualesquiera, notar que estamos suponiendo $eta$'s y $\pi$'s distintos ya que 
+no puede existe en un mismo contexto un identificador con dos tipos distintos, como 
+antes usando inversi\'on tenemos\\
+
+Usando (Identificador)\\
+
+$\semBrcks{\pi \vdash \iota : \theta}\eta = \eta \iota$\\
+
+Usando (Subsumption)\\
+
+$\semBrcks{\pi' \vdash \iota : \theta}\eta' = 
+\semBrcks{\theta' \leq \theta} (\semBrcks{\pi' \vdash \iota : \theta'}\eta') = 
+\J_{\theta'}^{\theta} (\eta' \iota)$\\
+
+Como paso para el caso de las constantes, restar\'ia ver que 
+$\eta \iota = \J_{\theta'}^{\theta} (\eta' \iota)$, pero de nuevo esto es directo
+de suponer $\eta \iota = \iotabot z$ y $\eta' \iota = \iotabot z'$, con
+$z:\theta$ y $z':\theta'$.
+
+\end{itemize}
+
+\item Casos inductivos
+
+Supongamos un $e : \theta$ tal que vale
+$\semBrcks{\pi_1 \vdash e : \theta}\eta_1 = \ldots = \semBrcks{\pi_n \vdash e : \theta}\eta_n$ 
+y probemos
+que para un nuevo $e : \theta$ de mayor complejidad vale\\
+$\semBrcks{\pi_1 \vdash e : \theta}\eta_1 = \ldots = 
+\semBrcks{\pi_n \vdash e : \theta}\eta_n$. \\
+
+Las pruebas de los distintos casos de inducci\'on van a proceder de la siguiente manera,
+vamos a partir de suponer la ultima regla fue la del comando en si y probar que llegamos
+a que la ultima regla fue subsumption o viceversa, adem\'as vamos a asumir que nuestros
+programas siempre terminan, para los casos en los que no es directo demostrar la igualdad.
+
+\begin{itemize}
+\item Supongamos $e = \odot e'$, luego\\
+
+$\semBrcks{\pi \vdash \odot e' : \theta}\eta$ $=$ 
+$(\lambda x . \ \iotabot (\odot x))_{\dbot} (\semBrcks{\pi \vdash e' : \theta}\eta)$\\
+
+utilizar hip\'otesis inductiva ac\'a significar\'ia que podemos suponer que la
+ultima regla para $\pi \vdash e' : \theta$ fue cualquiera de las posibilidades que
+da inversi\'on entonces\\
+
+$(\lambda x . \ \iotabot (\odot x))_{\dbot} (\semBrcks{\pi \vdash e' : \theta}\eta)$ $=$ \\
+$(\lambda x . \ \iotabot (\odot x))_{\dbot} 
+	(\semBrcks{\theta' \leq \theta}(\semBrcks{\pi \vdash e' : \theta'}\eta))$ $=$ \\
+$\iotabot (\odot (\J_{\theta'}^{\theta} \semBrcks{\pi \vdash e' : \theta'}\eta)))$\\
+
+usando la propiedad sobre la inyecci\'on $\J_{\theta'}^{\theta}$ tenemos\\
+
+$\iotabot (\odot (\J_{\theta'}^{\theta} \semBrcks{\pi \vdash e' : \theta'}\eta)))$ $=$
+$\J_{\theta'}^{\theta} (\iotabot (\odot \semBrcks{\pi \vdash e' : \theta'}\eta))$ $=$\\
+$\semBrcks{\theta' \leq \theta}(\semBrcks{\pi \vdash \odot e' : \theta'}\eta)$ $=$
+$\semBrcks{\pi \vdash \odot e' : \theta}\eta$\\
+
+Y con esto hemos finalizado la prueba de este caso, repasando, partimos de suponer
+la ultima regla usada fue $\odot$ y llegamos a que la ultima regla usada fue subsumption.
+
+\item (An\'alogo para el caso de operadores binarios)
+
+\item Supongamos $e = \cifthenelse{b}{e'}{e''}$ y 
+$\semBrcks{\pi \vdash b : \boolt}\eta = \iotabot \ true$\\
+
+$\semBrcks{\pi \vdash \cifthenelse{b}{e'}{e''} : \theta}\eta$ $=$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$(\lambda b. \ if \ b \ then \ \semBrcks{\pi \vdash e' : \theta}\eta$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$else \ \semBrcks{\pi \vdash e'' : \theta}\eta)_{\dbot} 
+							(\semBrcks{\pi \vdash b : \boolt}\eta)$ $=$\\
+$\semBrcks{\pi \vdash e' : \theta}\eta$
+
+usando hip\'otesis inductiva como en el caso del operador unario, tenemos que\\
+
+$\semBrcks{\pi \vdash e' : \theta}\eta$ $=$ 
+$\semBrcks{\theta' \leq \theta}(\semBrcks{\pi \vdash e' : \theta'}\eta)$ $=$\\
+$\semBrcks{\theta' \leq \theta}($
+$(\lambda b. \ if \ b \ then \ \semBrcks{\pi \vdash e' : \theta'}\eta$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$else \ \semBrcks{\pi \vdash e'' : \theta'}\eta)_{\dbot} 
+						(\semBrcks{\pi \vdash b : \boolt}\eta))$ $=$\\
+$\semBrcks{\theta' \leq \theta}
+	(\semBrcks{\pi \vdash \cifthenelse{b}{e'}{e''} : \theta'}\eta)$ $=$\\
+$\semBrcks{\pi \vdash \cifthenelse{b}{e'}{e''} : \theta}\eta$\\
+
+An\'alogo si suponemos $\semBrcks{\pi \vdash b : \boolt}\eta = \iotabot \ false$.
+
+\item Supongamos $e = e'e''$, luego\\
+
+$\semBrcks{\pi \vdash e'e'' : \theta}\eta$ $=$ 
+$\semBrcks{\pi \vdash e' : \thetahat \rightarrow \theta}\eta
+							(\semBrcks{\pi \vdash e'' : \thetahat}\eta)$ $=$\\
+$(\semBrcks{\thetahat' \rightarrow \theta' \leq \thetahat \rightarrow \theta}
+(\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta))$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$(\semBrcks{\thetahat' \leq \thetahat}(\semBrcks{\pi \vdash e'' : \thetahat'}\eta))$ $=$\\
+$(\semBrcks{\theta' \leq \theta} 
+	\circ 
+\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta)
+	\circ
+ \semBrcks{\thetahat \leq \thetahat'})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$(\semBrcks{\thetahat' \leq \thetahat}(\semBrcks{\pi \vdash e'' : \thetahat'}\eta))$\\
+
+hasta ac\'a hemos usado dos veces hip\'otesis inductiva y la definici\'on
+de la ecuaci\'on sem\'antica 
+$(\semBrcks{\thetahat' \rightarrow \theta' \leq \thetahat \rightarrow \theta}$,
+notar que 
+$\semBrcks{\thetahat \leq \thetahat'} \circ \semBrcks{\thetahat' \leq \thetahat}$
+$=$ $\semBrcks{\thetahat' \leq \thetahat'}$ $=$ $1_{\semBrcks{\thetahat'}}$\\
+
+$(\semBrcks{\theta' \leq \theta} 
+	\circ 
+\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta)
+	\circ
+ \semBrcks{\thetahat \leq \thetahat'})$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+\ \ \ \ \ \ \ \ \ \ \ \
+$(\semBrcks{\thetahat' \leq \thetahat}(\semBrcks{\pi \vdash e'' : \thetahat'}\eta))$ $=$\\
+$(\semBrcks{\theta' \leq \theta} 
+	\circ 
+\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta)
+	\circ
+\semBrcks{\thetahat \leq \thetahat'} 
+ 	\circ
+\semBrcks{\thetahat' \leq \thetahat})$ \\
+\indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
+$(\semBrcks{\pi \vdash e'' : \thetahat'}\eta)$ $=$\\
+$\semBrcks{\theta' \leq \theta} 
+(\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta 
+(\semBrcks{\pi \vdash e'' : \thetahat'}\eta))$ $=$\\
+$\semBrcks{\theta' \leq \theta}(\semBrcks{\pi \vdash e'e'' : \theta'}\eta)$ $=$\\
+$\semBrcks{\pi \vdash e'e'' : \theta}\eta$
+
+\item Supongamos $e = \clambda{\iota}{\theta}{e'}$ y un $z : \semBrcks{\theta}$ cualquiera, luego\\
+
+$\semBrcks{\pi \vdash \clambda{\iota}{\theta}{e'} : \theta \rightarrow \theta'}\eta \ z$ $=$\\
+$(\semBrcks{\thetahat \rightarrow \thetahat' \leq \theta \rightarrow \theta'}
+(\semBrcks{\pi \vdash \clambda{\iota}{\thetahat}{e'} : \thetahat \rightarrow \thetahat'}\eta))z$
+$=$\\
+$(\semBrcks{\thetahat' \leq \theta'} 
+	\circ
+(\semBrcks{\pi,\iota:\thetahat \vdash e' : \thetahat'} \circ (ext_{\iota,\thetahat}\eta))
+	\circ
+\semBrcks{\theta \leq \thetahat}) z$ $=$\\
+$\semBrcks{\pi,\iota:\thetahat \vdash e' : \theta'}
+		(ext_{\iota,\thetahat} \ \eta \ (\semBrcks{\theta \leq \thetahat}z))$ $=$\\
+$\semBrcks{\pi,\iota:\thetahat \vdash e' : \theta'}
+		[ \ \eta \ | \ \iota:\semBrcks{\theta \leq \thetahat}z \ ]$\\
+
+Esta vez empezamos suponiendo que la ultima regla fue subsumption, desarrollamos
+utilizando la definici\'on de la ecuaci\'on para el subtipado del tipo flecha y
+aplicamos la definici\'on, para el otro lado, de subsumption para el cuerpo de la 
+abstracci\'on lambda. Todo esto deja listo para aplicar hip\'otesis inductiva\\
+
+$\semBrcks{\pi,\iota:\thetahat \vdash e' : \theta'}
+		[ \ \eta \ | \ \iota:\semBrcks{\theta \leq \thetahat}z \ ]$ $=$\\
+$\semBrcks{\pi,\iota:\theta \vdash e' : \theta'} [ \ \eta \ | \ \iota:z \ ]$ $=$\\
+$(\semBrcks{\pi,\iota:\theta \vdash e' : \theta'} \circ (ext_{\iota,\theta} \eta)) z$ $=$\\
+$\semBrcks{\pi \vdash \clambda{\iota}{\theta}{e'} : \theta \rightarrow \theta'}\eta \ z$\\
+
+Lo que nos restar\'ia probar entonces es que $\pi,\iota:\theta \leq \pi,\iota:\thetahat$,
+pero esto es directo, ya que supusimos $\theta \leq \thetahat$.
+
+\item Supongamos $e = \rec{e'}$, luego \\
+
+$\semBrcks{\pi \vdash \rec{e'} : \theta} \eta$ $=$ 
+$\semBrcks{\theta' \leq \theta} (\semBrcks{\pi \vdash \rec{e'} : \theta'} \eta)$ $=$\\
+$\semBrcks{\theta' \leq \theta} 
+	(\Y_{\theta} (\semBrcks{\pi \vdash e' : \theta' \rightarrow \theta'}\eta))$ $=$\\
+$\semBrcks{\theta' \leq \theta} 
+	(\bigsqcup\limits^{\infty}_{i=0} 
+	(\semBrcks{\pi \vdash e' : \theta' \rightarrow \theta'}\eta)^{i} \bot_{\theta'})$ $=$\\
+$\bigsqcup\limits^{\infty}_{i=0} 
+	((\semBrcks{\theta' \leq \theta} \circ
+	(\semBrcks{\pi \vdash e' : \theta' \rightarrow \theta'}\eta)^{i}) \bot_{\theta'})$ $=$\\
+$\bigsqcup\limits^{\infty}_{i=0} 
+	((\semBrcks{\theta' \leq \theta} 
+	\circ
+	(\semBrcks{\pi \vdash e' : \theta' \rightarrow \theta'}\eta)^{i}
+	\circ
+	\semBrcks{\theta \leq \theta'} 
+	) \bot_{\theta})$ $=$\\
+$\bigsqcup\limits^{\infty}_{i=0} 
+	((\semBrcks{\theta' \rightarrow \theta' \leq \theta \rightarrow \theta} 
+	 (\semBrcks{\pi \vdash e' : \theta' \rightarrow \theta'}\eta)^{i}
+	) \bot_{\theta})$ $=$\\
+$\bigsqcup\limits^{\infty}_{i=0} (
+	(\semBrcks{\pi \vdash e' : \theta \rightarrow \theta}\eta)^{i}
+	\bot_{\theta})$ $=$ 
+$\Y_{\theta} (\semBrcks{\pi \vdash e' : \theta \rightarrow \theta}\eta)$ $=$\\
+$\semBrcks{\pi \vdash \rec{e'} : \theta}\eta$
+
+\end{itemize}
+
+\end{itemize}
 
 \end{proof}
 

@@ -592,9 +592,13 @@ $\texttt{Denotal Sem:}$ Abstracci\'on lambda.\
 \
 
 $\semBrcks{\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'}$ $=$
-						$\semBrcks{\pi,\iota:\theta \vdash e : \theta'} \circ ext_{\iota}$\\
+		$\semBrcks{\pi,\iota:\theta \vdash e : \theta'} \circ ext_{\iota,\theta}$\\
 
-donde $ext_{\iota} \eta \ x$ $=$ $[\ \eta \ | \ \iota:x \ ]$
+donde 
+$ext_{\iota,\theta} : \semBrcks{\pi} 
+					  \rightarrow \semBrcks{\theta} \rightarrow \semBrcks{\pi,\iota:\theta}$\\
+\indent \ \ \ \ \ \ \ \ \ \ \ \
+$ext_{\iota,\theta} \eta \ x$ $=$ $[\ \eta \ | \ \iota:x \ ]$
 
 \
 
@@ -637,7 +641,7 @@ es decir, como ya mencionamos antes, el significado de la abstracci\'on lambda e
 una funci\'on en $\Dom$, que va de $\semBrcks{\theta}$ en $\semBrcks{\theta'}$. Mirando
 ahora la parte derecha,\\
 
-$\semBrcks{\pi,\iota:\theta \vdash e : \theta'}  \circ (ext_\iota \eta) $ $:$
+$\semBrcks{\pi,\iota:\theta \vdash e : \theta'}  \circ (ext_{\iota,\theta} \eta) $ $:$
 	$\semBrcks{\theta} \rightarrow \semBrcks{\theta'}$\\
 
 \noindent
@@ -650,7 +654,8 @@ $\semBrcks{\pi,\iota:\theta \vdash e : \theta'}$ $:$
 la aplicaci\'on del entorno $ext_\iota \eta \ x$ extendido tipa perfecto 
 con $\semBrcks{\pi,\iota:\theta}$ dando como resultado el tipo esperado,\\
 
-$\semBrcks{\pi,\iota:\theta \vdash e : \theta'}(ext_\iota \eta \ x)$ $:$ $\semBrcks{\theta'}$.\\
+$\semBrcks{\pi,\iota:\theta \vdash e : \theta'}
+	(ext_{\iota,\theta} \eta \ x)$ $:$ $\semBrcks{\theta'}$.\\
 
 Acabamos de ver un poco mas de cerca la ecuaci\'on sem\'antica de la abstracci\'on
 lambda, siguiendo con la etapa de an\'alisis de las ecuaciones que hemos definido
@@ -978,10 +983,10 @@ de expresi\'on condicional.
 por la definici\'on de la ecuaci\'on sem\'antica tenemos \\
 
 $\semBrcks{\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'}$ $=$
-$\semBrcks{\pi,\iota:\theta \vdash e : \theta'} \circ ext_\iota$, \\
+$\semBrcks{\pi,\iota:\theta \vdash e : \theta'} \circ ext_{\iota,\theta}$, \\
 
 probando entonces
-que $\semBrcks{\pi,\iota:\theta \vdash e : \theta'}$ y $ext_\iota$ son funciones 
+que $\semBrcks{\pi,\iota:\theta \vdash e : \theta'}$ y $ext_{\iota,\theta}$ son funciones 
 continuas podemos usar una parte del lema anterior que nos dice que composici\'on
 de funciones continuas es una funci\'on continua y con esto completar la prueba de que
 la ecuaci\'on para la abstracci\'on lambda es una funci\'on continua. Por hip\'otesis
@@ -990,11 +995,11 @@ continua, luego resta probar que $ext_\iota$ es continua de $\semBrcks{\pi}$ en
 $\semBrcks{\theta} \rightarrow \semBrcks{\pi,\iota:\theta}$.\\
 
 Supongamos entonces una cadena $\eta_0 \sqsubseteq \eta_1 \sqsubseteq \ldots$ en 
-y probemos que $ext_\iota (\bigsqcup\limits^{\infty}_{i=0} \eta_i)$ $=$
-$\bigsqcup\limits^{\infty}_{i=0} (ext_\iota \eta_i)$. Tomemos un $x$ en $\semBrcks{\theta}$
+y probemos que $ext_{\iota,\theta} (\bigsqcup\limits^{\infty}_{i=0} \eta_i)$ $=$
+$\bigsqcup\limits^{\infty}_{i=0} (ext_{\iota,\theta} \eta_i)$. Tomemos un $x$ en $\semBrcks{\theta}$
 y un $\kappa$ cualquiera,\\
 
-$ext_\iota (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ x \ \kappa$ $=$
+$ext_{\iota,\theta} (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ x \ \kappa$ $=$
 $[ \ (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ | \ \iota:x \ ] \kappa$
 
 \begin{itemize}
@@ -1002,7 +1007,8 @@ $[ \ (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ | \ \iota:x \ ] \kappa$
 
 $[ \ (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ | \ \iota:x \ ] \kappa$ $=$
 $x$ $=$ $\bigsqcup\limits^{\infty}_{i=0} x$ $\bigsqcup\limits^{\infty}_{i=0} 
-([ \ \eta_i \ | \ \iota:x \ ] \kappa)$ $=$ $\bigsqcup\limits^{\infty}_{i=0} (ext_\iota \eta_i \ x \ \kappa)$\\
+([ \ \eta_i \ | \ \iota:x \ ] \kappa)$ $=$ $\bigsqcup\limits^{\infty}_{i=0} 
+(ext_{\iota,\theta} \eta_i \ x \ \kappa)$\\
 
 \item Supongamos $\kappa \neq \iota$, luego \\
 
@@ -1010,10 +1016,10 @@ $[ \ (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ | \ \iota:x \ ] \kappa$ $=$
 $(\bigsqcup\limits^{\infty}_{i=0} \eta_i) \kappa$ $=$
 $\bigsqcup\limits^{\infty}_{i=0} (\eta_i \kappa)$ $=$
 $\bigsqcup\limits^{\infty}_{i=0} ([ \ \eta_i \ | \ \iota:x \ ] \kappa)$ $=$
-$\bigsqcup\limits^{\infty}_{i=0} (ext_\iota \eta_i \ x \ \kappa)$\\
+$\bigsqcup\limits^{\infty}_{i=0} (ext_{\iota,\theta} \eta_i \ x \ \kappa)$\\
 \end{itemize}
 
-por lo tanto, $ext_\iota$ es una funci\'on continua y podemos concluir que
+por lo tanto, $ext_{\iota,\theta}$ es una funci\'on continua y podemos concluir que
 la ecuaci\'on sem\'antica para la abstracci\'on lambda tambi\'en lo es.
 \end{itemize}
 \end{itemize}
