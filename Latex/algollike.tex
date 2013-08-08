@@ -1813,10 +1813,73 @@ $\semBrcks{\theta'}(h,s)(
 (\semBrcks{\pi \vdash e \theta}\C\eta))$ $=$\\
 $\semBrcks{\theta'}(h,s)(\semBrcks{\pi \vdash ee' : \theta'}C\eta)$\\
 
-\item Supongamos $\pi \vdash \rec{e} : \theta$, \\
+\item Supongamos $\pi \vdash \rec{e} : \theta$, desarrollemos ambos lados de la
+igualdad y luego probemos que los lados desarrollados son iguales, por un lado
+entonces tenemos,\\
 
-(\textcolor{red}{Me acabo de dar cuenta que tengo cosas que revisar bien para
-escribir esta prueba. ¿ que es una flecha entre transformaciones naturales ?})
+$\semBrcks{\theta}(h,s)(\semBrcks{\pi \vdash \rec{e} : \theta}C\eta)$ $=$\\
+$\semBrcks{\theta}(h,s)(
+	\Y_{\semBrcks{\theta}C} 
+		(\semBrcks{\pi \vdash e : \theta \rightarrow \theta}C\eta) \lrangles{})$ $=$\\
+$\semBrcks{\theta}(h,s)(
+\bigsqcup\limits^{\infty}_{i=0} (
+	(\semBrcks{\pi \vdash e : \theta \rightarrow \theta}C\eta\lrangles{})^i \bot_{\theta,C})
+)$ $=$\\
+$\bigsqcup\limits^{\infty}_{i=0}(
+\semBrcks{\theta}(h,s)(
+	(\semBrcks{\pi \vdash e : \theta \rightarrow \theta}C\eta\lrangles{})^i \bot_{\theta,C})
+)$\\
+
+y por el otro, notar que para este lado vamos a usar la hip\'otesis inductiva, tenemos\\
+
+$\semBrcks{\pi \vdash \rec{e} : \theta}C'(\semBrcks{\pi}(h,s)\eta)$ $=$ \\
+$\Y_{\semBrcks{\theta}C'}(
+\semBrcks{\pi \vdash e : \theta \rightarrow \theta}C'(\semBrcks{\pi}(h,s)\eta)
+)\lrangles{}$ $=$\\
+$\Y_{\semBrcks{\theta}C'}(
+\semBrcks{\theta \rightarrow \theta}(h,s) 
+	(\semBrcks{\pi \vdash e : \theta \rightarrow \theta}C\eta)
+)\lrangles{}$ $=$\\
+$\bigsqcup\limits^{\infty}_{i=0}(
+(\semBrcks{\theta \rightarrow \theta}(h,s) 
+	(\semBrcks{\pi \vdash e : \theta \rightarrow \theta}C\eta)\lrangles{})^i \bot_{\theta,C'}
+)$ $=$\\
+$\bigsqcup\limits^{\infty}_{i=0}(
+(\semBrcks{\theta \rightarrow \theta}(h,s) 
+	(\semBrcks{\pi \vdash e : \theta \rightarrow \theta}C\eta)\lrangles{})^i 
+				(\semBrcks{\theta}(h,s)\bot_{\theta,C})
+)$ $=$\\
+$\bigsqcup\limits^{\infty}_{i=0}(
+(\semBrcks{\pi \vdash e : \theta \rightarrow \theta}C\eta\Cover)^i 
+				(\semBrcks{\theta}(h,s)\bot_{\theta,C})
+)$\\
+
+sobre esta ultima ecuaci\'on es importante notar que 
+$\bot_{\theta,C'} = \semBrcks{\theta}(h,s) \bot_{\theta,C}$, por ser $\semBrcks{\theta}(h,s)$
+una funci\'on estricta. Ahora bien, para probar la igualdad de las ecuaciones desarrolladas
+vamos a utilizar, como ya hicimos para el caso de la aplicaci\'on, el hecho de que\\
+$\semBrcks{\pi \vdash e : \theta \rightarrow \theta}C\eta : 
+\semBrcks{\theta \rightarrow \theta}C$ es una transformaci\'on natural, luego el siguiente
+diagrama conmuta
+
+\begin{center}
+\begin{diagram}
+   \semBrcks{\theta}C & & \rTo^{\semBrcks{\pi \vdash e : \theta \rightarrow \theta}C \eta \lrangles{}} & & \semBrcks{\theta}C \\
+   \dTo^{\semBrcks{\theta}(h,s)} & & & & \dTo^{\semBrcks{\theta}(h,s)} & \\
+   \semBrcks{\theta}C' & & \rTo^{\semBrcks{\pi \vdash e :  \theta \rightarrow \theta}C \eta \Cover} & & \semBrcks{\theta}C' &
+\end{diagram}
+\end{center}
+
+podemos concluir entonces que \\
+
+$\bigsqcup\limits^{\infty}_{i=0}(
+\semBrcks{\theta}(h,s)(
+	(\semBrcks{\pi \vdash e : \theta \rightarrow \theta}C\eta\lrangles{})^i \bot_{\theta,C})
+)$ $=$\\
+$\bigsqcup\limits^{\infty}_{i=0}(
+(\semBrcks{\pi \vdash e : \theta \rightarrow \theta}C\eta\Cover)^i 
+				(\semBrcks{\theta}(h,s)\bot_{\theta,C})
+)$\\
 
 \item Supongamos $\pi \vdash \cskip : \commt$,\\
 
