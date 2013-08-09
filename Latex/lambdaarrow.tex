@@ -32,7 +32,8 @@ Como mencion\'abamos antes, $\boolt$, $\intt$ y $\realt$ representaran
 los conjuntos de booleanos, enteros y reales respectivamente, y el
 $\theta \rightarrow \theta'$ sera la representaci\'on del conjunto
 de funciones que acepta valores de tipo $\theta$ y retorna valores
-de tipo $\theta'$. Hay que mencionar que $\rightarrow$ asocia a derecha.\\
+de tipo $\theta'$, en ocasiones nos referiremos a este tipo como
+\textit{tipo flecha}. Hay que mencionar que $\rightarrow$ asocia a derecha.\\
 
 Con el lenguaje de los tipos definido podemos dar la sint\'axis
 abstracta del lenguaje.
@@ -83,7 +84,7 @@ con un tipo, con la restricci\'on de que no pueden
 existir identificadores repetidos, esta restricci\'on no es menor y mas
 adelante cuando tengamos definidas las reglas de inferencia vamos a
 ver alguna consecuencia de esta elecci\'on. En particular, para
-definir los contextos usamos una gram\'atica, esta elecci\'on 
+definir los contextos usamos una gram\'atica, esto
 nos va a permitir tener una versi\'on sint\'actica de los contextos
 y ademas una sem\'antica la cual, un poco mas adelante, vamos a
 necesitar para definir la sem\'antica del lenguaje.
@@ -336,7 +337,7 @@ $\vdash
 	\clambda{\iota}{\intt}{\clambda{\iota}{\realt} \ \iota \times \iota} : 
 		\intt \rightarrow \realt \rightarrow \realt$. Lo que suceder\'ia es
 que nos har\'ian falta mas reglas de inferencia para obtener efectivamente
-una derivaci\'on, siguiente con el ejemplo nos har\'ia falta una regla,
+una derivaci\'on, siguiendo con el ejemplo nos har\'ia falta una regla,
 
 \begin{center}
 \AxiomC{$\pi \vdash e  : \intt$}
