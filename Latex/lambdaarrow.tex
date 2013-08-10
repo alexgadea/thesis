@@ -18,15 +18,12 @@ Con este ultimo vamos a querer representar los conjuntos de booleanos, enteros
 y reales, adem\'as del conjunto de funciones que tiene como dominio
 e imagen a cualquiera de los conjuntos anteriores.
 
-Empezamos introduciendo la sintaxis abstracta de los tipos simples.
+Empezamos introduciendo la sintaxis abstracta de los tipos simples.\\
 
-\setlength{\grammarindent}{6em}
-\begin{grammar}
-
-<Type> ::= $\boolt$ | $\intt$ | $\realt$
-\alt <Type> $\rightarrow$ <Type>
-
-\end{grammar}
+\noindent
+$\lrangles{Type}$ ::= $\boolt$ | $\intt$ | $\realt$\\
+\indent \indent \ \
+| $\lrangles{Type} \rightarrow \lrangles{Type}$\\
 
 Como mencion\'abamos antes, $\boolt$, $\intt$ y $\realt$ representaran 
 los conjuntos de booleanos, enteros y reales respectivamente, y el
@@ -36,29 +33,36 @@ de tipo $\theta'$, en ocasiones nos referiremos a este tipo como
 \textit{tipo flecha}. Hay que mencionar que $\rightarrow$ asocia a derecha.\\
 
 Con el lenguaje de los tipos definido podemos dar la sint\'axis
-abstracta del lenguaje.
+abstracta del lenguaje.\\
 
-\setlength{\grammarindent}{6em}
-\begin{grammar}
+\noindent
+$\lrangles{Phrase}$ ::= $\lrangles{PBool}$ | $\lrangles{PInt}$ | $\lrangles{PReal}$\\
+\indent \indent \indent 
+| $\odot$ $\lrangles{Phrase}$ | $\lrangles{Phrase}$ $\circledcirc$ $\lrangles{Phrase}$\\
+\indent \indent \indent 
+| $\textbf{if}$ $\lrangles{Phrase}$ $\textbf{then}$ $\lrangles{Phrase}$ $\textbf{else}$ $\lrangles{Phrase}$\\
+\indent \indent \indent 
+| $\lrangles{Id}$\\
+\indent \indent \indent 
+| $\lrangles{Phrase}\lrangles{Phrase}$\\
+\indent \indent \indent 
+| $\lambda$ $\lrangles{Id}_\theta$ . $\lrangles{Phrase}$\\
+\indent \indent \indent 
+| $\textbf{rec} \lrangles{Phrase}$\\
 
-<Phrase> ::= <PBool> | <PInt> | <PReal>
-\alt $\odot$ <Phrase> | <Phrase> $\circledcirc$ <Phrase>
-\alt \textbf{if} <Phrase> \textbf{then} <Phrase> \textbf{else} <Phrase>
-\alt <Id> 
-\alt <Phrase> <Phrase>
-\alt $\lambda$ <Id>$_\theta$ . <Phrase>
-\alt \textbf{rec} <Phrase>
+\noindent
+$\lrangles{PBool}$ ::= $True$ | $False$\\
 
-<PBool> ::= True | False
+\noindent
+$\lrangles{PNat}$ ::= $0$ | $1$ | $2$ | $\ldots$\\
 
-<PNat>  ::= 0 | 1 | 2 | ...
+\noindent
+$\lrangles{PInt}$ ::= $\ldots$ | $-2$ | $-1$ | $\lrangles{PNat}$\\
 
-<PInt>  ::= ... | -2 | -1 | <PNat> 
-
-<PReal> ::= <PNat>.\{<PNat>\}+ 
-\alt - <PNat>.\{<PNat>\}+
-
-\end{grammar}
+\noindent
+$\lrangles{PReal}$ ::= $\lrangles{PNat}$.\{$\lrangles{PNat}$\}+\\
+\indent \indent \ \ \ \
+| $- \lrangles{PNat}$.\{$\lrangles{PNat}$\}+\\
 
 \noindent
 donde \ 
@@ -91,14 +95,12 @@ necesitar para definir la sem\'antica del lenguaje.
 
 \begin{definition}\label{lambdaa:context}
 
-Un contexto estar\'a definido por la siguiente gram\'atica,\
+Un contexto estar\'a definido por la siguiente gram\'atica,\\
 
-\begin{grammar}
+\noindent
+$\lrangles{Context}$ ::= $\varnothing$ | $\lrangles{Context}$,$\lrangles{Id}$:$\lrangles{Type}$\\
 
-<Context> ::= $\varnothing$ | <Context>,<Id>:<Type>
-
-\end{grammar}
-
+\noindent
 tal que dado cualquier contexto $\iota_0:\theta_0,\ldots,\iota_n:\theta_n$, los
 identificadores $\iota_0,\ldots,\iota_n$ son todos distintos.
 

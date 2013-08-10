@@ -57,14 +57,10 @@ extenderlo seg\'un el punto dos de los principios de algol.
 
 Comencemos entonces acomodando nuestro sistema de tipos, empecemos tomando los tipos
 $\boolt$, $\intt$ y $\realt$ de $\lrangles{Type}$ y separándolos por un lado, para
-introducir la gram\'atica de los  $\textit{Data Types}$.
+introducir la gram\'atica de los  $\textit{Data Types}$.\\
 
-\setlength{\grammarindent}{6em}
-\begin{grammar}
-
-<Data Types> ::= $\boolt$ | $\intt$ | $\realt$
-
-\end{grammar}
+\noindent
+$\dataTypes$ ::= $\boolt$ | $\intt$ | $\realt$\\
 
 Por otro lado en $\lrangles{Type}$ tenemos el operador funcional $\rightarrow$, este vamos 
 a moverlo a nuestra otra clase de tipos $\textit{Phrase Types}$ y vamos a agregar las
@@ -79,50 +75,59 @@ nuestro lenguaje, el tipo de las variables encapsular\'a las dos posibles utiliz
 de un identificador de variable, es decir, ya sea como valor o como almacenamiento,
 para este primero es que tenemos el tipo de las expresiones y para el segundo es
 donde aparece el tipo de los aceptadores, este b\'asicamente se encarga de 
-representar a un identificador de variables como un almac\'en de valores.
+representar a un identificador de variables como un almac\'en de valores.\\
 
-\setlength{\grammarindent}{8em}
-\begin{grammar}
-
-<Phrase Types> ::= $\commt$
-\alt $\boolacc$ \ | $\intacc$ \ | $\realacc$
-\alt $\boolexp$ | $\intexp$ | $\realexp$
-\alt $\boolvar$ \ | $\intvar$ \ | $\realvar$
-\alt <Phrase Types> $\rightarrow$ <Phrase Types>
-
-\end{grammar}
+\noindent
+$\phraseTypes$ ::= $\commt$\\
+\indent \indent \indent \indent \ \ \ \
+| $\boolacc$ \ | $\intacc$ \ | $\realacc$\\
+\indent \indent \indent \indent \ \ \ \
+| $\boolexp$ | $\intexp$ | $\realexp$\\
+\indent \indent \indent \indent \ \ \ \
+| $\boolvar$ \ | $\intvar$ \ | $\realvar$\\
+\indent \indent \indent \indent \ \ \ \
+| $\phraseTypes \rightarrow \phraseTypes$\\
 
 Ahora que hemos actualizado el lenguaje de tipos necesario para $\Alike$, presentemos
 la gram\'atica, como mencionamos anteriormente este lenguaje va a ser una extensi\'on de $\lambdaleq$, agregando los construcciones para un lenguaje imperativo simple. Estas construcciones 
 ser\'an los comandos para la declaraci\'on de variables ($\cnew \deltavar$), 
 asignaci\'on($\cassig$), comando neutro ($\cskip$), concatenaci\'on de comandos ($\concatdots$)
-y un comando para iteraciones ($\cwhile$).
+y un comando para iteraciones ($\cwhile$).\\
 
-\setlength{\grammarindent}{6em}
-\begin{grammar}
+\noindent
+$\lrangles{Phrase}$ ::= $\lrangles{PBool}$ | $\lrangles{PInt}$ | $\lrangles{PReal}$\\
+\indent \indent \indent 
+| $\odot$ $\lrangles{Phrase}$ | $\lrangles{Phrase}$ $\circledcirc$ $\lrangles{Phrase}$\\
+\indent \indent \indent 
+| $\textbf{if}$ $\lrangles{Phrase}$ $\textbf{then}$ $\lrangles{Phrase}$ $\textbf{else}$ $\lrangles{Phrase}$\\
+\indent \indent \indent 
+| $\lrangles{Id}$\\
+\indent \indent \indent 
+| $\lrangles{Phrase}\lrangles{Phrase}$\\
+\indent \indent \indent 
+| $\lambda$ $\lrangles{Id}_\theta$ . $\lrangles{Phrase}$\\
+\indent \indent \indent 
+| $\textbf{rec} \lrangles{Phrase}$\\
+\indent \indent \indent 
+| $\cnewv$ $\deltavar$ $\lrangles{Id}$ $\cassig$ $\lrangles{Phrase}$ $\cin$ $\lrangles{Phrase}$\\
+\indent \indent \indent 
+| $\lrangles{Phrase}$ $\cassig$ $\lrangles{Phrase}$ | $\cskip$ | $\lrangles{Phrase}$ $\concatdots$ $\lrangles{Phrase}$\\
+\indent \indent \indent
+| $\cwhile$ $\lrangles{Phrase}$ $\cdo$ $\lrangles{Phrase}$\\
 
-<Phrase> ::= <PBool> | <PInt> | <PReal>
-\alt $\odot$ <Phrase> | <Phrase> $\circledcirc$ <Phrase>
-\alt \textbf{if} <Phrase> \textbf{then} <Phrase> \textbf{else} <Phrase>
-\alt <Id> 
-\alt <Phrase> <Phrase>
-\alt $\lambda$ <Id>$_\theta$ . <Phrase>
-\alt \textbf{rec} <Phrase>
-\alt $\cnewv$ $\deltavar$ <Id> $\cassig$ <Phrase> $\cin$ <Phrase>
-\alt <Phrase> $\cassig$ <Phrase> | $\cskip$ | <Phrase> $\concatdots$ <Phrase>
-\alt $\cwhile$ <Phrase> $\cdo$ <Phrase>
+\noindent
+$\lrangles{PBool}$ ::= $True$ | $False$\\
 
+\noindent
+$\lrangles{PNat}$ ::= $0$ | $1$ | $2$ | $\ldots$\\
 
-<PBool> ::= True | False
+\noindent
+$\lrangles{PInt}$ ::= $\ldots$ | $-2$ | $-1$ | $\lrangles{PNat}$\\
 
-<PNat>  ::= 0 | 1 | 2 | ...
-
-<PInt>  ::= ... | -2 | -1 | <PNat> 
-
-<PReal> ::= <PNat>.\{<PNat>\}+ 
-\alt - <PNat>.\{<PNat>\}+
-
-\end{grammar}
+\noindent
+$\lrangles{PReal}$ ::= $\lrangles{PNat}$.\{$\lrangles{PNat}$\}+\\
+\indent \indent \ \ \ \
+| $- \lrangles{PNat}$.\{$\lrangles{PNat}$\}+\\
 
 \noindent
 donde \ 
@@ -242,18 +247,17 @@ viejos por los nuevos.
 
 \begin{definition}\label{alike:context}
 
-Un contexto estar\'a definido por la siguiente gram\'atica,\
+Un contexto estar\'a definido por la siguiente gram\'atica,\\
 
-\begin{grammar}
+\noindent
+$\lrangles{Context}$ ::= $\varnothing$ | $\lrangles{Context}$,$\lrangles{Id}$:$\lrangles{Type}$\\
 
-<Context> ::= $\varnothing$ | <Context>,<Id>:<Phrase Types>
-
-\end{grammar}
-
+\noindent
 tal que dado cualquier contexto $\iota_0:\theta_0,\ldots,\iota_n:\theta_n$, los
 identificadores $\iota_0,\ldots,\iota_n$ son todos distintos.
 
 \end{definition}
+
 
 Ahora s\'i, reescribamos las reglas de $\lambdaleq$ con los nuevos tipos, b\'asicamente
 lo que vamos a hacer es cambiar un tipo $\delta$ por $\deltaexp$,
@@ -1014,14 +1018,9 @@ Una soluci\'on podr\'ia llegar a tener que ver con siempre tener el estado
 la siguiente idea. Lo primero ser\'a agregar un tipo nuevo a nuestros 
 $\phraseTypes$, para esto entonces vamos a tener que acomodar la sintaxis y dar
 nuevas reglas de tipado, adem\'as de dar el significado sem\'antico, tanto
-del tipo nuevo como de su nuevo juicio de tipado.
+del tipo nuevo como de su nuevo juicio de tipado.\\
 
-\setlength{\grammarindent}{8em}
-\begin{grammar}
-
-<Phrase Types> ::= <Phrase Types> | $\IF$ <Phrase Types>
-
-\end{grammar}
+$\phraseTypes$ ::= $\phraseTypes$ | $\IF$ $\phraseTypes$\\
 
 Ahora con este nuevo tipo entonces lo que hacemos es actualizar el juicio de
 tipado de la expresi\'on condicional de la siguiente manera\\
