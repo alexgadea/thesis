@@ -4,36 +4,34 @@
 En este cap\'itulo presentaremos un lenguaje funcional con tipado 
 explicito simple. La idea de comenzar con 
 este lenguaje, \'el cual ya tiene sem\'antica bien conocida, es introducir
-conceptos principales sobre los sistemas de tipado simple, as\'i
+los primeros conceptos relevantes para esta tesis sobre
+los sistemas de tipado simple, as\'i
 como de la sem\'antica denot\'acional del lenguaje, ademas es lo 
 suficientemente simple como para no eclipsar el aprendizaje de 
-conceptos sobre la implementaci\'on de su evaluador utilizando 
+conceptos sobre la implementaci\'on de su evaluador utilizando
 tipos dependientes.
 
 \section{Sintaxis de $\lambdaarrow$}
 
-En esta secci\'on vamos a introducir la sint\'axis de dos lenguajes, 
-la de $\lambdaarrow$ y la del lenguaje de los tipos.
-Con este ultimo vamos a querer representar los conjuntos de booleanos, enteros
-y reales, adem\'as del conjunto de funciones que tiene como dominio
-e imagen a cualquiera de los conjuntos anteriores.
-
-Empezamos introduciendo la sintaxis abstracta de los tipos simples.\\
+En esta secci\'on vamos a introducir la sint\'axis de los t\'erminos de $\lambdaarrow$
+y de los tipos. Empezamos introduciendo la sintaxis abstracta de los tipos simples.\\
 
 \noindent
 $\lrangles{Type}$ ::= $\boolt$ | $\intt$ | $\realt$\\
 \indent \indent \ \
 | $\lrangles{Type} \rightarrow \lrangles{Type}$\\
 
-Como mencion\'abamos antes, $\boolt$, $\intt$ y $\realt$ representaran 
-los conjuntos de booleanos, enteros y reales respectivamente, y el
+Ahora bien $\boolt$, $\intt$ y $\realt$ representaran 
+los conjuntos de booleanos, enteros y reales respectivamente, y si 
+$\theta$ y $\theta'$ son tipos,
 $\theta \rightarrow \theta'$ sera la representaci\'on del conjunto
 de funciones que acepta valores de tipo $\theta$ y retorna valores
 de tipo $\theta'$, en ocasiones nos referiremos a este tipo como
 \textit{tipo flecha}. Hay que mencionar que $\rightarrow$ asocia a derecha.\\
 
 Con el lenguaje de los tipos definido podemos dar la sint\'axis
-abstracta del lenguaje.\\
+abstracta del lenguaje, notar que por el tipado explicito de la abstracci\'on
+lambda nos hace falta tener definida la sintaxis de los tipos.\\
 
 \noindent
 $\lrangles{Phrase}$ ::= $\lrangles{PBool}$ | $\lrangles{PInt}$ | $\lrangles{PReal}$\\
@@ -76,14 +74,19 @@ $\odot \in \{-, \neg\}$ y \
 $\circledcirc \in \{+,-,*,/,\div,\rem,\wedge,\vee,\Rightarrow,\Leftrightarrow, =,\neq,<,>,\leq,\geq\}$\\
 
 Antes de continuar con la sem\'antica de $\lambdaarrow$
-vamos a introducir contextos;que nos van a permitir anotar el tipo
-de los identificadores de las frases, juicio de tipado;que ser\'a una relaci\'on
-entre un contexto, una frase y un tipo, las reglas de inferencia de tipos;
-que nos van a permitir decidir que juicios son validos y cuales no mediante una derivaci\'on, y
-finalmente la sem\'antica de los tipos.\\
+vamos a introducir 
+\begin{inparaenum}
+\item contextos, que van a permitir anotar el tipo de los identificadores
+de las frases
+\item juicios de tipado, que ser\'a una relaci\'on entre un contexto, una frase y
+un tipo
+\item las reglas de inferencia de tipos, que nos van a permitir decidir que juicios
+son validos y cuales no mediante una derivaci\'on
+\item la sem\'antica de los tipos.\\
+\end{inparaenum}
 
 Empecemos introduciendo la idea de contexto, este ser\'a una lista 
-de pares que relacionan un identificador 
+de pares que asocian un identificador 
 con un tipo, con la restricci\'on de que no pueden
 existir identificadores repetidos, esta restricci\'on no es menor y mas
 adelante cuando tengamos definidas las reglas de inferencia vamos a
@@ -115,11 +118,9 @@ que es lo que empezaremos a hacer a continuaci\'on.
 
 Un juicio de tipado sera una relaci\'on entre un contexto $\pi$, una
 frase del lenguaje $e$ y un tipo $\theta$ que establecer\'a que
-bajo el contexto $\pi$ la expresi\'on $e$ tiene tipo $\theta$.\\
-
-Lo denotaremos como  $\pi \vdash e : \theta$\\
-
-En particular, cuando $\pi = \varnothing$ escribiremos
+bajo el contexto $\pi$ la expresi\'on $e$ tiene tipo $\theta$.
+Lo denotaremos como  $\pi \vdash e : \theta$, 
+en particular, cuando $\pi = \varnothing$ escribiremos
 $\vdash e : \theta$
 
 \end{definition}
@@ -135,11 +136,11 @@ metavariables generales:
 
 \begin{center}
 \begin{tabular}{ l r }
-	$\theta$ $\lrangles{Type}$ & $\pi$ $\lrangles{Context}$ \\
-	$\delta$ $\{ \boolt,\intt,\realt \}$ & \\
-	$e$ $\lrangles{Phrase}$ & $x$ $\lrangles{Id}$ \\
-	$n$, $m$ \ \ $\N$ & $b$ \ \ $\B$ \\
-	$i$ \ \ $\Z$ & $r$ \ \ $\R$ 
+	$\theta$ $\in \lrangles{Type}$ & $\pi$ $\in \lrangles{Context}$ \\
+	$\delta$ $\in \{ \boolt,\intt,\realt \}$ & \\
+	$e$ $\in \lrangles{Phrase}$ & $\iota$ $\in \lrangles{Id}$ \\
+	$n$, $m$ \ \ $\in \N$ & $b$ \ \ $\in \B$ \\
+	$i$ \ \ $\in \Z$ & $r$ \ \ $\in \R$ 
 \end{tabular}
 \end{center}
 
@@ -169,20 +170,16 @@ $\texttt{Ty Rule:}$ Constantes.
 $\texttt{Ty Rule:}$ Operadores b\'asicos.
 
 \begin{center}
+\AxiomC{$\pi \vdash e : \boolt$}
+\UnaryInfC{$\pi \vdash \neg e : \boolt$}
+\DisplayProof
+\quad
 \AxiomC{$\pi \vdash e : \intt$}
 \UnaryInfC{$\pi \vdash -e : \intt$}
 \DisplayProof
 \quad
 \AxiomC{$\pi \vdash e : \realt$}
 \UnaryInfC{$\pi \vdash -e : \realt$}
-\DisplayProof
-\end{center}
-
-\
-
-\begin{center}
-\AxiomC{$\pi \vdash e : \boolt$}
-\UnaryInfC{$\pi \vdash \neg e : \boolt$}
 \DisplayProof
 \end{center}
 
@@ -236,24 +233,10 @@ $\texttt{Ty Rule:}$ Operadores b\'asicos.
 \DisplayProof
 \end{center}
 
-Hasta aqu\'i hemos definido las reglas de inferencia para las constantes y
-operadores b\'asicos, algo particular en relaci\'on a estas reglas es que,
-por la clase de expresiones el tipado es implicito, en contraste como veremos
-a continuaci\'on con la regla para la abstracci\'on lambda. Ademas el contexto
-no juega ning\'un papel para determinar la valides de un juicio.\\
-
-Veamos ahora las reglas referentes a la parte del calculo lambda simplemente tipado, 
-ademas de la regla para el tipado de un identificador.\\
-
 \
 
-\
-
-\
-
-\
-
-\
+Veamos ahora las reglas referidas a la parte del c\'alculo lambda simplemente tipado, 
+adem\'as de la regla para el tipado de un identificador.\\
 
 \noindent
 $\texttt{Ty Rule:}$ Aplicaci\'on.
@@ -274,10 +257,12 @@ $\texttt{Ty Rule:}$ Operador de punto fijo.
 \DisplayProof
 \end{center}
 
-En la regla de tipado de un identificador se observa como hace falta
+En la regla de tipado de un identificador se observa c\'omo hace falta
 consultar el contexto para determinar el tipo del identificador. Esta
-consulta ayuda a chequear, por supuesto el tipo, pero ademas que el
-identificador no este libre.
+consulta ayuda a chequear, por supuesto el tipo, pero adem\'as que el
+identificador no est\'e libre en el contexto de una frase mas compleja,
+ya que si este identificador fuera libre para la frase entonces no podr\'iamos
+justificar la pertenencia al contexto.
 
 \
 
@@ -285,24 +270,17 @@ identificador no este libre.
 $\texttt{Ty Rule:}$ Identificador.
 
 \begin{center}
-\AxiomC{$v:\theta \in \pi$}
+\AxiomC{$\iota:\theta \in \pi$}
 \RightLabel{}
-\UnaryInfC{$\pi \vdash v : \theta$}
+\UnaryInfC{$\pi \vdash \iota : \theta$}
 \DisplayProof
 \end{center}
 
 En la regla anterior consult\'abamos el contexto, en la regla para
 la abstracci\'on lambda vamos a agregar un identificador con su respectivo 
 tipo. La abstracci\'on lambda la podr\'iamos haber definido de dos maneras bien distintas,
-con tipado explicito o tipado impl\'icito, la diferencia esta en si especificamos
-el tipo del identificador o no. La elecci\'on final fue utilizar tipado explicito
-ya que no hace falta inferir el tipo del identificador, el cual para este lenguaje
-pequeño puede realizarse utilizando el algoritmo Hindley-Milner pero que es
-extremadamente ineficiente. Ademas como el plan es ir extendiendo este lenguaje,
-para formar nuevos, ya no va a ser cierto que se pueda inferir el tipo de un 
-identificador algoritmicamente.
-
-\
+con tipado explicito o tipado impl\'icito, la diferencia est\'a en si especificamos
+el tipo del identificador o no.\\
 
 \noindent
 $\texttt{Ty Rule:}$ Abstracci\'on lambda.
@@ -331,63 +309,89 @@ $\texttt{Ty Rule:}$ Expresi\'on condicional.
 
 Ahora que hemos terminado de definir todas las reglas de inferencia, podemos
 mencionar la raz\'on por la cual en la definici\'on de nuestros contexto no
-permitimos tener identificadores repetidos. Una primera raz\'on podr\'ia ser
-que suceder\'ia en el caso en que un contexto tenga dos identificadores 
-iguales pero con distinto tipo, que podr\'ia pasar de intentar dar una 
-derivaci\'on del siguiente juicio de tipado 
-$\vdash 
-	\clambda{\iota}{\intt}{\clambda{\iota}{\realt} \ \iota \times \iota} : 
-		\intt \rightarrow \realt \rightarrow \realt$. Lo que suceder\'ia es
-que nos har\'ian falta mas reglas de inferencia para obtener efectivamente
-una derivaci\'on, siguiendo con el ejemplo nos har\'ia falta una regla,
+permitimos tener identificadores repetidos. Tomemos la frase 
+$\clambda{\iota}{\intt}{\clambda{\iota'}{\realt} \ \iota'}$, la derivaci\'on
+para tipar esta frase ser\'ia\\
 
 \begin{center}
-\AxiomC{$\pi \vdash e  : \intt$}
-\AxiomC{$\pi \vdash e' : \realt$}
-\BinaryInfC{$\pi \vdash e \times e': \realt$}
+\AxiomC{$\iota':\theta \in \iota:\intt, \iota':\realt$}
+\UnaryInfC{$\iota:\intt, \iota':\realt \vdash \iota' : \theta$}
+\UnaryInfC{$\iota:\intt \vdash \clambda{\iota'}{\realt} \ \iota' : \realt \rightarrow \theta$}
+\UnaryInfC{$\vdash 
+	\clambda{\iota}{\intt}{\clambda{\iota'}{\realt} \ \iota'} : 
+									\intt \rightarrow \realt \rightarrow \theta$}
 \DisplayProof
 \end{center}
 
-y as\'i para muchos otros casos e incluso quedar\'ian casos por considerar 
-para los cuales no existen reglas que tengan sentido. Una soluci\'on intermedia
-a no permitir la repetici\'on de identificadores podr\'ia ser permitirla
-siempre y cuando, cada vez que quiera agregar un identificador con su 
-respectivo tipo a un contexto, si ya existe este nombre de identificador
-entonces los tipos de cada uno deben coincidir, por ejemplo si consideramos
-el juicio de tipado 
+\
+
+luego tenemos que $\theta$ debe ser $\realt$ y podemos concluir el juicio de tipado,
 $\vdash 
-	\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota \times \iota} : 
-		\intt \rightarrow \intt \rightarrow \intt$ y la versi\'on intermedia
-de contextos, entonces podemos efectivamente dar una derivaci\'on del juicio
-de tipado sin tener que agregar reglas nuevas, ni complicar nada.
-		
-La pregunta que surge, ahora que tenemos que este juicio es valido y por lo tanto
-deber\'iamos poder evaluarlo. ¿ Cuando aplicamos esta frase a dos frases enteras, 
-que valor debe tomar $\iota$ ?; es decir, supongamos tenemos el juicio anterior
+	\clambda{\iota}{\intt}{\clambda{\iota'}{\realt} \ \iota'} : 
+									\intt \rightarrow \realt \rightarrow \realt$.
+Analicemos ahora que suceder\'ia si reemplaz\'aramos $\iota'$ por $\iota$, es decir
+tuvi\'eramos la siguiente frase $\clambda{\iota}{\intt}{\clambda{\iota}{\realt} \ \iota}$,
+la derivaci\'on es exactamente igual pero ahora surge un problema, $\theta$ podr\'ia
+ser o bien $\intt$ o bien $\realt$, surge la pregunta entonces ¿ como saber que tipo
+es el correcto ? \\
+Por otro lado, incluso reemplazando el tipo $\realt$ por $\intt$, es decir
+tenemos la frase $\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota}$, para la
+cual tenemos una derivaci\'on del juicio de tipado 
+$\vdash 
+	\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota} : 
+									\intt \rightarrow \intt \rightarrow \intt$.
+La pregunta que surge es ¿ Cuando aplicamos esta frase a dos frases enteras, 
+que valor debe tomar $\iota$ ?; supongamos tenemos el juicio anterior
 aplicado a dos frases enteras, 
 $\vdash 
 	(\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota \times \iota}) \ 1 \ 2 : \intt$
-el resultado de tal evaluaci\'on, deber\'ia ser ¿$1$?, ¿$4$? o incluso, por qué no, ¿$2$?.
-Para lidiar entonces con esto, es que tenemos la restricci\'on sobre los contextos, 
-la idea es que ahora
-con la restricci\'on la frase $\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota \times \iota}$
-no pertenece a ning\'un juicio de tipado valido.
+el resultado de tal evaluaci\'on deber\'ia $4$ si nos basamos en la sem\'antica operacional.
+Esto sucede porque la primera ocurrencia de $\iota$ no tiene participaci\'on en el alcance
+de la segunda ocurrencia, es decir, ac\'a los par\'ametros de nuestras abstracciones lambda
+llevan el mismo nombre pero son distintos par\'ametros, esto pensando en la funci\'on que define
+nuestro ejemplo como una funci\'on que toma dos enteros y retorna otro.\\
+Para finalizar entonces notemos que si restringimos los contextos no perdemos expresividad
+para definir funciones y si solucionamos posibles problemas de tipado. La restricci\'on
+entonces implica que la frase $\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota \times \iota}$
+no tiene ning\'un juicio de tipado valido.
 
 \section{Sem\'antica para $\lambdaarrow$}
 
 Ya tenemos definida la sint\'axis de $\lambdaarrow$ en conjunto con las reglas
 de inferencia para los distintos juicios de tipado de cada frase. Empecemos
-esta secci\'on definiendo la sem\'antica de los tipos y los contextos, para esto vamos a
-definir los dominios sem\'anticos usando categor\'ias y las ecuaciones
-sem\'anticas usando sem\'antica denotacional. 
+esta secci\'on presentando la categor\'ia sem\'antica, que nombraremos $\CD$, 
+esta sera una categor\'ia cartesiana cerrada, la cual iremos adaptando seg\'un 
+las caracter\'isticas de nuestro lenguaje. 
+Tanto para $\lambdaarrow$ como para $\lambdaleq$ esta sera $\Dom$.\\
 
-Vamos a necesitar de tres categor\'ias, una sera de los tipos ($\lrangles{Type}$),
-otra de contextos ($\lrangles{Context}$) y finalmente una para el significado 
-de los juicios de tipado. Lo interesante sobre utilizar categor\'ias, sobre
+Antes de continuar hagamos un repaso de cual es
+la categor\'ia $\Dom$, esta tiene por objetos a 
+dominios\footnote{Conjunto parcialmente ordenado con menor elemento.}
+y por flechas a
+funciones continuas\footnote{Una funci\'on $f$ entre predominios es continua si preserva
+el limite de cadenas.}
+. Adem\'as como caracter\'istica que nos va a interesar, 
+tenemos la existencia del operador de punto fijo que representaremos como $\Y_D$
+con $D$ un dominio y cuya existencia la garantiza \cite[P 2.5]{reynolds2009theories}, como
+ya hemos mencionado es $\CCC$, donde el producto entre dos objetos $D$ y $D'$ 
+es el producto cartesiano de conjuntos y el exponencial $D^{D'}$ es el conjunto 
+de funciones continuas de $D'$ en $D$.
+Mencionamos adem\'as que con $\bot$ vamos a representar la no terminaci\'on, esto
+va a hacer falta ya que nuestro lenguaje b\'asico incluye operador de punto fijo.
+La idea es que para interpretar los tipos elegimos 
+objetos de esta categor\'ia, y para los juicios elegimos morfismos.\\
+
+Por otro lado definimos $S_\delta$ como el conjunto de valores que representa a cada tipo
+tal que $S_{\realt}$ ser\'a $\R$, $S_{\intt}$ ser\'a $\Z$ y $S_{\boolt}$ ser\'a $\{true,false\}$,
+todos con orden llano.\\
+
+Adem\'as de la categor\'ia sem\'antica vamos a definir dos categor\'ias mas,
+una sera de los tipos ($\lrangles{Type}$) y
+otra de contextos ($\lrangles{Context}$). Lo interesante sobre utilizar categor\'ias, sobre
 todo para el significado de los juicios de tipado, ser\'a la capacidad de
 adaptar las ecuaciones sem\'anticas a las distintas caracter\'isticas del lenguaje.
 
-\begin{definition}\label{lambdaa:typescategory}
+\begin{definition}{lambdaa:typescategory}
 La categor\'ia de tipos, que nombraremos $\Theta$, sera una categor\'ia discreta tal que 
 la colecci\'on de objetos esta definida como,\\
 
@@ -403,29 +407,13 @@ $\Pi_0$ $=$ $\{\pi \ | \ \pi \ \in \lrangles{Context} \}$
 
 \end{definition}
 
-La categor\'ia sem\'antica, que nombraremos $\CD$, sera una categor\'ia cartesiana 
-cerrada, la cual iremos adaptando seg\'un las necesidades de nuestro lenguaje. 
-Tanto para $\lambdaarrow$ como para $\lambdaleq$ esta sera $\Dom$.\\
-
-Antes de continuar con las definiciones sem\'anticas hagamos un repaso de cual es
-la categor\'ia $\Dom$, esta tiene por objetos a dominios y por flechas a
-funciones continuas. Adem\'as como caracter\'istica que nos va a interesar, 
-tenemos la existencia del operador de punto fijo que representaremos como $\Y_D$
-con $D$ un dominio y cuya existencia la garantiza (ref Reynolds Prop 2.5), como
-ya hemos mencionado es $\CCC$, donde el producto entre dos objetos $D$ y $D'$ 
-es el producto cartesiano de conjuntos y el exponencial $D^{D'}$ es el conjunto 
-de funciones de $D'$ en $D$.\\
-
 Ahora s\'i, con los dominios necesarios, podemos definir dos funtores, 
 uno entre $\Theta$ y $\CD$, y otro entre $\Pi$ y $\CD$. Esto implica definir 
 funciones, que mapee objetos en objetos y flechas en flechas, como $\Theta$ y $\Pi$ 
 son discreta, la definici\'on de estas ultimas funciones es directa, por lo 
 tanto vamos a definir el mapeo de objetos en objetos.
-En general cuando definamos funtores vamos a hacer uso de los indicies, pero luego
-cuando los utilicemos vamos a dejarlos de lado.
-
-Mencionamos adem\'as que con $\bot$ vamos a representar la no terminaci\'on, esto
-va a hacer falta ya que nuestro lenguaje b\'asico incluye operador de punto fijo.
+En general cuando definamos funtores vamos a explicitar los \'indices, pero luego
+cuando los utilicemos vamos a omitirlos.
 
 \begin{definition}\label{lambdaa:typesemfunctor}
 Sea $\semBrcks{ \_ } : \Theta \rightarrow \CD$ un funtor, tal que
@@ -448,7 +436,7 @@ $\semBrcks{\pi}_0$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}$
 Notar que como $\CD$ es $\mathcal{CCC}$ entonces tenemos productos finitos, como los
 contextos son siempre finitos, la definici\'on es correcta.\\
 
-Estamos en condiciones de definir las ecuaciones sem\'anticas, para quien este
+Ahora estamos en condiciones de definir las ecuaciones sem\'anticas, para quien est\'e
 familiarizado con la definici\'on de sem\'antica denotacional de lenguajes sin tipado
 podemos comentar que las ecuaciones sem\'anticas se definen sobre un juicio 
 de tipado y no sobre las frases en s\'i. Esto implica entonces, que para evaluar
@@ -461,121 +449,110 @@ el funtor $\semBrcks{\pi}$, otro objeto de $\CD$, determinado por $\semBrcks{\th
 un funtor sobre el juicio de tipado, tal que, 
 $\semBrcks{\pi \vdash e : \theta} : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$.\\
 
-Agregamos a nuestra lista de metavariables, $\eta$ con tipo $\semBrcks{\pi}$.
+Agregamos a nuestra lista de metavariables, $\eta$ con tipo $\semBrcks{\pi}$, donde $\pi$
+estar\'a determinado por el contexto donde usemos $eta$.\\
 
-\
+Vamos a definir funciones \\
+
+$(\_)_{\odot} : 
+(S_\delta \rightarrow S_\delta) \rightarrow ((S_\delta)_\bot \rightarrow (S_\delta)_\bot)$\\
+\indent
+$f_{\odot} = (\iotabot \circ f )_{\dbot}$\\
+
+$(\_)_{\circledcirc} : 
+(S_\delta \rightarrow S_\delta \rightarrow S_{\delta'}) \rightarrow ((S_\delta)_\bot \rightarrow (S_\delta)_\bot \rightarrow (S_{\delta'})_\bot)$\\
+\indent
+$f_{\circledcirc} = (\lambda x . \ (\lambda x' . \ \iotabot \ (f \ x \ x'))_{\dbot})_{\dbot}$\\
+
+Ahora s\'i comencemos con las definiciones de las ecuaciones sem\'anticas, un detalle 
+es que las definiciones consideran $\CD$ como $\Dom$.\\
 
 \noindent
-$\texttt{Denotal Sem:}$ Constantes.\
+$\texttt{Denotal Sem:}$ Constantes.\\
 
-\begin{center}
-$\semBrcks{\pi \vdash b : \boolt} \eta$ $=$ $\iotabot b$\\
-
-\
-
-$\semBrcks{\pi \vdash i : \intt} \eta$  $=$ $\iotabot i$\\
-
-\
-
+$\semBrcks{\pi \vdash b : \boolt} \eta$ $=$ $\iotabot b$\quad
+$\semBrcks{\pi \vdash i : \intt} \eta$  $=$ $\iotabot i$\quad
 $\semBrcks{\pi \vdash r : \realt} \eta$ $=$ $\iotabot r$
-\end{center}
-
-\
 
 \
 
 \noindent
-$\texttt{Denotal Sem:}$ Operadores b\'asicos.\
+$\texttt{Denotal Sem:}$ Operadores b\'asicos.\\
 
-\begin{center}
+$\semBrcks{\pi \vdash -e : \intt}$ $=$ $-_{\odot} \circ \semBrcks{\pi \vdash e : \intt}$\\
 
-$\semBrcks{\pi \vdash -e : \intt}$ $=$ $(\lambda x \in S_\intt . \iotabot -x)_{\dbot} \circ \semBrcks{\pi \vdash e : \intt}$\\
+$\semBrcks{\pi \vdash -e : \realt}$ $=$ $-_{\odot} \circ \semBrcks{\pi \vdash e : \realt}$\\
 
-\
+$\semBrcks{\pi \vdash \neg e : \boolt}$ $=$ $-_{\odot} \circ \semBrcks{\pi \vdash e : \boolt}$\\
 
-$\semBrcks{\pi \vdash -e : \realt}$ $=$ $(\lambda x \in S_\realt .\iotabot -x)_{\dbot} \circ \semBrcks{\pi \vdash e : \realt}$\\
 
-\
-
-$\semBrcks{\pi \vdash \neg e : \boolt}$ $=$ $(\lambda x \in S_\boolt . \iotabot \neg x)_{\dbot} \circ \semBrcks{\pi \vdash e : \boolt}$
-
-\end{center}
-
-\noindent
-$\semBrcks{\pi \vdash e \otimes e' : \intt}\eta$ $=$ \\
-				\indent \indent \indent $(\lambda x \in S_\intt . 
-											(\lambda x' \in S_\intt . \iotabot (x \otimes x'))_{\dbot}
-													\semBrcks{\pi \vdash e' : \intt}\eta)_{\dbot}
-														\semBrcks{\pi \vdash e : \intt}\eta$
+$\semBrcks{\pi \vdash e \otimes e' : \intt}\eta$ $=$ 
+$\otimes_{\circledcirc} \ \semBrcks{\pi \vdash e : \intt}\eta \
+						\semBrcks{\pi \vdash e' : \intt}\eta$
 
 \begin{center}
 con $\otimes \in \{+,-,*,/\ , \rem\}$
 \end{center}
 
-\noindent
-$\semBrcks{\pi \vdash e \otimes e' : \realt}\eta$ $=$ \\
-				\indent \indent \indent $(\lambda x \in S_\realt . 
-											(\lambda x' \in S_\realt . \iotabot (x \otimes x'))_{\dbot}
-													\semBrcks{\pi \vdash e' : \realt}\eta)_{\dbot}
-														\semBrcks{\pi \vdash e : \realt}\eta$
+$\semBrcks{\pi \vdash e \otimes e' : \realt}\eta$ $=$
+$\otimes_{\circledcirc} \ \semBrcks{\pi \vdash e : \intt}\eta \
+						\semBrcks{\pi \vdash e' : \intt}\eta$
 
 \begin{center}
 con $\otimes \in \{+,-,*\}$
 \end{center}
 
-\noindent
-$\semBrcks{\pi \vdash e \owedge e' : \boolt}\eta$ $=$ \\
-				\indent \indent \indent $(\lambda x \in S_\boolt . 
-											(\lambda x' \in S_\boolt . \iotabot (x \owedge x'))_{\dbot}
-													\semBrcks{\pi \vdash e' : \boolt}\eta)_{\dbot}
-														\semBrcks{\pi \vdash e : \boolt}\eta$
+$\semBrcks{\pi \vdash e \owedge e' : \boolt}\eta$ $=$
+$\owedge_{\circledcirc} \ \semBrcks{\pi \vdash e : \intt}\eta \
+						\semBrcks{\pi \vdash e' : \intt}\eta$
 
 \begin{center}
 con $\owedge \in \{\wedge,\vee,\Rightarrow,\Leftrightarrow\}$
 \end{center}
 
+$\semBrcks{\pi \vdash e \olessthan e' : \boolt}\eta$ $=$ 
+$\olessthan_{\circledcirc} \ \semBrcks{\pi \vdash e : \intt}\eta \
+						\semBrcks{\pi \vdash e' : \intt}\eta$
+
 \begin{center}
-
-$\semBrcks{\pi \vdash e \olessthan e' : \boolt}\eta$ $=$ $(\lambda x \in S_\delta . 
-											(\lambda x' \in S_\delta . \iotabot (x \olessthan x'))_{\dbot}
-													\semBrcks{\pi \vdash e' : \delta}\eta)_{\dbot}
-														\semBrcks{\pi \vdash e : \delta}\eta$
-
-\
-
 con $\delta \in \{\intt, \realt \}, \olessthan \in \{<,>,\leq,\geq\}$
 \end{center}
 
+$\semBrcks{\pi \vdash e \ominus e' : \boolt}\eta$ $=$ 
+$\ominus_{\circledcirc} \ \semBrcks{\pi \vdash e : \intt}\eta \
+						\semBrcks{\pi \vdash e' : \intt}\eta$
+
 \begin{center}
-
-$\semBrcks{\pi \vdash e \ominus e' : \boolt}\eta$ $=$ $(\lambda x \in S_\delta . 
-											(\lambda x' \in S_\delta . \iotabot (x \ominus x'))_{\dbot}
-													\semBrcks{\pi \vdash e' : \delta}\eta)_{\dbot}
-														\semBrcks{\pi \vdash e : \delta}\eta$
-
-\
-
 con $\ominus \in \{=,\neq\}$
 \end{center}
 
 Hasta aqu\'i tenemos definida la sem\'antica para las expresiones enteras,
 reales y booleanas. Definamos ahora la parte interesante del lenguaje, esto 
-sera, la expresi\'on condicional, aplicaci\'on, abstracci\'on lambda, operador
-de punto fijo e identificador.
+es, la expresi\'on condicional, aplicaci\'on, abstracci\'on lambda, operador
+de punto fijo e identificador. Parecido a como hicimos para los operadores,
+definamos una funci\'on que llamaremos $\IF$ que ir\'a de $D \times D \times (S_{\boolt})_\bot$ en
+$D$, con $D$ un dominio y cuya definici\'on es,
 
-\
+\[
+\IF \lrangles{t, \ f, \ b}=
+\begin{cases}
+\bot & \text{si } b = \bot \\
+t  & \text{si } b\\
+f & \text{si } \neg b\\
+\end{cases}
+\]
 
 \noindent
 $\texttt{Denotal Sem:}$ Expresi\'on condicional.\
 
 \
 
-$\semBrcks{\pi \vdash \cifthenelse{b}{e}{e'} : \theta}\eta$ $=$\\
-		\indent \indent \indent $(\lambda b \in S_{\boolt} .$ if $b$ \\
-		\indent \indent \indent \indent \indent \indent \indent 
-											then $\semBrcks{\pi \vdash e : \theta}\eta$\\
-		\indent \indent \indent \indent \indent \indent \indent 
-											else $\semBrcks{\pi \vdash e' : \theta}\eta)_{\dbot}\semBrcks{\pi \vdash b : \boolt}\eta$
+$\semBrcks{\pi \vdash \cifthenelse{b}{e}{e'} : \theta}\eta$ $=$ \\
+\indent \indent \indent \indent \indent \indent \indent 
+$\IF (\semBrcks{\pi \vdash e : \theta}\eta
+	 , \ \semBrcks{\pi \vdash e' : \theta}\eta
+	 , \ \semBrcks{\pi \vdash b : \boolt}\eta
+	 )$
 
 \
 
@@ -629,17 +606,15 @@ primer lenguaje $\lambdaarrow$.
 Ahora que tenemos nuestro lenguaje definido tanto sint\'acticamente como
 sem\'anticamente, veamos algunas propiedades y caracter\'isticas. Tomemos
 la ecuaci\'on sem\'antica de la abstracci\'on lambda y analic\'emosla un 
-poco, podemos empezar notando que el significado que le estamos dado
+poco, podemos empezar notando que el significado que le estamos dando
 a la abstracci\'on lambda de nuestro lenguaje se corresponde exactamente
-con la noci\'on de funci\'on, de hecho, no hay que confundir la letra lambda
-que ocurre en el lado izquierdo de la que ocurre en el lado derecho de la
-ecuaci\'on. Con esto en mente analicemos un poco mas de cerca la definici\'on,\\
+con la noci\'on de funci\'on matem\'atica, recordando que 
+$\semBrcks{\theta \rightarrow \theta'}$ $=$ $\semBrcks{\theta'}^{\semBrcks{\theta}}$\\
 
 $\semBrcks{\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'}\eta$ $:$
 $\semBrcks{\theta'}^{\semBrcks{\theta}}$\\
 
 \noindent
-esto recordando que $\semBrcks{\theta \rightarrow \theta'}$ $=$ $\semBrcks{\theta'}^{\semBrcks{\theta}}$,
 es decir, como ya mencionamos antes, el significado de la abstracci\'on lambda es
 una funci\'on en $\Dom$, que va de $\semBrcks{\theta}$ en $\semBrcks{\theta'}$. Mirando
 ahora la parte derecha,\\
@@ -660,25 +635,35 @@ con $\semBrcks{\pi,\iota:\theta}$ dando como resultado el tipo esperado,\\
 $\semBrcks{\pi,\iota:\theta \vdash e : \theta'}
 	(ext_{\iota,\theta} \eta \ x)$ $:$ $\semBrcks{\theta'}$.\\
 
-Acabamos de ver un poco mas de cerca la ecuaci\'on sem\'antica de la abstracci\'on
+Acabamos de ver un poco m\'as de cerca la ecuaci\'on sem\'antica de la abstracci\'on
 lambda, siguiendo con la etapa de an\'alisis de las ecuaciones que hemos definido
 vamos a tomar la aplicaci\'on y realizar un an\'alisis categ\'orico, \'el cual
-adem\'as nos servir\'a mas adelante para probar la continuidad de la 
+adem\'as nos servir\'a m\'as adelante para probar la continuidad de la 
 aplicaci\'on.\\
 
-Tomemos un juicio de tipado $\pi \vdash ee' : \theta'$ cualquiera y
-recordando adem\'as que dados dos tipos $\theta$ y $\theta'$, $\semBrcks{\theta'}^{\semBrcks{\theta}}$
-era objeto exponencial en $\Dom$, es decir, que adem\'as de este objeto tenemos
-una flecha $\epsilon$ tal que,
+Tomemos un juicio de tipado $\pi \vdash ee' : \theta'$ cualquiera; recordemos
+adem\'as que dados dos tipos $\theta$ y $\theta'$, $\semBrcks{\theta'}^{\semBrcks{\theta}}$
+es el objeto exponencial en $\Dom$, es decir, que adem\'as de este objeto tenemos
+una flecha $\epsilon$,
 
 \begin{diagram}
-  \semBrcks{\theta'}^{\semBrcks{\theta}} \times \semBrcks{\theta} & \rTo^{\epsilon} & \semBrcks{\theta'}.
+  \semBrcks{\theta'}^{\semBrcks{\theta}} \times \semBrcks{\theta} & \rTo^{\epsilon} & \semBrcks{\theta'}
+\end{diagram}
+
+\noindent
+tal que para una flecha $D \times \semBrcks{\theta} \rTo^{f} \semBrcks{\theta'}$, con $D$
+un dominio, existe una \'unica flecha $\widetilde{f}$ que hace conmutar el diagrama
+
+\begin{diagram}
+  \semBrcks{\theta'}^{\semBrcks{\theta}} \times \semBrcks{\theta} & \rTo^{\epsilon} & \semBrcks{\theta'}\\
+  \uTo^{\widetilde{f} \times 1_{\semBrcks{\theta}}} & \ruTo_{f} & &  \\
+  D \times \semBrcks{\theta} & & \\
 \end{diagram}
 
 Por otro lado, $\semBrcks{\pi \vdash e' : \theta} : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$ y,
-como ya vimos hace un rato, $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}$ $:$
+como ya vimos hace un momento, $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}$ $:$
 $\semBrcks{\pi} \rightarrow \semBrcks{\theta'}^{\semBrcks{\theta}}$, luego podemos definir 
-una flecha $f = \uncurry (\semBrcks{\pi \vdash e : \theta \rightarrow \theta'})$ y notar que
+una flecha $f = \uncurry (\semBrcks{\pi \vdash e : \theta \rightarrow \theta'})$ luego,
 $f : \semBrcks{\pi} \times \semBrcks{\theta} \rightarrow \semBrcks{\theta'}$. Por lo tanto
 tenemos el siguiente diagrama,
 
@@ -688,7 +673,9 @@ tenemos el siguiente diagrama,
   \semBrcks{\pi} \times \semBrcks{\theta} & & \\
 \end{diagram}
 
-donde claramente $\widetilde{f} = \semBrcks{\pi \vdash e : \theta \rightarrow \theta'}$.\\
+\noindent
+donde claramente $\widetilde{f} = \semBrcks{\pi \vdash e : \theta \rightarrow \theta'}$,
+puesto que dado una flecha $g$, la transpuesta de $\uncurry(g) = g$.\\
 
 Ahora, si tomamos una flecha $g$ tal que $g = \semBrcks{\pi \vdash e' : \theta}$, 
 podemos obtener la siguiente flecha,
@@ -702,6 +689,7 @@ podemos obtener la siguiente flecha,
 			   & \semBrcks{\theta'}
 \end{diagram}
 
+\noindent
 luego podemos combinar los dos diagramas, donde 
 $(1_{\semBrcks{\pi}} \times g) \circ \lrangles{1_{\semBrcks{\pi}} , 1_{\semBrcks{\pi}}}$
 $=$ $\lrangles{1_{\semBrcks{\pi}} , g}$ y obtener,
@@ -729,7 +717,8 @@ de la aplicaci\'on es,\\
 $\semBrcks{\pi \vdash ee' : \theta'}$ $=$ 
 $\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}
 									,\semBrcks{\pi \vdash e' : \theta}}$\\
-									
+
+\noindent									
 tomando un $\eta$ cualquiera tendremos,\\
 
 $\semBrcks{\pi \vdash ee' : \theta'}\eta$ $=$ 
@@ -742,19 +731,20 @@ $\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\e
 \
 
 $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta
-									(\semBrcks{\pi \vdash e' : \theta} \eta)$\\
+									(\semBrcks{\pi \vdash e' : \theta} \eta)$
+
+\subsection{Continuidad}
 
 Ahora estamos en condiciones de demostrar una propiedad importante que deben cumplir nuestras 
-ecuaciones sem\'anticas, ser funciones continuas, no hay que olvidar
-que cuando decimos que, dado un juicio $\pi \vdash e : \theta$, el tipo
-de nuestra ecuaci\'on ser\'a $\semBrcks{\pi} \rightarrow \semBrcks{\theta}$, ese 
-tipo representa un conjunto de funciones continuas en $\Dom$. Es decir, para
-verdaderamente estar seguros que las definiciones que hemos dado son 
-correctas, debemos probar que cada ecuaci\'on sem\'antica es una funci\'on
+ecuaciones sem\'anticas, ser funciones continuas: no hay que olvidar
+que cuando decimos que, dado un juicio $\pi \vdash e : \theta$, su sem\'antica ser\'a
+un morfismo $\semBrcks{\pi} \rightarrow \semBrcks{\theta}$ en la categor\'ia $\Dom$.
+Estamos comprometidos a que $\semBrcks{\pi \vdash e : \theta}$ sea una funci\'on
 continua.\\
 
 Empecemos enunciando algunas proposiciones que nos van a hacer \'util para
-la prueba de continuidad.
+la prueba de continuidad, las pruebas de estas propiedades son mas bien simples
+y se pueden encontrar en \cite{reynolds2009theories}.
 
 \begin{proposition}\
 
@@ -774,7 +764,7 @@ cuyo menor elemento es una funci\'on tal que $\bot'' x = \bot'$ para todo $x \in
 \item Supongamos $P$ y $P'$ son predominios, entonces:
 
 \begin{enumerate}
-\item[(a)] Una funci\'on constante de $P$ en $P'$ es una funci\'on continua de $P$ en $P'$.\\
+\item[(a)] Una funci\'on constante de $P$ en $P'$ es la funci\'on continua de $P$ en $P'$.\\
 
 \item[(b)] La funci\'on identidad en $P$ es una funci\'on continua de $P$ en $P$.\\
 
@@ -799,8 +789,11 @@ $\lrangles{f_0,f_1,\ldots,f_{n-1}}x = \lrangles{f_0 x,f_1 x,\ldots,f_{n-1} x}$
 
 es una funci\'on continua de $P$ en $P_0 \times P_1 \times \ldots \times P_{n-1}$.
 
-\item[(f)] Dado un predominio $P$ y un dominio $D$, la funci\'on $(\_)_{\dbot}$ que va
-de $P \rightarrow D$ en $P_{\bot} \rightarrow D$, es una funci\'on continua.
+\item[(f)] Dado un predominio $P$ y un dominio $D$, el operador $(\_)_{\dbot}$ que
+extiende funciones de $P \rightarrow D$ en funciones de $P_{\bot} \rightarrow D$, es
+continuo.
+
+\item[(g)] $\Y_{D}$ es una funci\'on continua.
 
 \end{enumerate}
 
@@ -811,25 +804,27 @@ de $P \rightarrow D$ en $P_{\bot} \rightarrow D$, es una funci\'on continua.
 \begin{theorem}
 
 Dado un juicio de tipado $\pi \vdash e : \theta$ la ecuaci\'on sem\'antica
-\\ 
-$\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua.
+$\semBrcks{\pi \vdash ~ e : \theta}$ es una funci\'on continua.
 
 \end{theorem}
 
 \begin{proof}
 
 En la prueba vamos a proceder por inducci\'on en la estructura de la derivaci\'on 
-de los juicios de tipado.\\
-
-Supongamos tenemos un juicio de tipado $\pi \vdash e : \theta$ tal que
-$\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua y probemos
-que dado un juicio de tipado $\pi \vdash e : \theta$ mas complejo,
-$\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua.\\
-
-Supongamos tenemos una cadena interesante
+de los juicios de tipado. Supongamos tenemos una cadena interesante
 $\eta_0 \sqsubseteq \eta_1 \sqsubseteq \cdots$ en $\semBrcks{\pi}$ y probemos
-que $\semBrcks{\pi \vdash e : \theta}(\bigsqcup\limits^{\infty}_{i=0} \eta_i)$
-$=$ $\bigsqcup\limits^{\infty}_{i=0} \semBrcks{\pi \vdash e : \theta}\eta_i$.
+que\\
+
+$\semBrcks{\pi \vdash e : \theta}(\bigsqcup\limits^{\infty}_{i=0} \eta_i)$
+$=$ $\bigsqcup\limits^{\infty}_{i=0} \semBrcks{\pi \vdash e : \theta}\eta_i$.\\
+
+Nuestra hip\'otesis inductiva nos dir\'a que, suponiendo
+tenemos una deriaci\'on $\pi \vdash e : \theta$ tal que
+$\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua 
+de $\semBrcks{\pi}$ en $\semBrcks{\theta}$ entonces para
+una derivaci\'on mas compleja $\pi \vdash e : \theta$ que
+contenga a la anterior $\semBrcks{\pi \vdash e : \theta}$ es 
+una funci\'on continua de $\semBrcks{\pi}$ en $\semBrcks{\theta}$.\\
 
 \begin{itemize}
 \item Casos base.
@@ -863,7 +858,7 @@ luego por hip\'otesis inductiva $\semBrcks{\pi \vdash e : \theta \rightarrow \th
 $\semBrcks{\pi \vdash e' : \theta}$ son funciones continuas, entonces
 $\lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}
 					     ,\semBrcks{\pi \vdash e' : \theta}}$ es una funci\'on continua,
-adem\'as como $\epsilon$ es la flecha del exponencial tambi\'en es continua y para
+adem\'as como $\epsilon$ es la flecha del exponencial tambi\'en es continua; para
 terminar la composici\'on de funciones continuas es una funci\'on continua. Por lo tanto
 la ecuaci\'on sem\'antica $\semBrcks{\pi \vdash ee' : \theta}$ es una funci\'on 
 continua.
@@ -873,16 +868,17 @@ continua.
 $\semBrcks{\pi \vdash \rec{e} : \theta}(\bigsqcup\limits^{\infty}_{i=0} \eta_i)$ $=$ 
 $\Y_{\semBrcks{\theta}}
 	(\semBrcks{\pi \vdash e : \theta \rightarrow \theta} (\bigsqcup\limits^{\infty}_{i=0} \eta_i))$\\
-	
-aplicando hip\'otesis inductiva en $\semBrcks{\pi \vdash e : \theta \rightarrow \theta} (\bigsqcup\limits^{\infty}_{i=0} \eta_i)$, la definici\'on del operador de punto fijo,
-el hecho de que este operador sea una funci\'on continua y una de las proposiciones
-anteriores podemos obtener las siguientes igualdades, donde para hacer mas f\'acil la
-lectura nombramos a $\semBrcks{\pi \vdash e : \theta \rightarrow \theta}\eta_i = f_i$,\\
+
+Para hacer mas f\'acil la lectura nombramos a $\semBrcks{\pi \vdash e : \theta \rightarrow \theta}\eta_i = f_i$. Aplicando hip\'otesis inductiva en $\semBrcks{\pi \vdash e : \theta \rightarrow \theta} (\bigsqcup\limits^{\infty}_{i=0} \eta_i)$ y la definici\'on del operador 
+de punto fijo\\
 
 $\Y_{\semBrcks{\theta}}
 	(\semBrcks{\pi \vdash e : \theta \rightarrow \theta} (\bigsqcup\limits^{\infty}_{i=0} \eta_i))$ $=$
 $\Y_{\semBrcks{\theta}}
-	(\bigsqcup\limits^{\infty}_{i=0} f_i)$ $=$\\
+	(\bigsqcup\limits^{\infty}_{i=0} f_i)$ $=$
+$(\bigsqcup\limits^{\infty}_{i=0} f_i)$ $(\Y_{\semBrcks{\theta}}(\bigsqcup\limits^{\infty}_{i=0} f_i))$\\
+
+luego usando las proposiciones 2 (g) y 2 (d)\\
 
 $(\bigsqcup\limits^{\infty}_{i=0} f_i)$ $(\Y_{\semBrcks{\theta}}(\bigsqcup\limits^{\infty}_{i=0} f_i))$ $=$
 $(\bigsqcup\limits^{\infty}_{i=0} f_i)$ $(\bigsqcup\limits^{\infty}_{j=0} (\Y_{\semBrcks{\theta}}f_j)$ $=$\\
@@ -897,24 +893,8 @@ $\bigsqcup\limits^{\infty}_{k=0}$ $\semBrcks{\pi \vdash \rec{e} : \theta} \eta_k
 Por lo tanto, nuestra ecuaci\'on sem\'antica $\semBrcks{\pi \vdash \rec{e} : \theta}$ es
 una funci\'on continua.
 
-\item Supongamos tenemos el juicio de tipado $\pi \vdash \cifthenelse{b}{e}{e'} : \theta$, para
-probar que la ecuaci\'on para este juicio de tipado es continua vamos a definir otra funci\'on
-y probar que esta es continua, luego veremos como obtener la ecuaci\'on de la expresi\'on 
-condicional instanciando de alguna manera esta funci\'on.
-
-Empecemos definiendo la funci\'on que llamaremos $\IF$ que ir\'a de $D \times D \times \B_\bot$ en
-$D$, con $D$ un dominio y cuya definici\'on es,
-
-\[
-\IF \lrangles{t_i,f_i,b_i}=
-\begin{cases}
-\bot & \text{si } b_i = \bot \\
-t_i  & \text{si } b_i\\
-f_i  & \text{si } \neg b_i\\
-\end{cases}
-\]
-
-probemos ahora que esta funci\'on es continua. Supongamos una cadena 
+\item Supongamos tenemos el juicio de tipado $\pi \vdash \cifthenelse{b}{e}{e'} : \theta$, 
+probemos que la funci\'on $\IF$ es continua. Supongamos una cadena 
 $\lrangles{t_0,f_0,b_0} \sqsubseteq \lrangles{t_1,f_1,b_1} \sqsubseteq \ldots$, luego
 vamos a querer probar que $\IF (\bigsqcup\limits^{\infty}_{i=0}\lrangles{t_i,f_i,b_i})$ $=$
 $\bigsqcup\limits^{\infty}_{i=0} (\IF \lrangles{t_i,f_i,b_i})$.
@@ -970,14 +950,7 @@ $\bigsqcup\limits^{\infty}_{i=0} t_i$.
 Por lo tanto $\IF (\bigsqcup\limits^{\infty}_{i=0}\lrangles{t_i,f_i,b_i})$ $=$
 $\bigsqcup\limits^{\infty}_{i=0} (\IF \lrangles{t_i,f_i,b_i})$.\\
 
-Adem\'as es claro que $\IF \lrangles{ \semBrcks{\pi \vdash e : \theta}\eta
-					  			  , \semBrcks{\pi \vdash e' : \theta}\eta
-								  , \semBrcks{\pi \vdash b : \boolt}\eta
-								  }$ $=$
-$\semBrcks{\pi \vdash \cifthenelse{b}{e}{e'} : \theta}\eta$
-
-Por lo tanto, nuestra ecuaci\'on sem\'antica $\semBrcks{\pi \vdash \cifthenelse{b}{e}{e'} : \theta}$ es
-una funci\'on continua.
+Por lo tanto, nuestra ecuaci\'on sem\'antica $\semBrcks{\pi \vdash \cifthenelse{b}{e}{e'} : \theta}$ es una funci\'on continua.
 
 \item Los casos para los operadores binarios y un\'arios son similares a la prueba
 de expresi\'on condicional.
@@ -990,36 +963,36 @@ $\semBrcks{\pi,\iota:\theta \vdash e : \theta'} \circ ext_{\iota,\theta}$, \\
 
 probando entonces
 que $\semBrcks{\pi,\iota:\theta \vdash e : \theta'}$ y $ext_{\iota,\theta}$ son funciones 
-continuas podemos usar una parte del lema anterior que nos dice que composici\'on
-de funciones continuas es una funci\'on continua y con esto completar la prueba de que
-la ecuaci\'on para la abstracci\'on lambda es una funci\'on continua. Por hip\'otesis
+continuas podemos usar la parte 1 del lema anterior que nos dice que la composici\'on
+de funciones continuas es una funci\'on continua. Por hip\'otesis
 inductiva tenemos que $\semBrcks{\pi,\iota:\theta \vdash e : \theta'}$ es funci\'on
 continua, luego resta probar que $ext_\iota$ es continua de $\semBrcks{\pi}$ en 
 $\semBrcks{\theta} \rightarrow \semBrcks{\pi,\iota:\theta}$.\\
 
 Supongamos entonces una cadena $\eta_0 \sqsubseteq \eta_1 \sqsubseteq \ldots$ en 
+$\semBrcks{\pi}$
 y probemos que $ext_{\iota,\theta} (\bigsqcup\limits^{\infty}_{i=0} \eta_i)$ $=$
 $\bigsqcup\limits^{\infty}_{i=0} (ext_{\iota,\theta} \eta_i)$. Tomemos un $x$ en $\semBrcks{\theta}$
-y un $\kappa$ cualquiera,\\
+y un $\iota'$ cualquiera,\\
 
-$ext_{\iota,\theta} (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ x \ \kappa$ $=$
-$[ \ (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ | \ \iota:x \ ] \kappa$
+$ext_{\iota,\theta} (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ x \ \iota'$ $=$
+$[ \ (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ | \ \iota:x \ ] \iota'$
 
 \begin{itemize}
-\item Supongamos $\kappa = \iota$, luego \\
+\item Supongamos $\iota' = \iota$, luego \\
 
-$[ \ (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ | \ \iota:x \ ] \kappa$ $=$
+$[ \ (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ | \ \iota:x \ ] \iota'$ $=$
 $x$ $=$ $\bigsqcup\limits^{\infty}_{i=0} x$ $\bigsqcup\limits^{\infty}_{i=0} 
-([ \ \eta_i \ | \ \iota:x \ ] \kappa)$ $=$ $\bigsqcup\limits^{\infty}_{i=0} 
-(ext_{\iota,\theta} \eta_i \ x \ \kappa)$\\
+([ \ \eta_i \ | \ \iota:x \ ] \iota')$ $=$ $\bigsqcup\limits^{\infty}_{i=0} 
+(ext_{\iota,\theta} \eta_i \ x \ \iota')$\\
 
-\item Supongamos $\kappa \neq \iota$, luego \\
+\item Supongamos $\iota' \neq \iota$, luego \\
 
-$[ \ (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ | \ \iota:x \ ] \kappa$ $=$
-$(\bigsqcup\limits^{\infty}_{i=0} \eta_i) \kappa$ $=$
-$\bigsqcup\limits^{\infty}_{i=0} (\eta_i \kappa)$ $=$
-$\bigsqcup\limits^{\infty}_{i=0} ([ \ \eta_i \ | \ \iota:x \ ] \kappa)$ $=$
-$\bigsqcup\limits^{\infty}_{i=0} (ext_{\iota,\theta} \eta_i \ x \ \kappa)$\\
+$[ \ (\bigsqcup\limits^{\infty}_{i=0} \eta_i) \ | \ \iota:x \ ] \iota'$ $=$
+$(\bigsqcup\limits^{\infty}_{i=0} \eta_i) \iota'$ $=$
+$\bigsqcup\limits^{\infty}_{i=0} (\eta_i \iota')$ $=$
+$\bigsqcup\limits^{\infty}_{i=0} ([ \ \eta_i \ | \ \iota:x \ ] \iota')$ $=$
+$\bigsqcup\limits^{\infty}_{i=0} (ext_{\iota,\theta} \eta_i \ x \ \iota')$\\
 \end{itemize}
 
 por lo tanto, $ext_{\iota,\theta}$ es una funci\'on continua y podemos concluir que
@@ -1034,30 +1007,34 @@ Lo que vamos a hacer a continuaci\'on es probar que nuestra sem\'antica
 denotacional es correcta con respecto a la regla de reducci\'on $\beta$, para esto
 vamos a necesitar el teorema de substituci\'on. Para enunciar y probar este teorema
 vamos a tener que introducir un nuevo tipo de juicio de tipado as\'i como tambi\'en
-algunos conceptos de substituci\'on, como la idea es no meternos en mucho tecnicismo
-presentemos r\'apidamente las herramientas que vamos a necesitar.\\
+algunos conceptos de substituci\'on. La intenci\'on es evitar tanto tecnicismo
+como podamos, presentemos r\'apidamente las herramientas que vamos a necesitar.\\
 
-Empecemos introduciendo por parte de la substituci\'on el operador $\delta$ que 
-sera un mapa entre $\lrangles{Id}$ y $\lrangles{Phrase}$ que representara una
-substituci\'on de identificadores por frases, y una funci\'on
-$FV$ de $\lrangles{Phrase}$ en $\lrangles{Id}$ que determinara los
+Empecemos introduciendo el operador $\Delta$, de substituci\'on, que 
+ser\'a un mapa entre $\lrangles{Id}$ y $\lrangles{Phrase}$ que representar\'a una
+substituci\'on de identificadores por frases, y la funci\'on
+$FV$ de $\lrangles{Phrase}$ en $\Po(\lrangles{Id})$ que determinara los
 identificadores libres de una frase.\\
 
-Adem\'as, vamos a necesitar de un juicio de tipado nuevo cuyo significado
-ser\'a que dado un identificador $\iota$ y una substituci\'on $\delta$, 
-la substituci\'on de $\iota$ por $\delta\iota$ en una frase conserva el 
-tipado. Dados $\pi$, $\pi'$ contextos y $\delta$, vamos a representar el 
-nuevo juicio como $\pi \vdash \delta : \pi'$.
+Adem\'as, vamos a necesitar de una nueva forma de juicio de tipado cuyo significado
+ser\'a que dado un identificador $\iota$ y una substituci\'on $\Delta$, 
+la substituci\'on de $\iota$ por $\Delta\iota$ en una frase conserva el 
+tipado. Dados $\pi$, $\pi'$ contextos y $\Delta$, vamos a representar el 
+nuevo juicio como $\pi \vdash \Delta : \pi'$, cuya \'unica regla es:
+
+\begin{center}
+\AxiomC{$\pi \vdash \Delta\iota : \pi\iota$ \ \ \ para todo $\iota$ en $dom(\pi)$}
+\UnaryInfC{$\pi \vdash \Delta : \pi'$}
+\DisplayProof
+\end{center}
 
 \begin{theorem}[De substituci\'on]
-Sean $\pi$ y $\pi'$ contextos, $\delta$ una substituci\'on y supongamos
-tenemos dos juicios de tipado $\pi' \vdash e : \theta$, $\pi \vdash \delta : \pi'$ 
-tal que \\
-
-$\eta'\iota$ $=$ $\semBrcks{\pi \vdash \delta\iota : \pi'\iota}\eta$ \ \ \ 
-para todo $\iota \in \ dom \ \pi'$, entonces\\
- 
-$\semBrcks{\pi' \vdash e : \theta}\eta'$ $=$ $\semBrcks{\pi \vdash e / \delta : \theta}\eta$.
+Sean $\pi$ y $\pi'$ contextos, $\Delta$ una substituci\'on y supongamos
+tenemos dos juicios de tipado $\pi' \vdash e : \theta$, $\pi \vdash \Delta : \pi'$. 
+Asumamos adem\'as que
+$\eta'\iota$ $=$ $\semBrcks{\pi \vdash \Delta\iota : \pi'\iota}\eta$
+para todo $\iota \in \ dom \ \pi'$, entonces
+$\semBrcks{\pi' \vdash e : \theta}\eta'$ $=$ $\semBrcks{\pi \vdash e / \Delta : \theta}\eta$.
 
 \end{theorem}
 
@@ -1071,8 +1048,7 @@ Procedamos por inducci\'on en la estructura de la derivaci\'on de los juicios de
 \item Supongamos $\pi \vdash b : \boolt$, luego tenemos 
 $\semBrcks{\pi \vdash b : \boolt}\eta'$ $=$ $\iotabot b$ $=$ 
 $\semBrcks{\pi' \vdash b : \boolt}\eta$ $=$ $\semBrcks{\pi' \vdash b / \delta : \boolt}\eta$.
-
-\item (An\'alogo para $\intt$ y $\realt$).
+An\'alogo para constantes de otros tipos.
 
 \item Supongamos $\pi' \vdash \iota : \theta$, luego 
 $\semBrcks{\pi' \vdash \iota : \theta}\eta'$ $=$ $\eta'\iota$
@@ -1084,48 +1060,44 @@ $\semBrcks{\pi \vdash \iota / \delta : \theta}\eta$.
 \item Casos inductivos,
 \begin{itemize}
 \item Supongamos $\pi' \vdash e \ominus e' : \boolt$, luego tenemos \\
-$\semBrcks{\pi' \vdash e \ominus e' : \boolt}\eta'$ $=$\\
-\indent \ \ \ \ \ \ \ \ \ \ \ \
-	$(\lambda x . 
-		(\lambda x' . \iotabot (x \ominus x'))_{\dbot}
-					\semBrcks{\pi' \vdash e' : \boolt}\eta')_{\dbot}
-						\semBrcks{\pi' \vdash e : \boolt}\eta'$\\
-						
-por hip\'otesis inductiva dos veces\\
 
-$(\lambda x . 
-		(\lambda x' . \iotabot (x \ominus x'))_{\dbot}
-					\semBrcks{\pi' \vdash e' / \delta : \boolt}\eta)_{\dbot}
-						\semBrcks{\pi' \vdash e / \delta : \boolt}\eta$ $=$
+$\semBrcks{\pi' \vdash e \ominus e' : \boolt}\eta'$ $=$ 
+$\ominus_{\circledcirc} \ (\semBrcks{\pi' \vdash e : \boolt}\eta') \ 
+						  (\semBrcks{\pi' \vdash e' : \boolt}\eta')$\\
 						
-$\semBrcks{\pi' \vdash (e / \delta) \ominus (e' / \delta) : \boolt}\eta$ $=$
-$\semBrcks{\pi' \vdash (e \ominus e') / \delta : \boolt}\eta$.\\
+por hip\'otesis inductiva en $\pi' \vdash e : \boolt$ y $\pi' \vdash e' : \boolt$\\
 
-\item An\'alogo dem\'as operadores binarios, un\'arios, expresi\'on condicional
-aplicaci\'on y operador de punto fijo.\\
+$\ominus_{\circledcirc} \ (\semBrcks{\pi' \vdash e : \boolt}\eta') \ 
+						   (\semBrcks{\pi' \vdash e' : \boolt}\eta')$ $=$\\
+$\ominus_{\circledcirc} \ (\semBrcks{\pi \vdash e / \Delta : \boolt}\eta) \ 
+						   (\semBrcks{\pi \vdash e' / \Delta: \boolt}\eta)$ $=$\\
+$\semBrcks{\pi \vdash (e / \Delta) \ominus (e' / \Delta) : \boolt}\eta$ $=$\\
+$\semBrcks{\pi \vdash (e \ominus e') / \Delta : \boolt}\eta$.\\
+
+\item An\'alogo para todos los dem\'as operadores binarios, un\'arios, para
+la expresi\'on condicional, la aplicaci\'on y el operador de punto fijo.\\
 
 \item Supongamos $\pi' \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'$, luego\\
 
 $\semBrcks{\pi' \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'}\eta'$ $=$
 $\lambda x . \semBrcks{\pi',\iota:\theta \vdash e : \theta'}[ \eta' \ | \ \iota:x ]$ \\
 
-ahora, probando * y luego aplicando hip\'otesis inductiva obtenemos,\\
+para poder aplicar la hip\'otesis inductiva debemos probar\\
 
-$\lambda x . \semBrcks{\pi,\iota':\theta \vdash e / \delta' : \theta'}[ \eta \ | \ \iota':x ]$ $=$
-$\semBrcks{\pi \vdash \clambda{\iota'}{\theta}{e / \delta'} : \theta \rightarrow \theta'}\eta$ $=$
-$\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e}) / \delta' : \theta \rightarrow \theta'}\eta$\\
+(*) para todo $\kappa \in \ dom(\widehat{\pi})$, donde $\widehat{\pi} = \pi',\iota:\theta$ vale
+que $[ \eta' \ | \ \iota:x ]\kappa$ $=$ 
+$\semBrcks{\pi,\iota':\theta \vdash \Delta'\iota': \widehat{\pi}\kappa}[ \eta \ | \ \iota':x ]$\\
 
-donde $\delta' = [ \delta \ | \ \iota:\iota' ]$ y 
-$\iota' \not\in \bigcup\limits_{\kappa \in FV(e)-\{\iota\}} (FV(\delta\kappa))$
+donde $\Delta' = [ \Delta \ | \ \iota:\iota' ]$ y 
+$\iota' \not\in \bigcup\limits_{\kappa \in FV(e)-\{\iota\}} (FV(\Delta\kappa))$.\\
 
-\begin{itemize}
-\item Para poder aplicar la hip\'otesis inductiva tenemos que probar que vale que,\\
+Suponiendo (*), probamos\\
 
-para todo $\kappa \in \ dom (\widehat{\pi})$, donde $\widehat{\pi} = \pi',\iota:\theta$, \\
+$\lambda x . \semBrcks{\pi,\iota':\theta \vdash e / \Delta' : \theta'}[ \eta \ | \ \iota':x ]$ $=$
+$\semBrcks{\pi \vdash \clambda{\iota'}{\theta}{e / \Delta'} : \theta \rightarrow \theta'}\eta$ $=$
+$\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e}) / \Delta' : \theta \rightarrow \theta'}\eta$\\
 
-$[ \eta' \ | \ \iota:x ]\kappa$ $=$ 
-$\semBrcks{\pi,\iota':\theta \vdash \delta'\kappa : \widehat{\pi}\kappa}[ \eta \ | \ \iota':x ]$.\\
-
+Pasemos ahora a la prueba de (*).
 Tomamos un $\kappa$ cualquiera, y vamos a separar en dos casos, si $\kappa \not= \iota$ entonces
 es directo aplicando la hip\'otesis. Veamos que sucede si suponemos $\kappa = \iota$,\\
 
@@ -1137,9 +1109,6 @@ $\semBrcks{\pi,\iota':\theta \vdash \delta'\kappa : \widehat{\pi}\kappa}[ \eta \
 $\semBrcks{\pi,\iota':\theta \vdash \iota' : \theta}[ \eta \ | \ \iota':x ]$ $=$
 $[ \eta \ | \ \iota':x ]\iota'$ $=$ $x$.
 
-Por lo tanto podemos aplicar la hip\'otesis inductiva.\\
-
-\end{itemize}
 \end{itemize}
 \end{itemize}
 \end{proof}
@@ -1153,7 +1122,7 @@ Dado un juicio de tipado $\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'$ v
 
 \begin{center}
 $\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'}$ $=$
-$\semBrcks{\pi \vdash e / \iota:e' : \theta'}$
+$\semBrcks{\pi \vdash e / \iota \leadsto e' : \theta'}$
 \end{center}
 
 \end{theorem}
@@ -1183,31 +1152,31 @@ y $\pi,\iota:\theta = \pi'$, luego obtenemos\\
 $\semBrcks{\pi,\iota:\theta \vdash e : \theta'}[ \ \eta \ | \ 
 	\iota:(\semBrcks{\pi \vdash e' : \theta}\eta) \ ]$ $=$ $\semBrcks{\pi' \vdash e : \theta'}\eta'$\\
 
-ahora, para poder aplicar substituci\'on tenemos que probar antes que
-para todo $\kappa \in \ dom (\pi')$, $\eta' \kappa = \semBrcks{\pi \vdash \delta\kappa : \pi' \kappa}\eta$
-donde $\delta$ sera la substituci\'on $\iota:e'$ y la identidad para todo otro $\kappa$. Supongamos
-un $\kappa$ cualquiera,
+ahora, para poder aplicar substituci\'on tenemos que probar que
+para todo $\iota' \in \ dom (\pi')$, $\eta' \iota' = \semBrcks{\pi \vdash \Delta\iota' : \pi' \iota'}\eta$
+donde $\Delta$ sera la substituci\'on $\iota \leadsto e'$ y la identidad para todo otro $\iota'$. Supongamos un $\iota'$ cualquiera,
 
 \begin{itemize}
-\item Caso $\kappa \neq \iota$, $\eta' \kappa = \eta \kappa = 
-									\semBrcks{\pi \vdash \kappa : \pi'\kappa}\eta = 
-									\semBrcks{\pi \vdash \delta \kappa : \pi'\kappa}\eta$.
+\item Caso $\iota' \neq \iota$, $\eta' \iota' = \eta \iota' = 
+									\semBrcks{\pi \vdash \iota' : \pi'\iota'}\eta = 
+									\semBrcks{\pi \vdash \Delta \iota' : \pi'\iota'}\eta$.
 
-\item Case $\kappa = \iota$, $\eta' \kappa = \eta' \iota = 
+\item Case $\iota' = \iota$, $\eta' \iota' = \eta' \iota = 
 									 \semBrcks{\pi \vdash e : \theta}\eta = 
-									 \semBrcks{\pi \vdash \delta \iota : \pi'\iota}\eta$.
+									 \semBrcks{\pi \vdash \Delta \iota : \pi'\iota}\eta$.
 \end{itemize}
 
 luego aplicando substituci\'on obtenemos,
-$\semBrcks{\pi' \vdash e : \theta'}\eta'$ $=$ $\semBrcks{\pi \vdash e / \delta : \theta'}\eta$\\
+$\semBrcks{\pi' \vdash e : \theta'}\eta'$ $=$ $\semBrcks{\pi \vdash e / \Delta : \theta'}\eta$\\
 
 por lo tanto, $\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'}\eta$ $=$
- 			  $\semBrcks{\pi \vdash e / \iota:e' : \theta'}\eta$.
+ 			  $\semBrcks{\pi \vdash e / \iota \leadsto e' : \theta'}\eta$.
 
 \end{proof}
 
 \section{Implementaci\'on en Idris}
 
+\noindent
 Sintaxis de los tipos
 \begin{code}
 data PType = IntExp | RealExp | BoolExp 
