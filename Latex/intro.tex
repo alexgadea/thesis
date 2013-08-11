@@ -7,55 +7,43 @@ vamos a estudiar tres lenguajes, $\lambdaarrow$, $\lambdaleq$ y $\Alike$,
 este ultimo perteneciente a la clase de lenguajes Algol-like y para el cual
 vamos a dar dos definiciones sem\'anticas.
 La base de los lenguajes que vamos a estudiar se puede encontrar en los
-cap\'itulos 10 y 19 de (ref a reynolds TheoriesOf...), la idea de estudiar
-categ\'oricamente estos es en realidad motivado por la doble definici\'on
-sem\'antica que pretendemos dar de $\Alike$. Vamos a querer mostrar, 
-en alg\'un sentido se hizo, que podemos cambiar el significado
+cap\'itulos 15, 16 y 19 de \cite{reynolds2009theories} y \cite{olesfunctorcategories}, 
+la idea de estudiar
+categ\'oricamente esta en realidad motivado por la doble definici\'on
+sem\'antica que pretendemos dar de $\Alike$. Vamos a querer mostrar
+que podemos cambiar el significado
 sem\'antico de un lenguaje sin cambiar sus ecuaciones, simplemente
-cambiando ciertas categor\'ias. Adem\'as algo interesante de dar
-la sem\'antica utilizando categor\'ias ser\'a en las pruebas que demos 
-de cada lenguaje en el sentido de propiedades que utilizamos sobre los
-dominios que de otra manera habr\'ia que probar por otro lado.\\
+eligiendo ciertas categor\'ias.\\
 
-El trabajo empezar\'a definiendo el lenguaje $\lambdaarrow$, este ser\'a
-un lenguaje funcional con tipado simple que mas allá
-de su sem\'antica conocida sirve como punto de partida para la introducci\'on
-de conceptos generales sobre los lenguajes que vamos a estudiar, como pueden
-ser los contextos, la sem\'antica intr\'inseca para los tipos o la definici\'on
+El trabajo empezar\'a definiendo el lenguaje $\lambdaarrow$, que es el
+calculo lambda simplemente tipado con constantes y algunos operadores.
+Este lenguaje nos servir\'a para introducir conceptos generales sobre 
+los lenguajes que vamos a estudiar, tales como
+los contextos, la sem\'antica intr\'inseca para los tipos o la definici\'on
 de sem\'antica para un juicio de tipado como manera de representar el significado
-de las frases de nuestro lenguaje, entre otras cuestiones relacionas. Adem\'as
-la idea es presentar una implementaci\'on, para cada lenguaje, en un 
-lenguaje de programaci\'on con tipos dependientes, en particular para esta 
-tarea ser\'a bastante \'util empezar considerando este lenguaje simple.\\
+de las frases de nuestro lenguaje, entre otras cuestiones relacionas. 
+Otro aporte de esta tesis es la implementaci\'on de cada uno de los lenguajes
+a estudiar. En este sentido empezar con $\lambdaarrow$ nos sirvi\'o para
+familiarizarnos con un lenguaje con tipos dependientes y esperamos tambi\'en
+facilite la comprensi\'on del lector.\\
 
 El siguiente paso va a ser tomar a $\lambdaarrow$ y extender su sistema de 
 tipos para que incluya subtipado, a este nuevo lenguaje lo llamaremos
-$\lambdaleq$ el cual entonces seguir\'a siendo un lenguaje funcional
-pero ahora con un sistema de tipos con subtipado. Algo interesante de
-esta extensi\'on del lenguaje $\lambdaarrow$, que nos define $\lambdaleq$,
+$\lambdaleq$. Algo interesante de este nuevo del lenguaje $\lambdaleq$
 es que vamos a reutilizar completamente todas las definiciones que hicimos
-en $\lambdaarrow$. Siguiendo con esta idea adem\'as distintos conceptos sobre 
-el subtipado que introduzcamos en $\lambdaleq$ van a ser generales para
-cualquier lenguaje con subtipos, en particular para nuestro lenguaje final
-$\Alike$.
+en $\lambdaarrow$. A su vez, esta forma de ir enriqueciendo cada lenguaje 
+dar\'a lugar a $\Alike$. Una ventaja de realizar las pruebas de una manera 
+general, teniendo en cuenta esta jerarqu\'ia de lenguajes, es que las mismas
+ser\'an validas, o servir\'an para completar las pruebas, para los
+lenguajes mas expresivos.\\
 
-Por otro lado, adem\'as de las definiciones, vamos a dar algunas pruebas
-interesantes sobre propiedades de estos lenguajes, algo bueno, y que tiene
-que ver con lo que mencion\'abamos antes, es que las pruebas que realicemos
-para $\lambdaarrow$ van a ser, o totalmente validas para $\lambdaleq$, o
-van a servir para completar pasos en las pruebas de $\lambdaleq$.\\
-
-Para finalizar vamos a extender el lenguaje $\lambdaleq$, ac\'a extender
-ya no ser\'a tan simple y directo como paso de $\lambdaarrow$ a $\lambdaleq$
-y habr\'a casi que empezar desde cero, mas si tenemos en cuenta que vamos a
-dar dos definiciones sem\'anticas distintas, a este lenguaje entonces lo 
-llamaremos $\Alike$. Este ser\'a un lenguaje Algol-like el cual
-combina aspectos imperativos y funcionales, este tipo de lenguajes adem\'as
-consideran stack discipline, que ser\'a la raz\'on por la cual vamos a
-definir dos sem\'anticas, una que lo considere y otra
-que no, lo interesante ser\'a poder lograrlo cambiando la menor
-cantidad de definiciones posibles. Adem\'as, como sucedi\'o para nuestros
-lenguajes anteriores, vamos a probar algunas propiedades de $\Alike$.\\
+Para finalizar vamos a extender el lenguaje $\lambdaleq$ con caracter\'isticas
+imperativas, dando lugar al lenguaje $\Alike$. Este ser\'a un lenguaje 
+Algol-like el cual combina aspectos imperativos y funcionales. Una particularidad
+importante de estos lenguajes es que los mismo cuanta con una sem\'antica
+que respeta la stack discipline. Gracias a dar una sem\'antica categ\'orica
+para este lenguaje, en esta tesis mostramos como variando algunas elecciones
+se puede tener una sem\'antica para $\Alike$ sin stack discipline.\\
 
 El segundo cap\'itulo, puntualmente va a incluir la definici\'on del lenguaje
 $\lambdaarrow$, esto ser\'a presentar la sint\'axis y las ecuaciones
@@ -72,13 +60,15 @@ continuidad y como propiedad interesante teniendo subtipado, vamos a probar
 coherencia.\\
 
 El cuarto cap\'itulo tratar\'a sobre el lenguaje $\Alike$, como en el segundo
-cap\'itulo, vamos a presentar la sint\'axis y las ecuaciones sem\'anticas. Para
+cap\'itulo, vamos a presentar la sint\'axis y las ecuaciones sem\'anticas. 
+Algo interesante ser\'a que ahora nuestra categor\'ia principal ser\'a
+una categor\'ia funtorial. Para
 este lenguaje, como ya mencionamos, vamos a dar dos sem\'anticas distintas, adem\'as
 vamos a dar una prueba de la naturalidad de las ecuaciones sem\'anticas.\\
 
 La tesis requerir\'a conocimientos previos sobre teor\'ia de dominios 
 (predominios, dominios y funciones continuas), teor\'ia
 de categor\'ias (categor\'ias concretas y funtoriales, producto, 
-objeto exponencial, funtores y pullback) y sem\'antica denotacional. Un
+objeto exponencial y funtores) y sem\'antica denotacional. Un
 conocimiento extra sobre tipos dependientes resultara practico exclusivamente
 para la parte de implementaci\'on.
