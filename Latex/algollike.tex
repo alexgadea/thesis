@@ -4,10 +4,10 @@
 Al final del cap\'itulo anterior terminamos con el estudio
 del lenguaje $\lambdaleq$, este era un lenguaje funcional con subtipado.
 En este cap\'itulo vamos a tomar a $\lambdaleq$ y vamos a agregar
-aspectos imperativos, este nuevo lenguaje lo llamaremos $\Alike$.
+aspectos imperativos, a este nuevo lenguaje lo llamaremos $\Alike$.
 
-Este nuevo lenguaje que vamos a estudiar pertenecer\'a a la clase
-de lenguaje Algol-like estos combinan
+Este nuevo lenguaje que vamos a estudiar pertenece a la clase
+de lenguaje Algol-like; combinan
 aspectos funcionales con imperativos y se basan en evaluaci\'on
 normal. Una propiedad importante de este tipo de lenguajes es
 la forma en la que se eval\'ua la aplicaci\'on de procedimientos
@@ -17,24 +17,24 @@ la aplicaci\'on del procedimiento desaparece quedando de esta manera
 la parte imperativa por evaluar, que es lo que se realiza en una segunda
 etapa.
 
-A continuaci\'on presentamos los cinco principio que (ref de the essence of algol)
-cree que captura la esencia de los lenguajes Algol-like.
+A continuaci\'on presentamos los cinco principio que (\cite{essenceofalgol})
+capturan la esencia de los lenguajes Algol-like.
 
 \begin{enumerate}
 \item Algol-like se obtiene de un lenguaje imperativo simple imponiendo un
 sistema para los procedimientos basado en el calculo lambda "fully typed" y utilizando
-call-by-name. Donde con "fully typed" se refiere que todos los errores de tipo deben ser
-errores sint\'acticos.
+call-by-name. Donde con "fully typed" se refiere a que todos los errores de 
+tipo deben ser errores sint\'acticos.
 
-\item Existe dos clases de tipos: Los $\textit{Data Types}$ que representaran los 
+\item Existe dos clases de tipos: los $\textit{Data Types}$ que representar\'an los 
 conjuntos de valores para expresiones y variables y los $\textit{Phrase Types}$ que
-representaran los conjuntos de valores para las frases e identificadores.
+representar\'an los conjuntos de valores para las frases e identificadores.
 
 \item El orden de evaluaci\'on para las partes de una expresi\'on y su
 conversi\'on impl\'icita deber\'ia estar indeterminada, pero el significado
 del lenguaje es independiente de la indeterminaci\'on.
 
-\item La definici\'on de procedimientos, recursiones, expresiones condicionales
+\item La definici\'on de procedimientos, recursi\'on, expresiones condicionales
 pueden ser de cualquier $\textit{Phrase Types}$.
 
 \item El lenguaje contiene stack discipline y su definici\'on debe hacer esta disciplina
@@ -42,18 +42,22 @@ obvia.
 
 \end{enumerate}
 
-Sobre este ultimo punto vamos a presentar una variante de sem\'antica para el lenguaje
+
+
+Stack discipline tiene que ver con el compactado del ambiente y el estado al
+momento de que identificador de variable pierde se pierde del alcance.
+Sobre el \'ultimo punto vamos a presentar una variante de sem\'antica para el lenguaje
 en la cual no tenemos stack discipline. Lo interesante es que lo vamos a lograr cambiando
 realmente muy poco sobre las ecuaciones sem\'anticas y los dominios originales que
-si contemplan stack discipline.
+contemplan stack discipline.
 
 \section{Sintaxis de $\Alike$}
 
 Como ya mencionamos $\Alike$ sera una extensi\'on de $\lambdaleq$, agregando las
 construcciones para un lenguaje imperativo simple. Pero antes de hacer esta extensi\'on
-hay algo a acomodar en cuantos a los lenguajes de donde se extiende $\Alike$ y
-esta en el hecho de que el lenguaje de tipos de $\lambdaleq$ es demasiado simple debemos
-extenderlo seg\'un el punto dos de los principios de algol.
+hay algo a acomodar en cuantos a los lenguajes de donde se extiende $\Alike$: 
+si consideramos el segundo punto de los principios de algol, el sistema de tipos
+de $\lambdaleq$ es demasiado simple, en consecuencia debemos extenderlo.
 
 Comencemos entonces acomodando nuestro sistema de tipos, empecemos tomando los tipos
 $\boolt$, $\intt$ y $\realt$ de $\lrangles{Type}$ y separándolos por un lado, para
@@ -63,19 +67,22 @@ introducir la gram\'atica de los  $\textit{Data Types}$.\\
 $\dataTypes$ ::= $\boolt$ | $\intt$ | $\realt$\\
 
 Por otro lado en $\lrangles{Type}$ tenemos el operador funcional $\rightarrow$, este vamos 
-a moverlo a nuestra otra clase de tipos $\textit{Phrase Types}$ y vamos a agregar las
+a moverlo a nuestra otra clase de tipos $\textit{Phrase Types}$, esto recordado
+que nuestros procedimientos seg\'un el punto 4 deben tener este tipo. Vamos a agregar las
 construcciones de tipos que representan los valores para los comandos, aceptadores, variables y 
-expresiones, este ultimo tipo se lo puede considerar como el nuevo tipo que 
+expresiones. A este ultimo tipo se lo puede considerar como el nuevo tipo que 
 representa a los tipos como los ten\'iamos antes, es decir, si una frase antes
 ten\'ia tipo $\intt$ ahora tendr\'a tipo $\intt\textbf{exp}$(resi\'on). Dicho lo
-anterior no hay duda sobre la utilidad de $\deltaexp$ como tipo, hagamos un repaso
+anterior no hay duda sobre la utilidad de $\deltaexp$ como tipo, ahora repasemos
 de los dem\'as tipos que vamos a introducir, el tipo de los comandos no ser\'a
 otra cosa que el representante de las frases de la parte imperativa de
 nuestro lenguaje, el tipo de las variables encapsular\'a las dos posibles utilizaciones
 de un identificador de variable, es decir, ya sea como valor o como almacenamiento,
 para este primero es que tenemos el tipo de las expresiones y para el segundo es
 donde aparece el tipo de los aceptadores, este b\'asicamente se encarga de 
-representar a un identificador de variables como un almac\'en de valores.\\
+representar a un identificador de variables como un almac\'en de valores; es
+decir, si una frase tiene tipo $\deltaacc$ puedo aparecer en el lado izquierdo
+de una asignaci\'on pero no en el lado derecho.\\
 
 \noindent
 $\phraseTypes$ ::= $\commt$\\
@@ -89,7 +96,9 @@ $\phraseTypes$ ::= $\commt$\\
 | $\phraseTypes \rightarrow \phraseTypes$\\
 
 Ahora que hemos actualizado el lenguaje de tipos necesario para $\Alike$, presentemos
-la gram\'atica, como mencionamos anteriormente este lenguaje va a ser una extensi\'on de $\lambdaleq$, agregando los construcciones para un lenguaje imperativo simple. Estas construcciones 
+la gram\'atica de los programas; como mencionamos anteriormente este lenguaje va a 
+ser una extensi\'on de $\lambdaleq$, agregando las construcciones usuales de un lenguaje 
+imperativo simple. Estas construcciones 
 ser\'an los comandos para la declaraci\'on de variables ($\cnew \deltavar$), 
 asignaci\'on($\cassig$), comando neutro ($\cskip$), concatenaci\'on de comandos ($\concatdots$)
 y un comando para iteraciones ($\cwhile$).\\
@@ -142,13 +151,13 @@ $\circledcirc \in \{+,-,*,/,\div,\rem,\wedge,\vee,\Rightarrow,\Leftrightarrow, =
 
 \section{Reglas de inferencia para $\Alike$}
 
-La modificaci\'on de los tipos nos obliga a actualizar las reglas de inferencia 
-concretas del subtipado, ya que ahora como mencion\'abamos antes el tipo de una
-expresi\'on entera no sera $\intt$ si no $\intexp$. Pero antes de acomodar esto
-definamos una nueva relaci\'on de orden para los tipos de $\dataTypes$, en esta
+La modificaci\'on de los tipos nos obliga a actualizar la relaci\'on de
+subtipado, ya que ahora, como mencion\'abamos antes, el tipo de una
+expresi\'on entera no ser\'a $\intt$ sino $\intexp$. Pero antes de ac\'omodar esto
+definamos una nueva relaci\'on de orden para los tipos de $\dataTypes$; en esta
 nueva relaci\'on vamos a retirar $\boolt \leq \intt$, cuyo fin en $\lambdaleq$
-era tener casos interesantes de transitividad entre los tipos, luego nos quedara 
-la siguiente relaci\'on entre los tipos,
+era tener casos de transitividad entre los tipos que no funcionales, luego nos quedar\'a
+la siguiente relaci\'on entre los tipos de datos.
 
 \begin{diagram}[loose,height=2em]
    \realt & \\
@@ -157,7 +166,7 @@ la siguiente relaci\'on entre los tipos,
 \end{diagram}
 
 Ahora utilizando este diagrama, que b\'asicamente nos dice que $\intt$ es subtipo
-de $\realt$ y que no ocurre nada mas interesante, presentamos la relaci\'on de los
+de $\realt$ y que no ocurre nada m\'as interesante, presentamos la relaci\'on de los
 tipos de $\phraseTypes$,
 
 \begin{diagram}[loose,height=2em,width=3em]
@@ -168,22 +177,22 @@ tipos de $\phraseTypes$,
    \realvar  & & \intvar & &        &       \boolvar   &            & \commt
 \end{diagram}
 
-Expliquemos un poco que estamos viendo, por un lado respetando la idea de que
+Expliquemos un poco que estamos viendo: por un lado respetando la idea de que
 $\intt$ es ahora $\intexp$ y $\realt$ es $\realexp$, entonces vamos a tener
-$\intexp \leq \realexp$, esta relaci\'on se da vuelta si pensamos en el tipo
+$\intexp \leq \realexp$; esta relaci\'on se da vuelta si pensamos en el tipo
 de los aceptadores, ya que si podemos almacenaren un valor de 
 tipo $\realexp$ entonces podemos almacenar un valor de tipo $\intexp$
 y entonces tenemos $\realacc \leq \intacc$. Finalmente 
 si pensamos que una variable puede ser usada tanto como valor o contenedor,
-vamos a tener que, tomando $\delta \in \dataTypes$, $\deltavar \leq \deltaexp$ y
+vamos a tener que, para cualquier $\delta \in \dataTypes$, $\deltavar \leq \deltaexp$ y
 $\deltavar \leq \deltaacc$.
 
-Por ultimo podemos prestar especial atenci\'on al supremo que aparece
+Por \'ultimo podemos prestar especial atenci\'on al supremo que aparece
 entre $\realvar$ e $\intvar$, el cual podr\'ia determinar un tipo particular
 de variable que vista como aceptador tiene tipo $\intacc$ y vista como 
 valor tiene tipo $\realexp$. De hecho, si nuestro lenguaje soportara el 
 operador de tipos intersecci\'on ($\&$), podr\'iamos definir a
-este tipo particular de variable como $\intacc$ $\&$ $\realexp$ y mas aun, 
+este tipo particular de variable como $\intacc$ $\&$ $\realexp$ y, m\'as aun, 
 podr\'iamos definir a nuestro tipo actual $\deltavar$ como $\deltaacc$ $\&$ $\deltaexp$.\\
 
 Dicho esto escribamos las nuevas reglas de tipado para estas relaciones nuevas
@@ -191,8 +200,8 @@ y aprovechemos para actualizar nuestras metavaribles en relaci\'on a nuestros
 nuevos tipos.
 
 \begin{center}
-\begin{tabular}{ l r }
-	$\theta$ $\phraseTypes$ & $\delta$ $\dataTypes$
+\begin{tabular}{ l c r }
+	$\theta$ $\in$ $\phraseTypes$ & y & $\delta$ $\in$ $\dataTypes$
 \end{tabular}
 \end{center}
 
@@ -239,8 +248,8 @@ $\texttt{Ty Rule:}$ $\delta$varTo$\delta$acc.
 \end{center}
 
 Adem\'as de estas reglas de inferencia para el subtipado, nos van a hacer
-falta actualizar las reglas de inferencia de lambda leq con los tipos correspondientes
-del lenguaje $\Alike$ y luego faltara tambi\'en agregar reglas para los juicios de 
+falta actualizar las reglas de inferencia de $\lambdaleq$ con los tipos correspondientes
+del lenguaje $\Alike$ y luego faltar\'a tambi\'en agregar reglas para los juicios de 
 tipado de las nuevas frases. Pero antes vamos a necesitar definir el nuevo lenguaje
 de los contextos, como ha venido ocurriendo, esto ser\'a actualizar los tipos
 viejos por los nuevos.
@@ -287,20 +296,16 @@ $\texttt{Ty Rule:}$ Constantes.
 $\texttt{Ty Rule:}$ Operadores b\'asicos.
 
 \begin{center}
+\AxiomC{$\pi \vdash e : \boolexp$}
+\UnaryInfC{$\pi \vdash \neg e : \boolexp$}
+\DisplayProof
+\quad
 \AxiomC{$\pi \vdash e : \intexp$}
 \UnaryInfC{$\pi \vdash -e : \intexp$}
 \DisplayProof
 \quad
 \AxiomC{$\pi \vdash e : \realexp$}
 \UnaryInfC{$\pi \vdash -e : \realexp$}
-\DisplayProof
-\end{center}
-
-\
-
-\begin{center}
-\AxiomC{$\pi \vdash e : \boolexp$}
-\UnaryInfC{$\pi \vdash \neg e : \boolexp$}
 \DisplayProof
 \end{center}
 
@@ -383,9 +388,8 @@ $\texttt{Ty Rule:}$ Operador de punto fijo.
 $\texttt{Ty Rule:}$ Identificador.
 
 \begin{center}
-\AxiomC{}
-\RightLabel{$v:\theta \in \pi$}
-\UnaryInfC{$\pi \vdash v : \theta$}
+\AxiomC{$\iota:\theta \in \pi$}
+\UnaryInfC{$\pi \vdash \iota : \theta$}
 \DisplayProof
 \end{center}
 
@@ -419,9 +423,9 @@ con $\theta \in \{\deltavar,\deltaacc,\deltaexp,\commt\}$.\\
 Hasta aqu\'i lo que hemos hecho es recompilar y actualizar las reglas de inferencia
 para la parte aplicativa del lenguaje, ahora definamos las regla de los comandos 
 $\cskip$, $\cwhile$ y $\concatdots$ que no presentan ninguna particularidad que valga 
-la pena comentar y luego sigamos con las reglas $\cnew \ \deltavar$ y $\cassig$. Pero
+la pena comentar y luego sigamos con la regla $\cnew \ \deltavar$. Pero
 antes notamos el hecho de que el juicio de tipado para la expresi\'on
-condicional no es todo lo general que plantea el punto 4 del comienzo del capitulo,
+condicional no es todo lo general que plantea el punto 4 del comienzo del cap\'itulo,
 la respuesta para esta decisi\'on se encuentra al momento de definir la ecuaci\'on
 sem\'antica para este comando.
 
@@ -463,9 +467,9 @@ $\texttt{Ty Rule:}$ Composici\'on.
 En la regla de inferencia para la declaraci\'on de variable, ocurre 
 algo muy similar a lo que ocurre con la regla de la abstracci\'on lambda
 en cuanto a que se extiende el contexto, la principal diferencia ser\'a
-que solamente vamos a poder agregar el identificador con un phrase type "fijo",
-donde con "fijo" nos referimos a que solamente un identificador podr\'a ser
-de tipo $\deltavar$.
+que solamente vamos a poder agregar el identificador con un phrase type 
+particular, en tanto el tipo de un identificador podr\'a ser de la forma
+$\deltavar$.
 
 \
 
@@ -482,10 +486,10 @@ $\texttt{Ty Rule:}$ Declaraci\'on de variable.
 Antes mencin\'abamos que el tipo $\deltavar$ encapsulaba de manera bien
 separada la noci\'on de un identificador utilizado como contenedor de un
 valor o utilizado como un valor en si mismo. En la regla de la asignaci\'on
-se ve como para guardar un valor hace falta que la parte izquierda tenga
+se ve c\'omo para guardar un valor hace falta que la parte izquierda tenga
 tipo $\deltaacc$, es decir el tipo $\deltavar$ visto como contenedor y
 la parte derecha tenga tipo $\deltaexp$, que en el caso de ser un identificador
-es el tipo $\deltavar$ visto como valor.
+es el tipo $\deltavar$ visto como valor, gracias al subtipado $\deltavar \leq \deltaexp$.
 
 \
 
@@ -502,23 +506,23 @@ $\texttt{Ty Rule:}$ Asignaci\'on.
 
 \section{Sem\'antica para $\Alike$}
 
-A nivel sint\'actico vimos que $\Alike$ esta compuesto por las frases
-de $\lambdaleq$ mas frases que representan la parte imperativa, de hecho al 
+A nivel sint\'actico vimos que $\Alike$ est\'a compuesto por las frases
+de $\lambdaleq$ m\'as frases que representan la parte imperativa; de hecho al 
 presentar las reglas de inferencia para las frases de $\Alike$, las
 reglas de la parte de $\lambdaleq$ sufrieron un \'unico cambio simple
 en cuanto a los nombre de los tipos y pudimos aprovechar la definici\'on
-completa. Ahora que vamos a dar la sem\'antica 
+completa. Ahora vamos a dar la sem\'antica 
 de $\Alike$ y no vamos a poder hacer algo similar con la sem\'antica, es decir aprovechar las
-ecuaciones sem\'anticas que definimos para $\lambdaleq$, la raz\'on principal es
+ecuaciones sem\'anticas que definimos para $\lambdaleq$. La raz\'on principal es
 que el significado de nuestros tipos ya no ser\'a tan simple debido a que
-nos aparecen cuestiones relacionadas con el stack discipline. \\
+aparecen cuestiones relacionadas con el stack discipline. \\
 
 Adem\'as para definir las dos sem\'anticas que pretendemos para $\Alike$,
 con y sin stack discipline, vamos a tener definiciones extras, una
 para el juicio de tipado de la declaraci\'on de variables imperativas
 y otra para la categor\'ia de estados de la parte imperativa. 
 Lo interesante de notar sobre estas definiciones extras es que dadas todas las ecuaciones
-sem\'anticas de nuestro lenguaje, con solo seleccionar una sola
+sem\'anticas de nuestro lenguaje, variando una sola
 ecuaci\'on vamos a decidir sobre el tipo de implementaci\'on en
 relaci\'on al stack discipline.\\
 
@@ -536,12 +540,12 @@ $\Theta_1(\theta,\theta')$ $=$ $\{\theta \rTo \theta' \ | \ \theta \leq \theta'\
 \end{definition}
 
 Sobre la categor\'ia de contextos no hay nada que cambiar, luego
-lo que nos queda por actualizar es la categor\'ia $\CD$, esta 
+lo que nos queda por actualizar es la categor\'ia $\CD$; recordemos que $\CD$
 en $\lambdaleq$ la hab\'iamos definido como la categor\'ia concreta
-$\Dom$, la cuesti\'on es que ahora es que no nos alcanza solamente con esta y vamos a 
+$\Dom$. Ahora esto no es suficiente y vamos a 
 necesitar un enfoque bastante distinto debido a que la separaci\'on 
 que existe entre el calculo lambda y la parte imperativa nos induce
-una separac\'ion entre los ambientes y los estados. As\'i por ejemplo
+una separac\'ion entre los ambientes y los estados. As\'i, por ejemplo,
 sucede que $\semBrcks{\intexp}$ ya no ser\'a un $S_\intt$ que represente
 el conjunto de enteros, si no que pasar\'a a ser una funci\'on de
 estados en $S_\intt$.\\
@@ -551,14 +555,15 @@ para el cual tendremos dos versiones, una versi\'on ser\'a un conjunto de valore
 pero con la particularidad de tener forma, donde aclarando un poco a que 
 nos referimos con forma, es que si tom\'aramos un estado $(1,True)$ que 
 pertenece a $\Z \times \B$, diremos que este estado tiene 
-forma $\lrangles{\Z,\B}$. Para la otra versi\'on un estado ser\'a una funci\'on
-de de identificadores en valores.
+forma $\lrangles{\Z,\B}$. Las formas ser\'an de bastante importancia ya que
+ayudar\'an a mantener estados bien tipado. 
+Para la otra versi\'on un estado ser\'a una funci\'on de identificadores en valores.
 
 \begin{definition}\label{algol:disciplinestates}
 
 Un estado ser\'a un elemento perteneciente a $S_1 \times \ldots \times S_n$, 
-con $1 \leq n$ con $S_i$ conjuntos. Diremos adem\'as que este estado tiene
-forma $\lrangles{S_1,\ldots,S_n}$\\
+con $1 \leq n$ con $S_i$ cualquiera de los conjuntos $S_\intt$, $S_\realt$ o $S_\boolt$. 
+Diremos adem\'as que este estado tiene forma $\lrangles{S_1,\ldots,S_n}$\\
 
 Adem\'as dados dos estados $\sigma$ y $\sigma'$, diremos que $\sigma$ extiende
 a $\sigma'$ cuando la forma de $\sigma$ sea tramo inicial de la forma de $\sigma'$.
@@ -575,36 +580,33 @@ $head$, $tail$ y $last$.
 
 Sea $\sigma$ un estado con forma $\alpha \concat \alpha'$ luego definimos
 $head_\alpha \sigma$ y $tail_\alpha¿ \sigma$ como los \'unicos
-estados tal que $head_\alpha \sigma \concat tail_\alpha¿ \sigma$ $=$ $\sigma$.\\
+estados tales que $head_\alpha \sigma \concat tail_\alpha¿ \sigma$ $=$ $\sigma$.\\
 
-Adem\'as dado un estado $\sigma$ con forma $alpha \concat \lrangles{S}$, 
+Adem\'as dado un estado $\sigma$ con forma $\alpha \concat \lrangles{S}$, 
 tenemos que $last_S \sigma$ sera el ultimo valor contenido en el estado $\sigma$.
 
 \end{definition}
 
 Hasta aqu\'i entonces hemos definido la primera versi\'on de estados, esta ser\'a la que
-se corresponda con la categor\'ia de estados para la sem\'antica con stack discipline.
+se corresponda con la sem\'antica con stack discipline.
 Pasemos a definir la segunda versi\'on, la cual se corresponder\'a entonces con
-la categor\'ia de estados para la sem\'antica sin stack discipline. Como ya
+la sem\'antica sin stack discipline. Como ya
 mencionamos antes estos estados ahora ser\'an funciones de identificadores
-en valores, en un sentido similar a como es un ambiente, la raz\'on principal
+en valores, en un sentido similar a c\'omo es un ambiente, la raz\'on principal
 por la cual vamos a tener esta segunda versi\'on se basa en que vamos a querer
 dejar de lado la idea de que los estados tengan forma y el problema que 
 trae esto es que, justamente la forma es lo que nos permite actualizar o consultar
 los valores de nuestro estado, por lo tanto necesitamos otro tipo
 de estado con otro mecanismo para realizar esas acciones.
-Para resolver esto usamos una idea similar a la propuesta en (referencia Reynolds Theories...)
+Para resolver esto usamos una idea similar a la propuesta en \cite{reynolds2009theories}
 para el lenguaje Iswim.
 
 \begin{definition}\label{algol:states}
 
 Un estado ser\'a un elemento perteneciente a 
-$\bigcup\limits_{I \in \FinId} I \rightarrow S$
-
+$\Sigma = \bigcup\limits_{I \in \FinId} I \rightarrow S$, 
 donde $\FinId$ ser\'a un conjunto de subconjuntos finitos de $\lrangles{Id}$ y
 $S = S_\intt + S_\realt + S_\boolt$\\
-
-A este conjunto de estados lo llamaremos $\Sigma$.\\
 
 \end{definition}
 
@@ -612,17 +614,19 @@ Ahora con los estados definidos, vamos a dar las dos definiciones de
 la categor\'ia de estados, una ser\'a la categor\'ia en la que b\'asicamente cada objeto ser\'a
 un conjunto de estados con la misma forma y una flecha entre dos objetos
 determinar\'a como contraer la forma de un objeto y como transformar un estado
-con cierta forma en un estado mas grande. Y la otra categor\'ia tendr\'a
+con cierta forma en un estado m\'as grande. Y la otra categor\'ia tendr\'a
 un solo objeto que agrupar\'a a todos los estados sin importar la forma y
 cuya \'unica flecha ser\'a la identidad.
 
 \begin{definition}\label{algol:disciplinestatecategory}
 La categor\'ia de estados, que nombraremos $\C$, se define como sigue,\\
 
+Sea $\Sigma_\alpha$ $=$ $\{$ $\sigma$ | tal que $\sigma$ tiene forma $\alpha$ $\}$, luego\\
+
 \indent
-$\C_0$ $=$ $\{C$ $|$ $C$ es el conjunto de todos los estados con determinada forma$\}$\\
+$\C_0$ $=$ $\{$ $\Sigma_\alpha$ | $\alpha$ es una forma $\}$\\
 \indent
-$\C_1(C,C')$ $=$ $\{C \rTo^{(h,s)} C'$ $|$ $C'$ extiende a $C\}$\\
+$\C_1(\Sigma_\alpha,\Sigma_{\alpha'})$ $=$ $\{(h,s)$ | si $\alpha'$ extiende a $\alpha$ $\}$\\
 
 donde \ $h: C' \rightarrow C$\\
 \indent \indent \indent
@@ -645,7 +649,9 @@ se determina de la misma manera que para los estados. Adem\'as aprovechamos
 que podemos hablar acerca de que $C$ tiene forma, para hacer un abuso de 
 notaci\'on en $head$ y $tail$.\\
 
-Ahora definamos la segunda categor\'ia de estados que mencionamos anteriormente.
+Ahora definamos la segunda categor\'ia de estados que mencionamos anteriormente,
+recordemos que esta ser\'a la categor\'ia de estados en la sem\'antica sin
+stack discipline.
 
 \begin{definition}\label{algol:statecategory}
 La categor\'ia de estados, que nombraremos $\C$, se define como sigue,\\
@@ -655,13 +661,10 @@ $\C_0$ $=$ $\{\ \Sigma \ \}$\\
 
 y cuya \'unica flecha es $(1_h,1_s) : \Sigma \rightarrow \Sigma$, tal que\\
 
-$1_h : \Sigma \rightarrow \Sigma$\\
-\indent
-$1_h \sigma = \sigma$\\
-\indent
+$1_h : \Sigma \rightarrow \Sigma$ \ \ \ \ \ \ \
 $1_s: (\Sigma \rightarrow \Sigma_{\bot}) \rightarrow (\Sigma \rightarrow \Sigma_{\bot})$\\
 \indent
-$1_s \ c = c$
+$1_h \sigma = \sigma$ \ \ \ \ \ \ \ \ \ \ \ $1_s \ c = c$
 
 \end{definition}
 
@@ -669,17 +672,19 @@ Una aclaraci\'on importante es que, salvo aclaraci\'on, cuando hablemos de
 la categor\'ia $\C$ vamos a estar refiri\'endonos a cualquiera de las dos
 que acabamos de definir. Dicho esto, estamos en condiciones de definir quien
 ser\'a $\CD$, una idea inicial es pensar en la categor\'ia funtorial
-$\Dom^\C$ como sugiere (ref Reynolds, Theories of programming... Cap. 19.), pero
-parece existir un problema seg\'un se menciona en (ref Oles, Functor categories and 
-store shapes, Chap. 11.) que tiene que ver con que $\Dom^\C$ parece no ser $\CCC$
+$\Dom^\C$ como sugiere \cite[Cap 19]{reynolds2009theories}, pero
+parece existir un problema seg\'un se menciona en \cite{olesfunctorcategories} 
+que tiene que ver con que $\Dom^\C$ no es inmediatamente $\CCC$
 a pesar de que $\Dom$ lo sea y hab\'iamos mencionado que \'ibamos a querer que
 nuestra categor\'ia $\CD$ sea $\CCC$. En esta ultima referencia entonces se
 plantea el uso de $\PDom$, luego $\CD$ nos queda como la categor\'ia funtorial $\PDom^\C$.\\
 
 Para la definici\'on de las ecuaciones sem\'anticas primero vamos a tener
-que acomodar la sem\'antica de nuestros tipos y contextos, antes ya mencionamos
-que la representaci\'on que vamos a necesitar, por ejemplo, para el tipo $\intexp$
-ya no ser\'a tan simple como antes. 
+que acomodar la sem\'antica de nuestros tipos y contextos. Como ya mencionamos
+antes la representaci\'on que vamos a necesitar, por ejemplo, para el tipo $\intexp$
+ya no ser\'a tan simple como antes. La nueva definici\'on sem\'antica de $\intexp$
+ser\'a un funtor entre la categor\'ia de estados $\C$ y la categor\'ia funtorial
+$\CD$.\\
 
 Notar que como nuestra categor\'ia $\CD$ es ahora una categor\'ia funtorial, 
 vamos a tener que la sem\'antica de un objeto $\theta$ de $\Theta$ ser\'a un funtor,\\
@@ -728,7 +733,7 @@ $\semBrcks{\deltavar}_0 (h,s) \ (a,e)$ $=$ $( \semBrcks{\deltaacc}(h,s) \ a
 \
 
 $\semBrcks{\theta \rightarrow \theta'}_0 C$ $=$ 
-					$\Hom{\semBrcks{\theta}(C \concat \_)}{\semBrcks{\theta'}(C \concat \_)}$\\
+					$\Nat{\semBrcks{\theta}(C \concat \_)}{\semBrcks{\theta'}(C \concat \_)}$\\
 \indent
 $\semBrcks{\theta \rightarrow \theta'}_0 (h,s) \ f \ \widehat{C}$ $=$ 
 														$f(\overline{C} \concat \widehat{C})$\\
@@ -736,7 +741,7 @@ $\semBrcks{\theta \rightarrow \theta'}_0 (h,s) \ f \ \widehat{C}$ $=$
 \
 
 \indent
-$\semBrcks{\intexp \leq \realexp}_1 C \ e$ $=$ $\J \circ e$\\
+$\semBrcks{\intexp \leq \realexp}_1 C \ e$ $=$ $\J \circ e$ \ \ \ \ con $\J$ la inyecci\'on de enteros en reales.\\
 \
 
 \indent
@@ -771,19 +776,17 @@ $\semBrcks{(\theta_0 \rightarrow \theta'_0) \leq (\theta_1 \rightarrow \theta'_1
 			\semBrcks{\theta_1 \leq \theta_0}_1 (C \concat \widehat{C}) 
 			$\\
 
-con $\J$ la inyecci\'on de enteros en reales.
-
 \end{definition}
 
 Ahora que hemos definido las ecuaciones sem\'anticas para nuestros tipos 
-hagamos un repaso sobre las mas relevantes de ellas. En determinados momentos
+hagamos un repaso sobre las m\'as relevantes de ellas. En determinados momentos
 vamos a hablar acerca de $\textit{alcance con forma}$, a lo que nos vamos
 a referir es, no solo al contexto en el cual un identificador tiene sentido,
-si no adem\'as la forma que debe tener un estado en ese contexto.
+sino adem\'as a la forma que debe tener un estado en ese contexto.
 
 \begin{itemize}
-\item $\semBrcks{\deltaexp}C$, como ya hemos mencionado ser\'a una funci\'on 
-de un estado en un conjunto $S_\delta$ de valores, la motivaci\'on de 
+\item Un elemento de $\semBrcks{\deltaexp}C$, como ya hemos mencionado, ser\'a una funci\'on 
+de un estado en un conjunto $S_\delta$ de valores; la motivaci\'on de 
 esta definici\'on es poder disponer del estado para obtener el valor de 
 una variable imperativa cuando se la utiliza como expresi\'on.
 
@@ -791,8 +794,8 @@ una variable imperativa cuando se la utiliza como expresi\'on.
 hacemos la transformaci\'on componiendo con $h : C' \rightarrow C$, para obtener
 $e \circ h : C' \rightarrow S_\delta$.
 
-\item $\semBrcks{\commt}C$, esta tal vez sea la mas intuitiva, ser\'a
-una funci\'on de un estado con forma $C$ en otro con la misma forma $C$ y
+\item Un elemento de $\semBrcks{\commt}C$, esta tal vez sea la m\'as intuitiva, ser\'a
+una funci\'on de un estado con forma $C$ en otro con la misma forma $C$,
 como en todos los casos contemplando la no terminaci\'on.
 
 \item $\semBrcks{\commt}(h,s) \ c$, parecido a como pasaba para $\deltaexp$,
@@ -800,7 +803,7 @@ tenemos un $c : C \rightarrow C_\bot$ y tenemos que
 $s : (C \rightarrow C_\bot) \rightarrow (C' \rightarrow C'_\bot)$, luego
 $s \ c : C' \rightarrow C'_\bot$.
 
-\item $\semBrcks{\deltaacc}C$, el tipo representa a la variable como contenedora
+\item Un elemento de $\semBrcks{\deltaacc}C$, el tipo representa a la variable como contenedora
 de valores, luego la sem\'antica ser\'a una funci\'on que toma un valor en $S_\delta$,
 un estado y devuelve un nuevo estado con el valor de la variable modificado.
 
@@ -817,10 +820,11 @@ manera,\\
 
 $\semBrcks{\theta \rightarrow \theta'}C = \semBrcks{\theta}C \rightarrow \semBrcks{\theta'}C$\\
 
-y el problema esta en bajo que alcance se realiza la aplicaci\'on, 
+y el problema est\'a en que uno debe preguntarse bajo que alcance se realiza la aplicaci\'on:
 b\'asicamente puede suceder que la aplicaci\'on suceda en un alcance
 que tiene nuevas declaraciones y como consecuencia de esto, el estado tenga diferente
-forma. La soluci\'on entonces se basa en obtener cuanto se extendió el estado.
+forma. La soluci\'on entonces se basa en obtener cu\'anto se extendió el estado y 
+hacerlo de una manera uniforme.
 
 \item $\semBrcks{\theta \rightarrow \theta'} (h,s) \ f$, pensemos que $f$ puede
 aplicarse en un alcance con, por lo menos, forma $C$ y queremos que pase a, por lo menos,
@@ -829,13 +833,13 @@ la forma $C'$, con $\overline{C}$ y agregamos la posibilidad de seguir ampliando
 
 \item $\semBrcks{(\theta_0 \rightarrow \theta'_0) \leq (\theta_1 \rightarrow \theta'_1)}_1 C \ f \ \widehat{C}$,
 lo que sucede con esta ecuaci\'on no es muy diferente a lo que pasa con la definici\'on hecha en
-lambda leq, el \'unico cuidado que hay que tener es el de extender la forma de $C$.
+$\lambdaleq$, el \'unico cuidado que hay que tener es el de extender la forma de $C$.
 
 \end{itemize}
 
-Pasemos ahora a definir la sem\'antica de nuestros contextos, de igual manera que
-hicimos con los tipos, empecemos analizando los tipos de las ecuaciones que vamos
-a definir. Sea $\pi$ un objeto de $\Pi$ luego tenemos que,\\
+Pasemos ahora a definir la sem\'antica de nuestros contextos, como hicimos con los
+tipos; empecemos analizando los tipos de las ecuaciones que vamos
+a definir. Sea $\pi$ un objeto de $\Pi$ luego tenemos que\\
 
 $\semBrcks{\pi}C : \PDom$, \\
 
@@ -864,9 +868,9 @@ $\semBrcks{\pi \leq \pi'}_1C$ $=$ $\prod\limits_{\iota \in dom \ \pi}
 
 \end{definition}
 
-De la pasada definici\'on la ecuaci\'on que nos va a interesar ser\'a $\semBrcks{\pi}_0(h,s) \ \eta$,
-esta nos servir\'a para acomodar un ambiente $\eta$ a una determinada forma cuando lo extendemos
-agregando un valor, veremos adem\'as que esto pasa solamente para la abstracci\'on lambda y
+De esta definici\'on la ecuaci\'on que m\'as nos va a interesar ser\'a $\semBrcks{\pi}_0(h,s) \ \eta$,
+que nos servir\'a para acomodar un ambiente $\eta$ a una determinada forma cuando lo extendemos
+agregando un valor; veremos adem\'as que esto pasa solamente para la abstracci\'on lambda y
 la declaraci\'on de variable imperativa.\\
 
 Ahora que hemos definido la sem\'antica de contextos y tipos, podemos continuar con
@@ -972,11 +976,10 @@ $=$ \\
 $\langle \ \semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltaacc}C\eta$
 $, \semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltaexp}C\eta \ \rangle$ \\
 
-En este punto vamos a hacer un par\'entesis para comentar lo que cuando
-presentamos los juicios de tipado validos para el lenguaje quedo pospuesto.
-Recordado, \'ibamos a evitar que el juicio de tipado
+En este punto vamos a hacer un par\'entesis para comentar la restricci\'on
+en el tipado del condicional. Recordando, \'ibamos a evitar que el juicio de tipado
 $\pi \vdash \cifthenelse{b}{e}{e'} : \theta \rightarrow \theta'$, 
-sea valido y, bas\'andonos en las ecuaciones sem\'anticas para los 
+sea valido; bas\'andonos en las ecuaciones sem\'anticas para los 
 distintos juicios de tipado de la expresi\'on condicional que hemos
 dado, la raz\'on entonces esta en notar que para evaluar el comando
 condicional tenemos que "rescatar" el estado para poder evaluar
@@ -997,21 +1000,21 @@ ser\'a el valor pasado por argumento y finalmente aparece nuestro estado
 en alguna de las formas que sabemos "rescatarlo" siempre y cuando $\theta_1$
 no sea algo de tipo flecha.\\
 La pregunta que surge entonces es 
-¿Como saber cuantos $z'$s y $C'$s hay que rescatar hasta encontrarse el estado?; 
-continuando con el ejemplo, $f$ podr\'ia ser la expresi\'on $\lambda v. ff$ tal que, 
-abusando de notaci\'on, $v : \theta \rightarrow \theta'$. Esto 
+¿ C\'omo saber cuantos $z'$s y $C'$s hay que rescatar hasta encontrarse el estado?; 
+Continuando con el ejemplo, $f$ podr\'ia ser la expresi\'on $\lambda \iota. e$ tal que, 
+abusando de notaci\'on, $\iota : \theta \rightarrow \theta'$. Esto 
 implicar\'ia rescatar un solo $z$ y un solo $C$ para encontrar el estado, una 
-primera idea podr\'ia ser usar la informaci\'on del tipo de $v$ ya que tenemos
+primera idea podr\'ia ser usar la informaci\'on del tipo de $\iota$ ya que tenemos
 tipado explicito, luego 
 tomar\'iamos este $z$ y $C$ y evaluar\'iamos cada caso de la expresi\'on
 condicional pasando estos valores, parecido a como hacemos cuando
 tenemos el tipo $\deltaacc$. Esta entonces parecer\'ia ser una posible 
 soluci\'on, pero surge otra complicaci\'on supongamos $f'$ es igual a
-$(\lambda v' . \lambda v . ff)h$ es decir, $f'$ tipa correctamente pero
+$(\lambda \iota' . \lambda \iota . e)h$ es decir, $f'$ tipa correctamente pero
 sin embargo no es una abstracci\'on lambda, si no que hay una aplicaci\'on
 y esto implica entonces que rescatar el estado es distinto para una componente
 que para otra de la expresi\'on condicional. En resumen, no es tan sencillo
-saber de que forma "rescatar" el estado para, recordando, evaluar la guarda.\\
+saber de qu\'e forma "rescatar" el estado para evaluar la guarda.\\
 
 Una soluci\'on podr\'ia llegar a tener que ver con siempre tener el estado
 "a mano" para poder "rescatarlo", con esta idea en mente proponemos entonces
@@ -1069,6 +1072,10 @@ Ahora bien, esta posible soluci\'on no ser\'a estudiada en detalle y solamente
 vale como ejercicio para tener una idea mas formal de lo que ser\'ia practico
 tener como ecuaci\'on sem\'antica para la expresi\'on condicional. En el resto 
 del cap\'itulo vamos a seguir considerando la idea original.\\
+
+Una aclaraci\'on importante sobre las ecuaciones para $\rec{}$ y $\cwhile{}{}$
+es que vamos a usar el operador $\Y$ de punto fijo bajo la seguridad de que
+$\semBrcks{\theta}C$ es un dominio para cualquier $\theta$.\\
 
 \noindent
 $\texttt{Denotal Sem:}$ Aplicaci\'on.\\
@@ -1138,6 +1145,11 @@ $\semBrcks{ \pi,\iota:\theta \vdash e : \theta' } \ (C \concat C') \
 
 con $(h,s)$ $:$ $C \rTo (C \concat C')$ \\
 
+\noindent
+$\texttt{Denotal Sem:}$ Subsumption.\\
+
+$\semBrcks{\pi \vdash e : \theta}C$ $=$ $\semBrcks{\theta' \leq \theta}C \circ \semBrcks{\pi \vdash e : \theta'}C$\\
+
 Hasta aqu\'i hemos definido todas las ecuaciones sem\'anticas de $\Alike$ salvo
 para el comando $\cnew \ \deltavar$, para este vamos a tener dos definiciones
 y con estas, en conjunto con las dos categor\'ias de estados, vamos a completar 
@@ -1156,7 +1168,7 @@ $(\semBrcks{\pi \vdash ei : \deltaexp}C \ \eta \ \sigma))$\\
 
 con $(h,s)$ $:$ $C \rTo (C \concat \lrangles{S_\delta})$ \\
 \indent \indent \ \
-$a$ $=$ $\lambda v. \ \lambda \sigmahat . \ \iotabot ((head_{C} \sigmahat) \concat \lrangles{v})$\\
+$a$ $=$ $\lambda z. \ \lambda \sigmahat . \ \iotabot ((head_{C} \sigmahat) \concat \lrangles{z})$\\
 \indent \indent \ \
 $e$ $=$ $ \iotabot \circ last_{S_\delta}$\\
 \indent \indent \ \
@@ -1168,23 +1180,23 @@ $H = head_C$\\
 
 \noindent
 Expliquemos la ecuaci\'on detenidamente, recordando que esta es la versi\'on
-con stack discipline, el comportamiento que este comando deber\'ia tener es evaluar
-el comando $c$ en un estado y ambiente extendido con el identificador $\iota$, 
+con stack discipline: el comportamiento que este comando deber\'ia tener es evaluar
+el comando $c$ en un estado y ambiente extendidos con el identificador $\iota$, 
 este con el valor inicial correspondiente de haber evaluado $ei$
 y al terminar la evaluaci\'on de $c$ contraer el estado y el ambiente, tirando
 de esa manera toda referencia al identificador $\iota$.\\
 
-Suponiendo siempre la evaluaci\'on de nuestros comandos es distinta de $\bot$, 
+Suponiendo siempre que la evaluaci\'on de nuestras frases y comandos termina, 
 lo primero que hacemos es evaluar el juicio de tipado $\pi \vdash ei : \deltaexp$
-con el ambiente y estado sin extender, esta evaluaci\'on nos retorna un valor
-que vamos a nombrar $v$, este ser\'a el valor para inicializar el identificador $\iota$.
+con el ambiente y estado sin extender; esta evaluaci\'on nos retorna un valor
+que vamos a nombrar $z$, este ser\'a el valor para inicializar el identificador $\iota$.
 Luego pasamos a evaluar $\pi \vdash c : \commt$, ac\'a vamos a tener que extender 
 el ambiente y el estado, as\'i como tambi\'en el conjunto de estados con el tipo
 b\'asico del identificador. \\
-Extender el estado ser\'a simplemente pegar por atr\'as el valor $v$ al estado
-$\sigma$, extender el ambiente ya no es tan simple por un lado si ocurre que 
+Extender el estado ser\'a simplemente pegar por atr\'as el valor $z$ al estado
+$\sigma$; extender el ambiente ya no es tan simple: por un lado si ocurre que 
 agregamos el identificador $\iota$ con el par aceptador-evaluador por atr\'as
-pero no al ambiente tal cual lo ten\'iamos, si no a un nuevo ambiente que es
+pero no al ambiente tal cual lo ten\'iamos, sino a un nuevo ambiente que es
 el resultado de acomodar el ambiente original a la extensi\'on del estado, mas
 adelante vamos a ver por qu\'e esto es importante. Sobre el par aceptador-evaluador
 podemos notar que evaluar $\iota$ como expresi\'on ser\'a evaluar $e$, es decir,
@@ -1194,7 +1206,7 @@ valor.\\
 Finalmente al terminar de evaluar $\pi \vdash c : \commt$ obtenemos un estado
 con forma $C \concat \lrangles{S_\delta}$ y necesitamos contraerlo para eliminar
 el valor de $\iota$, esto lo hace $H_\bot$ recortando el estado hasta justo antes
-del valor, justo como pasaba con la evaluaci\'on de $\iota$ como aceptador pero
+del valor, tal como pasaba con la evaluaci\'on de $\iota$ como aceptador pero
 sin agregar ning\'un valor nuevo.\\
 
 Repasemos con un ejemplo todo lo comentado anteriormente.\\
@@ -1211,6 +1223,7 @@ $\assig{\kappa}{\iota}$ $\cseq$\\
 \indent
 $\cskip$\\
 
+\noindent
 y la siguiente derivaci\'on que nos prueba que esta bien tipado para
 obtener el juicio de tipado $\vdash \cseq{\cnew \iota \ }{ \ \cskip} : \commt$, donde
 $\cnew \iota$ es el primer comando $\cnew \intvar$, adem\'as vamos a
@@ -1266,7 +1279,8 @@ un $\cnew \ \deltavar$ el comando que siga a este no sabe nada acerca de lo que 
 dentro y con los identificadores. Tomamos ambiente y estado vac\'ios, \\
 
 \noindent
-$\semBrcks{\vdash \cseq{\cnew \iota \ }{ \ \cskip} : \commt}\emptyshape\emptyenv\emptystate$ $=$
+$\semBrcks{\vdash \cseq{\cnew \iota \ }{ \ \cskip} : \commt}\emptyshape\emptyenv\emptystate$ $=$\\
+\indent \indent \indent \indent \indent \indent 
 $((\semBrcks{\vdash \cskip : \commt}\emptyshape\emptyenv)_{\dbot}
 \circ 
 \semBrcks{\vdash \cnew \iota : \commt}\emptyshape\emptyenv) \emptystate$\\
@@ -1314,8 +1328,8 @@ $H_{\bot} ((\lambda \ v . \ \semBrcks{\pi_\iota,\kappa:\intvar \vdash \assig{\ka
 \indent \indent \indent
 $(\semBrcks{\pi_\iota \vdash 1 : \intexp}\emptyshape \ \emptyenv \ \emptystate))$\\
 
-como antes, tenemos que ver quienes ser\'an $\eta_{new}$ y $\sigma_{new}$, empezando por
-este ultimo es sencillo y es simplemente pegar por atr\'as el valor $1$, en cuanto a
+como antes, tenemos que ver qui\'enes ser\'an $\eta_{new}$ y $\sigma_{new}$; empezando por
+este \'ultimo es sencillo y es simplemente pegar por atr\'as el valor $1$. En cuanto a
 $\eta_{new}$ ya no es tan directo, lo que sucede es que vamos a tener que acomodar el
 antiguo ambiente, $[ \ \iota : \lrangles{a_\iota,e_\iota} \ ]$, y luego agregar
 el identificador $\kappa$ con el par $\lrangles{a_\kappa,e_\kappa}$.\\
@@ -1335,10 +1349,11 @@ $[ \ \iota : \lrangles{\semBrcks{\intacc}(h,s) a_\iota,\semBrcks{\intacc}(h,s)e_
 \indent
 $[ \ \iota : \lrangles{s \circ a_\iota,e_\iota \circ h} \ ]$\\
 
-ahora si podemos extender el ambiente 
+\noindent
+ahora s\'i podemos extender el ambiente 
 $[ \ \iota : \lrangles{s \circ a_\iota,e_\iota \circ h} \ | \
-	\kappa : \lrangles{a_\kappa,e_\kappa}\ ]$ y este sera nuestro nuevo ambiente $\eta_{new}$.
-Luego podemos avanzar un poco mas con la evaluaci\'on y pasar en limpio la ultima ecuaci\'on,\\
+	\kappa : \lrangles{a_\kappa,e_\kappa}\ ]$ y este ser\'a nuestro nuevo ambiente $\eta_{new}$.
+Luego podemos avanzar un poco m\'as con la evaluaci\'on y pasar en limpio la ultima ecuaci\'on,\\
 
 \noindent
 $\semBrcks{\pi_\iota \vdash \cnew \kappa : \commt}
@@ -1365,10 +1380,10 @@ con $a_\kappa = \lambda v. \ \lambda \sigmahat . \ \iotabot
 	
 Haciendo un repaso general de lo que llevamos hecho, tenemos evaluado hasta el comando
 de asignaci\'on, esto implica haber evaluado los comandos para introducir variables 
-imperativas, lo mas importante a repasar es los pares aceptor-evaluador de los
+imperativas, lo mas importante a repasar son los pares aceptor-evaluador de los
 identificadores $\iota$ y $\kappa$. Empezando con $\iota$, vemos que usarlo como
 expresi\'on es utilizar como $e_\iota$ que
-sabe como retornar el valor asociado a $\iota$ dado un estado con forma $\lrangles{S_\intt}$,
+sabe c\'omo retornar el valor asociado a $\iota$ dado un estado con forma $\lrangles{S_\intt}$,
 luego acomodando esto al introducir $\kappa$, lo que sucede es que usar como expresi\'on
 a $\iota$ es utilizar $e_\iota \circ head_{\lrangles{S_\intt}}$, es decir, dado
 un estado con forma $\lrangles{S_\intt, S_\intt}$, primero nos quedamos con la
@@ -1380,7 +1395,7 @@ la variable $i$-esima vamos a hacer $n-i$ $head's$ y luego aparece la definici\'
 $e_{\xi_i}$ original de cuando se introdujo el identificador.\\
 Si en cambio usamos a $\iota$ como aceptador de valor, entonces ser\'a utilizar
 $a_\iota$ que sabe recortar un estado con forma $\lrangles{S_\intt}$ de manera
-de perder justo el valor asociado a $\iota$, como pasaba con antes, al agregar
+de perder justo el valor asociado a $\iota$; al agregar
 $\kappa$ hay que acomodar la funci\'on a utilizar cuando usamos $\iota$ como aceptador,
 para esto vamos a usar 
 $s : (\lrangles{S_\intt} \rightarrow \lrangles{S_\intt}_{\bot})
@@ -1390,7 +1405,7 @@ funci\'on b\'asicamente va a tomar $a \ x : \lrangles{S_\intt} \rightarrow \lran
 recortar un la parte inicial de un estado con forma $\lrangles{S_\intt,S_\intt}$, aplicar
 $a \ x$ en ese estado y luego concatenar el resultado de esa aplicaci\'on con la parte
 final del estado original con forma $\lrangles{S_\intt,S_\intt}$.\\
-Notar que para las funciones $e_\kappa$ y $a_\kappa$ el comportamiento es igual
+Notar que para las funciones $e_\kappa$ y $a_\kappa$ el comportamiento es an\'alogo
 al comportamiento para $e_\iota$ y $a_\iota$ cuando no se agregan variables imperativas 
 nuevas. Hecho este repaso, podemos continuar con la evaluaci\'on del juicio de tipado
 de la asignaci\'on, ac\'a vamos a ver como es que utilizamos un identificador 
@@ -1410,7 +1425,8 @@ $(\semBrcks{ \pi_{\iota,\kappa} \vdash \iota : \intexp }
 	\ \eta_{\iota,\kappa} 
 	\ \lrangles{0,1})$\\
 	
-evaluemos detenidamente el juicio de tipado para $\iota$, es importante notar que en
+\noindent
+evaluemos detenidamente el juicio de tipado para $\iota$: es importante notar que en
 la derivaci\'on de nuestro juicio de tipado  para tipar $\iota$ no alcanza con
 simplemente buscar en el contexto, ya que $\iota$ tiene tipo $\intvar$ entonces
 hay que usar una regla de subtipado, por lo tanto esto impacta de la siguiente
@@ -1438,6 +1454,7 @@ $\semBrcks{ \pi_{\iota,\kappa} \vdash \iota : \intexp }
 	$\iotabot (last_{S_\intt} (head_{\lrangles{S_\intt}} \ \lrangles{0,1}))$ $=$
 	$\iotabot (last_{S_\intt} \lrangles{0})$ $=$ $\iotabot 0$\\
 	
+\noindent
 volviendo ahora con $\iota$ evaluado como expresi\'on\\
 
 $\semBrcks{\pi_{\iota,\kappa} \vdash \assig{\kappa}{\iota}: \commt}
@@ -1449,6 +1466,7 @@ $\semBrcks{\pi_{\iota,\kappa} \vdash \kappa : \intacc}
 	\ \eta_{\iota,\kappa}
 	\ 0 \ \lrangles{0,1}$\\
 
+\noindent
 ahora evaluando similar a como hicimos con $\iota$ y teniendo el mismo cuidado
 con el subtipado del identificador $\kappa$ de $\intvar$ a $\intacc$\\
 
@@ -1472,13 +1490,15 @@ $\semBrcks{\intvar \leq \intacc} \ \lrangles{S_\intt,S_\intt} \lrangles{a_\kappa
 $\iotabot ((head_{\lrangles{S_\intt}} \lrangles{0,1}) \concat \lrangles{0})$ $=$
 $\iotabot (\lrangles{0} \concat \lrangles{0})$ $=$ $\iotabot \lrangles{0,0}$\\
 
-de nuevo, reescribiendo ahora con la evaluaci\'on terminada de $\kappa$,\\
+\noindent
+de nuevo, reescribiendo ahora con la evaluaci\'on terminada de $\kappa$, tenemos\\
 
 $\semBrcks{\pi_{\iota,\kappa} \vdash \assig{\kappa}{\iota}: \commt}
 		\ \lrangles{S_\intt,S_\intt} \ \eta_{\iota,\kappa}
 		\ \lrangles{0,1}$ $=$ $\iotabot \lrangles{0,0}$\\
-		
-ya casi terminando y volviendo a la evaluaci\'on de la composici\'on entre
+
+\noindent
+y con esto ya casi terminamos, ahora volviendo a la evaluaci\'on de la composici\'on entre
 $\cnew \iota$ y $\cskip$, \\
 
 $(\semBrcks{\vdash \cskip : \commt}\emptyshape\emptyenv)_{\dbot}
@@ -1498,12 +1518,14 @@ $(\lambda \sigma . \ \iotabot \sigma)_{\dbot}
 $(\lambda \sigma . \ \iotabot \sigma)_{\dbot} (\iotabot \lrangles{})$ $=$ 
 $\iotabot \lrangles{}$\\
 
+\noindent
 y con esto terminamos la evaluaci\'on del juicio de tipado completo y adem\'as con 
 el resultado esperado.
 
 A continuaci\'on vamos a introducir nuestra versi\'on de ecuaci\'on sem\'antica
-que en conjunto con la segunda categor\'ia de estados que dimos conforman la sem\'antica
-sin stack discipline. Repasando lo que pretendemos con esta sem\'antica ser\'ia, 
+que en conjunto con la segunda categor\'ia de estados que dimos en la definici\'on 
+\ref{algol:statecategory} conforman la sem\'antica
+sin stack discipline. Lo que pretendemos con esta sem\'antica ser\'ia, 
 que a diferencia de lo que paso en el ejemplo anterior que al terminar de evaluar
 un comando $\cnew \deltavar$ el siguiente comando no sabe nada acerca de los
 identificadores y valores a los que se evalu\'o, nosotros queremos esta informaci\'on
@@ -1511,8 +1533,8 @@ quede visible, aunque no sea posible acceder.\\
 
 En el momento en que introducimos las definiciones de estados mencion\'abamos 
 que, para esta segunda versi\'on, \'ibamos a abandonar el hecho de que los estados tengan
-forma, ahora que avanzamos mas podemos comentar la raz\'on, uno puede pensar para la
-versi\'on con stack discipline que la forma del estado esta totalmente relacionada
+forma, ahora que avanzamos m\'as podemos comentar la raz\'on: uno puede pensar para la
+versi\'on con stack discipline que la forma del estado est\'a totalmente relacionada
 con la cantidad, y el tipo, de identificadores que se han introducido y son accesibles
 en cierto comando anidado del $\cnew \deltavar$, de esta manera cuando termin\'abamos 
 de evaluar un $\cnew \deltavar$ autom\'aticamente perd\'iamos un elemento del estado.
@@ -1543,12 +1565,12 @@ De la misma forma que hicimos con la primera ecuaci\'on sem\'antica de este
 comando, repasemos cada parte de la nueva ecuaci\'on. En general todo sobre 
 la nueva ecuaci\'on es igual, los detalles importantes est\'an en las funciones
 $a$, $e$ y $H$, empecemos notando que $H$ la cual
-en la otra sem\'antica era al encargada de recortar el estado cuando terminaba 
-la evaluci\'on del cuerpo, ahora es una identidad, es decir, vamos a retornar el
+en la otra sem\'antica era la encargada de recortar el estado cuando terminaba 
+la evaluci\'on del cuerpo, ahora es la identidad, es decir, vamos a retornar el
 estado tal cual estaba al terminar de evaluar el cuerpo. La funci\'on para evaluar
 el identificador como aceptador, es decir $a$, sobrescribe el valor antiguo del estado,
 lo nuevo que aparece ac\'a es el $\iota_\delta$ esta funci\'on es la inyecci\'on
-de $S_\delta$ en $S$, recordando $S$ era la uni\'on disjunta de $S_\intt$, 
+de $S_\delta$ en $S$, recordando que $S$ es la uni\'on disjunta de $S_\intt$, 
 $S_\realt$ y $S_\boolt$.\\
 Para explicar la funci\'on para evaluar el identificador
 como valor, primero vamos a introducir la funci\'on $(\_)_{\delta}$ que dada una $f$
@@ -1560,6 +1582,9 @@ luego simplemente ser\'a aplicar el estado al identificador, la \'unica
 salvedad importante es que $\sigma \iota : S$ y nosotros necesitamos algo de tipo
 $S_\delta$, para esto utilizamos $(\lambda v. \ v)_\delta$.\\
 
+Notar que no definimos que pasa para el caso particular de tener $f_{\delta}(\iota_{\delta'}x)$
+con $\delta \neq \delta'$, 
+
 Existe una observaci\'on importantes que surge de pensar el siguiente caso,
 supongamos tenemos un $e : \Sigma \rightarrow S_\intt$ y un $\sigma \iota : S_\boolt$,
 luego $e$ podr\'ia estar definido as\'i $(\lambda v . v)_{\intt}\sigma \iota$, esto es
@@ -1570,12 +1595,12 @@ y como consecuencia nuestra sem\'antica sin stack discipline generar\'ia una
 nueva clase de errores que la sem\'antica con stack discipline no genera ya que,
 seg\'un el primer principio, todos los errores de tipos deben ser sint\'acticos. \\
 
-Para solucionar esto podemos pensar en que casos nuestra sem\'antica sin
+Para solucionar esto podemos pensar en qu\'e casos nuestra sem\'antica sin
 stack discipline generar\'ia estos errores, nos damos cuenta que esto puede pasar
 solo cuando intentamos evaluar juicios de tipado no cerrados, es decir que 
 contienen variables libre. Analicemos por qu\'e esta afirmaci\'on, empecemos
 suponiendo que tenemos un comando cerrado y que tenemos un $\sigma$ cualquiera,
-es decir que por ejemplo tiene identificadores con valore asociados, luego
+es decir que por ejemplo tiene identificadores con valores asociados, luego
 cada vez que aparezca un identificador como comando, lo que tiene que haber ocurrido
 es que este identificador es un subcomando de uno o varios $\cnew \deltavar$ y por lo
 tanto al evaluar este comando pisamos la posible existencia de un identificador
@@ -1583,13 +1608,15 @@ asociado a un valor del tipo inadecuado. El problema entonces surge cuando evalu
 un comando no cerrado, ya que es posible que nos encontremos con un identificador
 como comando a evaluar, sin que este sea subcomando de uno o varios $\cnew \deltavar$
 y por lo tanto el tipo del valor asociado al identificador en el estado no sea el 
-correcto.\\
+correcto. Otro problema que podr\'ia surgir ser\'ia que no existe el identificador
+$\iota$ en el dominio de nuestro estado $\sigma$, es decir, estar\'iamos intentando
+utilizar un identificador que no aparece en el estado.\\
 
 La soluci\'on a esto es pensar que, para los programas que vamos a
-querer evaluar o que pretendemos sean programas validos a evaluar, nunca 
-son no cerrados, por lo tanto este comportamiento extraño que podr\'ia llegar
+querer evaluar o que pretendemos sean programas validos a evaluar, van a ser siempre
+cerrados, por lo tanto este comportamiento extraño que podr\'ia llegar
 a tener nuestro evaluador sin stack discipline puede ser despreciable bas\'andonos
-en este hecho, y que ser\'a una restricci\'on importante en caso de comparar
+en esta suponsici\'on, y que ser\'a una restricci\'on importante en caso de comparar
 las sem\'anticas de uno y otro.
 
 \section{Naturalidad de las ecuaciones sem\'anticas}
@@ -1599,8 +1626,8 @@ que las ecuaciones estuvieran bien definidas, es decir que fueran funciones cont
 Ahora vamos a hacer lo mismo para las ecuaciones de $\Alike$ con la diferencia de que
 por las definiciones categ\'oricas que hicimos vamos a probar que nuestras ecuaciones
 sean transformaciones naturales. Dado un juicio de tipado valido, $\pi \vdash e : \theta$,
-vamos a querer probar que el siguiente diagrama conmuta dada una flecha $C \rTo{(h,s)} C'$
-en $\C$,
+vamos a querer probar que el siguiente diagrama conmuta, donde $(h,s):C \rTo C'$ en $\C$
+
 \begin{center}
 \begin{diagram}
    \semBrcks{\pi}C & & \rTo^{\semBrcks{\pi \vdash e : \theta}C} & & \semBrcks{\theta}C \\
@@ -1612,8 +1639,8 @@ en $\C$,
 \
 
 \begin{proposition}
-Sea $(h,s) : C \rTo C'$ cualquier y dadas $f : C \rightarrow C_\bot$ y 
-$f' : C \rightarrow C_\bot$ vale,
+Sea $(h,s) : C \rTo C'$ y sea $f : C \rightarrow C_\bot$ y 
+$f' : C \rightarrow C_\bot$, entonces vale
 
 \begin{center}
 $s(f'_{\dbot} \circ f)$ $=$ $s(f')_{\dbot} \circ s(f)$
@@ -1628,7 +1655,6 @@ $C \rTo{(h,s)} C'$ en $\C$ se cumple,
 $\semBrcks{\theta}(h,s) \circ \semBrcks{\pi \vdash e : \theta}C$ $=$
 $\semBrcks{\pi \vdash e : \theta}C' \circ \semBrcks{\pi}(h,s)$
 \end{center}
-es decir el diagrama anterior conmuta.
 
 \end{theorem}
 
@@ -1642,15 +1668,14 @@ $\sigma \concat \overline{\sigma} = \sigma'$.
 
 \item Casos base
 \begin{itemize}
-\item Supongamos $\pi \vdash b : \boolexp$, \\
+\item Para la introducci\'on de constantes consideramos $\pi \vdash b : \boolexp$, los
+casos de $\intexp$ y $\realexp$ son an\'alogos.\\
 
 $\semBrcks{\boolexp}(h,s)(\semBrcks{\pi \vdash b : \boolexp}C \ \eta) \sigma'$ $=$
 $\semBrcks{\boolexp}(h,s)(\lambda \sigma. \ \iota \ b) \sigma'$ $=$ \\
 $((\lambda \sigma. \ \iota \ b) \circ h)\sigma'$ $=$
 $(\lambda \sigma. \ \iota \ b) (h \sigma')$ $=$
 $\iota \ b$ $=$ $\semBrcks{\pi \vdash b : \boolexp}C'(\semBrcks{\pi}(h,s)\eta)\sigma'$
-
-\item (Analogo $\intexp$ y $\realexp$)
 
 \item Supongamos $\pi \vdash \iota : \theta$,\\
 
@@ -1696,7 +1721,8 @@ que en los casos anteriores.
 
 \item Casos inductivos
 \begin{itemize}
-\item Supongamos $\pi \vdash \neg e : \boolexp$,\\
+\item Para introducci\'on de operadores unarios consideramos $\pi \vdash \neg e : \boolexp$, los
+dem\'as casos, incluidos los operadores binarios, son an\'alogos.\\
 
 $\semBrcks{\boolexp}(h,s)(\semBrcks{\pi \vdash \neg e : \boolexp}C\eta)\sigma'$ $=$\\
 $\semBrcks{\boolexp}(h,s)(\lambda \sigma . \ 
@@ -1718,8 +1744,6 @@ $(\lambda b. \ \iotabot \neg b)_{\dbot}
 $(\lambda b. \ \iotabot \neg b)_{\dbot}
 	(\semBrcks{\pi \vdash e : \boolexp}C(\semBrcks{\pi}(h,s)\eta)\sigma')$ $=$\\
 $\semBrcks{\pi \vdash \neg e : \boolexp}C(\semBrcks{\pi}(h,s)\eta)\sigma'$
-
-\item (Analogo operadores binarios)
 
 \item Supongamos $\pi \vdash \cifthenelse{b}{e}{e'} : \theta$, para este caso
 nos vamos a enfocar en probar el caso para $\theta = \deltaexp$ ya que los dem\'as
@@ -1758,7 +1782,7 @@ $\pi \vdash b : \boolexp$ es verdadera, luego tenemos que ver que\\
 $\semBrcks{ \pi \vdash e : \deltaexp}C \ \eta \ (h\sigma')$ $=$ 
 $\semBrcks{ \pi \vdash e : \deltaexp}C' \ (\semBrcks{\pi}(h,s)\eta) \ \sigma'$\\
 
-pero esto es directo usando hip\'otesis inductiva. Por otro lado, si supus\'ieramos
+pero esto es directo usando hip\'otesis inductiva. Por otro lado, si supusi\'eramos
 la evaluaci\'on $\pi \vdash b : \boolexp$ es falso, entonces es directo de la misma
 manera que antes.
 
@@ -1779,7 +1803,7 @@ aplicamos hip\'otesis inductiva dos veces y usamos la definici\'on del funtor
 $\semBrcks{\theta \rightarrow \theta'}$ aplicado a $(h,s)$ y 
 $(\semBrcks{\pi \vdash e' : \theta \rightarrow \theta'}C \eta)$, donde 
 $\overline{C}$ es tal que $C \concat \overline{C} = C'$.\\
-Ahora si analizamos un poco mas la definici\'on de este funtor que mencion\'abamos
+Ahora si analizamos un poco m\'as la definici\'on de este funtor que mencion\'abamos
 nos damos cuenta que $\semBrcks{\pi \vdash e' : \theta \rightarrow \theta'}C \eta$
 es una transformaci\'on natural indexada por objetos de $\C$ que va del funtor
 $\semBrcks{\theta}$ al funtor $\semBrcks{\theta'}$, luego el siguiente diagrama
@@ -2068,7 +2092,7 @@ ahora si prestamos atenci\'on a las dos expresiones finales que nos quedaron, no
 damos cuenta que ya casi estar\'iamos si no fuera por la forma en que acomodamos
 el ambiente, el plan entonces ser\'a probar que $(\hover,\sover) = (h \circ h',s'\circ s)$
 donde por definici\'on $(h \circ h',s'\circ s) = (h',s') \circ (h,s)$, luego usando
-que $\semBrcks{\pi}$ podemos concluir,
+que $\semBrcks{\pi}$ es funtor podemos concluir,
 
 \begin{center}
 $\semBrcks{\pi}(\hover,\sover)$ $=$ $\semBrcks{\pi}(h',s') \circ \semBrcks{\pi}(h,s)$
@@ -2216,7 +2240,7 @@ a lo que hicimos hace un instante para evaluar el juicio de tipado de $ei$ el pr
 que surge es que no podemos aplicar hip\'otesis inductiva porque nuestro ambiente
 no tiene la forma correcta, es decir, nosotros quisi\'eramos que el ambiente
 fuera algo de la forma $\semBrcks{\pi,\iota:\deltavar}(\hhat,\shat)\widehat{\eta}$, pero
-adem\'as no con cualquiera $\widehat{\eta}$, si no que este sea
+adem\'as no con cualquiera $\widehat{\eta}$, sino que este sea
 $[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:\lrangles{a,e} \ ]$. 
 En resumen, quisi\'eramos que la siguiente igualdad valga
 
@@ -2230,10 +2254,10 @@ $[ \ \semBrcks{\pi}(h',s')(\semBrcks{\pi}(h,s)\eta) \ | \ \iota:\lrangles{a',e'}
 donde
 $(\hhat,\shat) : (C\concat\lrangles{S_\delta}) \rTo (C'\concat\lrangles{S_\delta})$ 
 
-as\'i que vamos a hacer lo siguiente, vamos a suponer esta igualdad vale, completar la prueba
+as\'i que vamos a hacer lo siguiente, vamos a suponer que esta igualdad vale, completar la prueba
 y para finalizar probaremos la igualdad. Pero antes, nos falta el detalle importante sobre
-como son las funciones de la flecha $(\hhat,\shat)$, es decir, en general para cualquier
-flecha com\'un podemos saber quienes son las funciones viendo el tipo de la flecha, pero
+c\'omo son las funciones de la flecha $(\hhat,\shat)$, es decir, en general para cualquier
+flecha com\'un podemos saber qui\'enes son las funciones viendo el tipo de la flecha, pero
 en particular el tipo de esta flecha no es una simple extensi\'on, presentemos la definici\'on
 de cada una\\
 
