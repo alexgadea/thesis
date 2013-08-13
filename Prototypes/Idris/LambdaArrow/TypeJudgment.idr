@@ -2,27 +2,27 @@
 module TypeJudgment
 
 import Ctx
-import PhraseType
+import PType
 
 -- Operador de punto fijo.
 fix : (a -> a) -> a
 fix f = f (fix f)
 
-using (Pi:Ctx, Theta:PhraseType, Theta':PhraseType)
+using (Pi:Ctx, Theta:PType, Theta':PType)
     -- Este tipo representa un juicio de tipado
-    -- pi : Vect PhraseType n
-    -- theta : PhraseType
+    -- pi : Vect PType n
+    -- theta : PType
     -- pi |-- e : theta
     -- Donde e son las frases del lenguaje.
     
-    data TypeJugdmnt : Ctx -> PhraseType -> Type where
+    data TypeJugdmnt : Ctx -> PType -> Type where
         I     : (i:Identifier) -> InCtx Pi i -> TypeJugdmnt Pi Theta
         
         CInt  : Int   -> TypeJugdmnt Pi IntExp
         CBool : Bool  -> TypeJugdmnt Pi BoolExp
         CReal : Float -> TypeJugdmnt Pi RealExp
         
-        Lam   : (i:Identifier) -> (pt:PhraseType) -> (fi:Fresh Pi i) ->
+        Lam   : (i:Identifier) -> (pt:PType) -> (fi:Fresh Pi i) ->
                 TypeJugdmnt (Prepend Pi i pt fi) Theta' -> 
                 TypeJugdmnt Pi (pt :-> Theta')
         App   : TypeJugdmnt Pi (Theta :-> Theta') -> 
@@ -39,7 +39,7 @@ using (Pi:Ctx, Theta:PhraseType, Theta':PhraseType)
                 TypeJugdmnt Pi a -> TypeJugdmnt Pi b
 
 -- Definimos la semántica para los juicios de tipado del lenguaje.
-eval : {Pi:Ctx} -> {Theta:PhraseType} ->
+eval : {Pi:Ctx} -> {Theta:PType} ->
        TypeJugdmnt Pi Theta -> evalCtx Pi -> evalTy Theta
 -- [[Pi |-- Var i : theta]]eta = eta i
 eval {Pi=p} {Theta=pt} (I i iIn) eta = search p i pt iIn eta

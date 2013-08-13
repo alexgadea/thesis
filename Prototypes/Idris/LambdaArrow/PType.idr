@@ -1,13 +1,13 @@
 -- Módulo que representa los tipos de dato básicos para las frases del
 -- lenguaje.
-module PhraseType
+module PType
 
 -- Operador flecha para phrase types.
 infixr 10 :->
 
 -- Esto representa los tipos de las frases de nuetro lenguaje.
-data PhraseType = IntExp | RealExp | BoolExp 
-                | (:->) PhraseType PhraseType
+data PType = IntExp | RealExp | BoolExp 
+           | (:->) PType PType
 
 infixr 10 :->
 
@@ -24,7 +24,7 @@ Semántica para los tipos
     [[BoolExp]] = bool
     [[Theta :-> Theta]] = [[Theta]] -> [[Theta]]
 -}
-evalTy : PhraseType -> Type
+evalTy : PType -> Type
 evalTy IntExp    = Int
 evalTy RealExp   = Float
 evalTy BoolExp   = Bool
