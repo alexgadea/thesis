@@ -48,44 +48,44 @@ freshIJ pti = FCons idJ pti idI CtxUnit (FUnit idI) oh (FUnit idJ)
 ctxIJ : PhraseType -> PhraseType -> Ctx
 ctxIJ pti ptj = Prepend (ctxI pti) idJ ptj (freshIJ pti)
 
-testIfLam : Phrase CtxUnit (BoolExp :-> IntExp)
+testIfLam : TypeJudgment CtxUnit (BoolExp :-> IntExp)
 testIfLam = \idI : BoolExp => (if varI then (CInt 1) else (CInt 2)) | freshI
     where
-        varI : Phrase (ctxI BoolExp) BoolExp
+        varI : TypeJudgment (ctxI BoolExp) BoolExp
         varI = I idI (InHead CtxUnit idI BoolExp (FUnit idI))
         
 
-id' : Phrase CtxUnit (IntExp :-> IntExp)
+id' : TypeJudgment CtxUnit (IntExp :-> IntExp)
 --id' = Lam idI IntExp freshI varI
 id' = \idI : IntExp => varI | freshI 
     where
-        varI : Phrase (ctxI IntExp) IntExp
+        varI : TypeJudgment (ctxI IntExp) IntExp
         varI = I idI (InHead CtxUnit idI IntExp (FUnit idI))
 
-add : Phrase CtxUnit (IntExp :-> IntExp :-> IntExp)
+add : TypeJudgment CtxUnit (IntExp :-> IntExp :-> IntExp)
 --add = Lam idI IntExp freshI (Lam idJ IntExp freshIJ (BinOp (-) varI varJ))
 add = \idI : IntExp => (\idJ : IntExp => (BinOp {d=IntDT} (+) varI varJ) | (freshIJ IntExp)) | freshI 
     where
-        varI : Phrase (ctxIJ IntExp IntExp) IntExp
+        varI : TypeJudgment (ctxIJ IntExp IntExp) IntExp
         varI = I idI (InTail (ctxI IntExp) idI IntExp idJ (freshIJ IntExp) (InHead CtxUnit idI IntExp (FUnit idI)))
-        varJ : Phrase (ctxIJ IntExp IntExp) IntExp
+        varJ : TypeJudgment (ctxIJ IntExp IntExp) IntExp
         varJ = I idJ (InHead (ctxI IntExp) idJ IntExp (freshIJ IntExp))
 
-ceroPluSone : Phrase CtxUnit IntExp
+ceroPluSone : TypeJudgment CtxUnit IntExp
 ceroPluSone = (add @ (CInt 0)) @ (CInt 1)
 
-andt : Phrase CtxUnit (BoolExp :-> BoolExp :-> BoolExp)
+andt : TypeJudgment CtxUnit (BoolExp :-> BoolExp :-> BoolExp)
 andt = \idI : BoolExp => (\idJ : BoolExp => varI .and. varJ | (freshIJ BoolExp)) | freshI 
     where
-        varI : Phrase (ctxIJ BoolExp BoolExp) BoolExp
+        varI : TypeJudgment (ctxIJ BoolExp BoolExp) BoolExp
         varI = I idI (InTail (ctxI BoolExp) idI BoolExp idJ (freshIJ BoolExp) (InHead CtxUnit idI BoolExp (FUnit idI)))
-        varJ : Phrase (ctxIJ BoolExp BoolExp) BoolExp
+        varJ : TypeJudgment (ctxIJ BoolExp BoolExp) BoolExp
         varJ = I idJ (InHead (ctxI BoolExp) idJ BoolExp (freshIJ BoolExp))
 
-trueAnDfalse : Phrase CtxUnit BoolExp
+trueAnDfalse : TypeJudgment CtxUnit BoolExp
 trueAnDfalse = (andt@(CBool True))@(CBool False)
 
-recFact : Phrase CtxUnit (IntExp :-> IntExp)
+recFact : TypeJudgment CtxUnit (IntExp :-> IntExp)
 recFact = rec (\idI : IntExp :-> IntExp => 
                     (\idJ : IntExp => if (CInt 0) == varJ
                                         then CInt 1
@@ -96,22 +96,22 @@ recFact = rec (\idI : IntExp :-> IntExp =>
     where
         intint : PhraseType
         intint = IntExp :-> IntExp
-        varI : Phrase (ctxIJ intint IntExp) (IntExp :-> IntExp)
+        varI : TypeJudgment (ctxIJ intint IntExp) (IntExp :-> IntExp)
         varI = I idI (InTail (ctxI intint) idI IntExp idJ (freshIJ intint) (InHead CtxUnit idI intint (FUnit idI)))
-        varJ : Phrase (ctxIJ intint IntExp) IntExp
+        varJ : TypeJudgment (ctxIJ intint IntExp) IntExp
         varJ = I idJ (InHead (ctxI intint) idJ IntExp (freshIJ intint))
 
-testLamWhile : Phrase CtxUnit (BoolExp :-> Comm)
+testLamWhile : TypeJudgment CtxUnit (BoolExp :-> Comm)
 testLamWhile = \idI : BoolExp => (while varI do skip) | freshI
     where
-        varI : Phrase (ctxI BoolExp) BoolExp
+        varI : TypeJudgment (ctxI BoolExp) BoolExp
         varI = I idI (InHead CtxUnit idI BoolExp (FUnit idI))
 
-testwhile: Phrase CtxUnit Comm
+testwhile: TypeJudgment CtxUnit Comm
 testwhile = new boolvar idI <:: (CBool True) | freshI in
                 (while (Subs VarToExp varI) do 
                     ((Subs VarToAcc varI) :=b (CBool False)) 
                 )
     where
-        varI : Phrase (ctxI BoolVar) BoolVar
+        varI : TypeJudgment (ctxI BoolVar) BoolVar
         varI = I idI (InHead CtxUnit idI BoolVar (FUnit idI))
