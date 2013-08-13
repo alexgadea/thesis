@@ -1177,6 +1177,9 @@ por lo tanto, $\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'}\et
 
 \section{Implementaci\'on en Idris}
 
+La implementaci\'on del lenguaje se encuentra en:\\
+\url{https://github.com/alexgadea/thesis/tree/master/Prototypes/Idris/LambdaArrow}\\
+
 \noindent
 Sintaxis de los tipos
 \begin{code}
@@ -1236,6 +1239,8 @@ data InCtx : Ctx -> Identifier -> Type where
              (j:Identifier) -> (fj:Fresh p j) -> 
              InCtx p i -> InCtx (Prepend p j pt fj) i
 \end{code}
+
+\newpage
 
 \noindent Versi\'on sem\'antica
 \begin{code}
