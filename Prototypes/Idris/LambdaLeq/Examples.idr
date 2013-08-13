@@ -1,10 +1,10 @@
 module Examples
 
 import Ctx
-import PhraseType
+import PType
 import TypeJudgment
 
-eq : {a:PhraseType} -> evalTy a -> evalTy a -> evalTy BoolExp
+eq : {a:PType} -> evalTy a -> evalTy a -> evalTy BoolExp
 eq {a=IntExp} i i' = i == i'
 eq {a=RealExp} i i' = i == i'
 eq {a=BoolExp} True False = False
@@ -32,13 +32,13 @@ idJ = Id "j"
 freshI : Fresh CtxUnit idI
 freshI = FUnit idI
 
-ctxI : PhraseType -> Ctx
+ctxI : PType -> Ctx
 ctxI pt = Prepend CtxUnit idI pt freshI
 
-freshIJ : (pti:PhraseType) -> Fresh (ctxI pti) idJ
+freshIJ : (pti:PType) -> Fresh (ctxI pti) idJ
 freshIJ pti = FCons idJ pti idI CtxUnit (FUnit idI) oh (FUnit idJ)
 
-ctxIJ : PhraseType -> PhraseType -> Ctx
+ctxIJ : PType -> PType -> Ctx
 ctxIJ pti ptj = Prepend (ctxI pti) idJ ptj (freshIJ pti)
 
 id' : TypeJugdmnt CtxUnit (IntExp :-> IntExp)
@@ -110,7 +110,7 @@ recFact = rec (\idI : IntExp :-> IntExp =>
                     | freshI
               )
     where
-        intint : PhraseType
+        intint : PType
         intint = IntExp :-> IntExp
         varI : TypeJugdmnt (ctxIJ intint IntExp) (IntExp :-> IntExp)
         varI = I idI (InTail (ctxI intint) idI IntExp idJ (freshIJ intint) (InHead CtxUnit idI intint (FUnit idI)))

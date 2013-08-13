@@ -2,7 +2,7 @@
 module TypeJudgment
 
 import Ctx
-import PhraseType
+import PType
 
 -- Operador de punto fijo.
 fix : (a -> a) -> a
@@ -15,20 +15,20 @@ prim__boolToInt True = 0
 prim__boolToInt False = 1
 
 -- Representa el jucio de tipado para el subtipado.
-data (<~) : PhraseType -> PhraseType -> Type where
+data (<~) : PType -> PType -> Type where
     IntExpToRealExp : IntExp  <~ RealExp
     BoolExpToIntExp : BoolExp <~ IntExp
     
-    Reflx : (t:PhraseType) -> t <~ t
-    Trans : {t:PhraseType} -> {t':PhraseType} -> {t'':PhraseType} -> 
+    Reflx : (t:PType) -> t <~ t
+    Trans : {t:PType} -> {t':PType} -> {t'':PType} -> 
             t <~ t' -> t' <~ t'' -> t <~ t''
             
-    SubsFun : {t0:PhraseType} -> {t0':PhraseType} -> 
-              {t1:PhraseType} -> {t1':PhraseType} -> 
+    SubsFun : {t0:PType} -> {t0':PType} -> 
+              {t1:PType} -> {t1':PType} -> 
               t0 <~ t0' -> t1 <~ t1' -> (t0' :-> t1) <~ (t0 :-> t1')
 
 -- Definimos la semántica para los juicios de subtipado del lenguaje.
-evalLeq : {t:PhraseType} -> {t':PhraseType} -> t <~ t' -> evalTy t -> evalTy t'
+evalLeq : {t:PType} -> {t':PType} -> t <~ t' -> evalTy t -> evalTy t'
 -- [[Int <~ Real]] = J, con J inyección de enteros en reales.
 evalLeq IntExpToRealExp    = prim__intToFloat
 -- [[Bool <~ Int]] = if True then 0 else 1.
@@ -41,19 +41,19 @@ evalLeq (Trans leq leq')   = evalLeq leq' . evalLeq leq
 -- \f : [[theta0']] -> [[theta1]] => [[theta1 <~ theta1']] . f . [[theta0 <~ theta0']]
 evalLeq (SubsFun leq leq') = \f => evalLeq leq' . f . evalLeq leq
 
-using (Pi:Ctx, Theta:PhraseType, Theta':PhraseType)
+using (Pi:Ctx, Theta:PType, Theta':PType)
     -- Este tipo representa un juicio de tipado
-    -- pi : Vect PhraseType n
-    -- theta : PhraseType
+    -- pi : Vect PType n
+    -- theta : PType
     -- pi |-- e : theta
     -- Donde e son las frases del lenguaje.
-    data TypeJugdmnt : Ctx -> PhraseType -> Type where
+    data TypeJugdmnt : Ctx -> PType -> Type where
         I     : (i:Identifier) -> InCtx Pi i -> TypeJugdmnt Pi Theta
         CInt  : Int   -> TypeJugdmnt Pi IntExp
         CBool : Bool  -> TypeJugdmnt Pi BoolExp
         CReal : Float -> TypeJugdmnt Pi RealExp
         
-        Lam   : (i:Identifier) -> (pt:PhraseType) -> (fi:Fresh Pi i) ->
+        Lam   : (i:Identifier) -> (pt:PType) -> (fi:Fresh Pi i) ->
                 TypeJugdmnt (Prepend Pi i pt fi) Theta' -> 
                 TypeJugdmnt Pi (pt :-> Theta')
         App   : TypeJugdmnt Pi (Theta :-> Theta') -> TypeJugdmnt Pi Theta -> 
@@ -69,7 +69,7 @@ using (Pi:Ctx, Theta:PhraseType, Theta':PhraseType)
         Subs    : Theta <~ Theta' -> TypeJugdmnt Pi Theta -> TypeJugdmnt Pi Theta'
 
 -- Definimos la semántica para los juicios de tipado del lenguaje.
-eval : {Pi:Ctx} -> {Theta:PhraseType} ->
+eval : {Pi:Ctx} -> {Theta:PType} ->
        TypeJugdmnt Pi Theta -> evalCtx Pi -> evalTy Theta
 -- [[Pi |--  : theta]] eta = eta i
 eval (Subs leq p) eta = evalLeq leq $ eval p eta
