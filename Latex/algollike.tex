@@ -17,7 +17,7 @@ la aplicaci\'on del procedimiento desaparece quedando de esta manera
 la parte imperativa por evaluar, que es lo que se realiza en una segunda
 etapa.
 
-A continuaci\'on presentamos los cinco principio que (\cite{essenceofalgol})
+A continuaci\'on presentamos los cinco principio que seg\'un (\cite{essenceofalgol})
 capturan la esencia de los lenguajes Algol-like.
 
 \begin{enumerate}
@@ -42,11 +42,15 @@ obvia.
 
 \end{enumerate}
 
+El punto 3 se refiere a que tal como pasaba en $\lambdaleq$, para una frase o expresi\'on
+puede existir m\'as de un juicio de tipado pero sin embargo la evaluaci\'on de los
+juicios de tipado resulta en un mismo valor sem\'antico.\\
 
-
-Stack discipline tiene que ver con el compactado del ambiente y el estado al
-momento de que identificador de variable pierde se pierde del alcance.
-Sobre el \'ultimo punto vamos a presentar una variante de sem\'antica para el lenguaje
+Sobre el ultimo punto hagamos un pequeño par\'entesis para comentar a que nos
+referimos con stack discipline: esta tiene que ver con el compactado del ambiente
+y el almac\'en al terminar de ejecutar un comando con la finalidad de perder toda
+referencia a las variables introducidas por este mismo.\\
+Adem\'as, vamos a presentar una variante de sem\'antica para el lenguaje
 en la cual no tenemos stack discipline. Lo interesante es que lo vamos a lograr cambiando
 realmente muy poco sobre las ecuaciones sem\'anticas y los dominios originales que
 contemplan stack discipline.
@@ -619,21 +623,19 @@ un solo objeto que agrupar\'a a todos los estados sin importar la forma y
 cuya \'unica flecha ser\'a la identidad.
 
 \begin{definition}\label{algol:disciplinestatecategory}
-La categor\'ia de estados, que nombraremos $\C$, se define como sigue,\\
-
-Sea $\Sigma_\alpha$ $=$ $\{$ $\sigma$ | tal que $\sigma$ tiene forma $\alpha$ $\}$, luego\\
+La categor\'ia de estados, que nombraremos $\SD$, se define como sigue,\\
 
 \indent
-$\C_0$ $=$ $\{$ $\Sigma_\alpha$ | $\alpha$ es una forma $\}$\\
+$\SD_0$ $=$ $\{C$ $|$ $C$ es el conjunto de todos los estados con determinada forma$\}$\\
 \indent
-$\C_1(\Sigma_\alpha,\Sigma_{\alpha'})$ $=$ $\{(h,s)$ | si $\alpha'$ extiende a $\alpha$ $\}$\\
+$\SD_1(C,C')$ $=$ $\{C \rTo^{(h,s)} C'$ $|$ $C'$ extiende a $C\}$\\
 
-donde \ $h: C' \rightarrow C$\\
-\indent \indent \indent
-	  $h = head_C$\\
-\indent \indent \indent
+donde \ $h: C' \rightarrow C$
+\ \ \ \ \ \ \ \
 	  $s: (C \rightarrow C_{\bot}) \rightarrow (C' \rightarrow C'_{\bot})$\\
 \indent \indent \indent
+	  $h = head_C$
+\ \ \ \ \ \ \
 	  $s \ c \ \sigmahat =$ 
 	  	   $(\lambda \sigma. \ \sigma \concat (tail_{\overline{C}} \ \sigmahat))_{\bot}$
 	  	   	$(c(h \ \sigmahat))$\\
@@ -642,7 +644,7 @@ donde \ $h: C' \rightarrow C$\\
 
 \end{definition}
 
-Notar que si tomamos un objeto $C$ de $\C$ podemos hablar de que este objeto
+Notar que si tomamos un objeto $C$ de $\SD$ podemos hablar de que este objeto
 tiene cierta forma, b\'asicamente la forma de los estados que agrupa, luego
 podemos hablar de que dado otro objeto $C'$, este extiende a $C$ y esta extensi\'on
 se determina de la misma manera que para los estados. Adem\'as aprovechamos 
@@ -654,7 +656,7 @@ recordemos que esta ser\'a la categor\'ia de estados en la sem\'antica sin
 stack discipline.
 
 \begin{definition}\label{algol:statecategory}
-La categor\'ia de estados, que nombraremos $\C$, se define como sigue,\\
+La categor\'ia de estados, que nombraremos $\SSD$, se define como sigue,\\
 
 \indent
 $\C_0$ $=$ $\{\ \Sigma \ \}$\\
@@ -669,8 +671,8 @@ $1_h \sigma = \sigma$ \ \ \ \ \ \ \ \ \ \ \ $1_s \ c = c$
 \end{definition}
 
 Una aclaraci\'on importante es que, salvo aclaraci\'on, cuando hablemos de 
-la categor\'ia $\C$ vamos a estar refiri\'endonos a cualquiera de las dos
-que acabamos de definir. Dicho esto, estamos en condiciones de definir quien
+la categor\'ia $\C$ vamos a estar refiri\'endonos tanto a $\SD$ como a $\SSD$. 
+Dicho esto, estamos en condiciones de definir quien
 ser\'a $\CD$, una idea inicial es pensar en la categor\'ia funtorial
 $\Dom^\C$ como sugiere \cite[Cap 19]{reynolds2009theories}, pero
 parece existir un problema seg\'un se menciona en \cite{olesfunctorcategories} 
@@ -877,7 +879,11 @@ Ahora que hemos definido la sem\'antica de contextos y tipos, podemos continuar 
 la sem\'antica de los juicios de tipado de las frases. Como hicimos antes vamos a definir un 
 funtor, solo que este tomar\'a un juicio de tipado $\pi \vdash e : \theta$ y 
 devolver\'a una transformaci\'on natural del funtor $\semBrcks{\pi}$ en el funtor $\semBrcks{\theta}$ 
-indexada por objetos de $\C$.\\
+indexada por objetos de $\C$. Nota: vamos a escribir el objeto que indexa no como
+sub\'indice sino como un argumento mas.\\
+
+Adem\'as vamos a escribir las ecuaciones utilizando las funciones $(\_)_{\odot}$ y
+$(\_)_{\circledcirc}$ que definimos en $\lambdaarrow$.\\
 \
 
 \noindent
@@ -894,54 +900,62 @@ $\texttt{Denotal Sem:}$ Operadores unarios.\\
 
 $\semBrcks{ \pi \vdash \neg b : \boolexp }C$ 
 $=$ 
-$(\lambda b . \ \iotabot \neg b)_{\dbot} \circ \semBrcks{\pi \vdash b : \boolexp}C$\\
+$\neg_{\odot} \circ \semBrcks{\pi \vdash b : \boolexp}C$\\
 
 $\semBrcks{ \pi \vdash -i : \intexp }C$ 
 $=$ 
-$(\lambda i . \ \iotabot -i)_{\dbot} \circ \semBrcks{\pi \vdash i : \intexp}C$\\
+$-_{\odot} \circ \semBrcks{\pi \vdash i : \intexp}C$\\
 
 $\semBrcks{ \pi \vdash -r : \realexp }C$ 
 $=$ 
-$(\lambda r . \ \iotabot -r)_{\dbot} \circ \semBrcks{\pi \vdash r : \realexp}C$\\
+$-_{\odot} \circ \semBrcks{\pi \vdash r : \realexp}C$\\
 
 \noindent
 $\texttt{Denotal Sem:}$ Operadores binarios\\
 
 $\semBrcks{ \pi \vdash b \owedge b' : \boolexp }C \ \eta \ \sigma$ 
 $=$ \\
-\indent \indent \indent
-$(\lambda b . \ (\lambda b' . \ \iotabot (b \owedge b'))_{\dbot}
-\semBrcks{\pi \vdash b' : \boolexp}C \ \eta \ \sigma)_{\dbot}
-\semBrcks{\pi \vdash b : \boolexp}C \ \eta \ \sigma$\\
+\indent \indent \indent \indent
+$\owedge_{\circledcirc} \
+(\semBrcks{\pi \vdash b : \boolexp}C \ \eta \ \sigma) \
+(\semBrcks{\pi \vdash b' : \boolexp}C \ \eta \ \sigma)$
 
-con $\owedge \in \{ \wedge,\vee,\Rightarrow,\Leftrightarrow \}$\\
+\begin{center}
+con $\owedge \in \{ \wedge,\vee,\Rightarrow,\Leftrightarrow \}$
+\end{center}
 
 $\semBrcks{ \pi \vdash i \oplus i' : \deltaexp }C \ \eta \ \sigma$ 
 $=$ \\
-\indent \indent \indent
-$(\lambda i . \ (\lambda i' . \ \iotabot (i \oplus i'))_{\dbot}
-\semBrcks{\pi \vdash i' : \deltaexp}C \ \eta \ \sigma)_{\dbot}
-\semBrcks{\pi \vdash i : \deltaexp}C \ \eta \ \sigma$\\
+\indent \indent \indent \indent
+$\oplus_{\circledcirc} \
+(\semBrcks{\pi \vdash i : \deltaexp}C \ \eta \ \sigma) \
+(\semBrcks{\pi \vdash i' : \deltaexp}C \ \eta \ \sigma)$
 
-con $\oplus \in \{ +,-,*,/\,\rem \}$, $\delta \in \{\intt,\realt\}$\\
-
-$\semBrcks{ \pi \vdash e \ominus e' : \boolexp }C \ \eta \ \sigma$ 
-$=$ \\
-\indent \indent \indent 
-$(\lambda e . (\lambda e' . \iotabot (e \ominus e'))_{\dbot}
-\semBrcks{\pi \vdash e' : \deltaexp}C \ \eta \ \sigma)_{\dbot}
-\semBrcks{\pi \vdash e : \deltaexp}C \ \eta \ \sigma$\\
-
-con $\ominus \in \{\leq,\geq,<,> \}$, $\delta \in \{\intt,\realt\}$\\
+\begin{center}
+con $\oplus \in \{ +,-,*,/\,\rem \}$, $\delta \in \{\intt,\realt\}$
+\end{center}
 
 $\semBrcks{ \pi \vdash e \ominus e' : \boolexp }C \ \eta \ \sigma$ 
 $=$ \\
-\indent \indent \indent 
-$(\lambda e . (\lambda e' . \iotabot (e \ominus e'))_{\dbot}
-\semBrcks{\pi \vdash e' : \deltaexp}C \ \eta \ \sigma)_{\dbot}
-\semBrcks{\pi \vdash e : \deltaexp}C \ \eta \ \sigma$\\
+\indent \indent \indent \indent
+$\ominus_{\circledcirc} \
+(\semBrcks{\pi \vdash e : \deltaexp}C \ \eta \ \sigma) \
+(\semBrcks{\pi \vdash e' : \deltaexp}C \ \eta \ \sigma)$
 
-con $\ominus \in \{=,\neq\}$\\
+\begin{center}
+con $\ominus \in \{\leq,\geq,<,> \}$, $\delta \in \{\intt,\realt\}$
+\end{center}
+
+$\semBrcks{ \pi \vdash e \ominus e' : \boolexp }C \ \eta \ \sigma$ 
+$=$ \\
+\indent \indent \indent \indent
+$\ominus_{\circledcirc} \
+(\semBrcks{\pi \vdash e' : \deltaexp}C \ \eta \ \sigma) \
+(\semBrcks{\pi \vdash e : \deltaexp}C \ \eta \ \sigma)$
+
+\begin{center}
+con $\ominus \in \{=,\neq\}$
+\end{center}
 
 \noindent
 $\texttt{Denotal Sem:}$ Expresi\'on condicional.\\
@@ -1525,11 +1539,11 @@ el resultado esperado.
 A continuaci\'on vamos a introducir nuestra versi\'on de ecuaci\'on sem\'antica
 que en conjunto con la segunda categor\'ia de estados que dimos en la definici\'on 
 \ref{algol:statecategory} conforman la sem\'antica
-sin stack discipline. Lo que pretendemos con esta sem\'antica ser\'ia, 
-que a diferencia de lo que paso en el ejemplo anterior que al terminar de evaluar
+sin stack discipline. Lo que pretendemos con esta sem\'antica ser\'ia, que al
+terminar de evaluar el comando $\cnew \deltavar$ no exista compactaci\'on del
+almac\'en, a diferencia de lo que paso en el ejemplo anterior que al terminar de evaluar
 un comando $\cnew \deltavar$ el siguiente comando no sabe nada acerca de los
-identificadores y valores a los que se evalu\'o, nosotros queremos esta informaci\'on
-quede visible, aunque no sea posible acceder.\\
+identificadores y valores a los que se evalu\'o.\\
 
 En el momento en que introducimos las definiciones de estados mencion\'abamos 
 que, para esta segunda versi\'on, \'ibamos a abandonar el hecho de que los estados tengan
@@ -1582,9 +1596,6 @@ luego simplemente ser\'a aplicar el estado al identificador, la \'unica
 salvedad importante es que $\sigma \iota : S$ y nosotros necesitamos algo de tipo
 $S_\delta$, para esto utilizamos $(\lambda v. \ v)_\delta$.\\
 
-Notar que no definimos que pasa para el caso particular de tener $f_{\delta}(\iota_{\delta'}x)$
-con $\delta \neq \delta'$, 
-
 Existe una observaci\'on importantes que surge de pensar el siguiente caso,
 supongamos tenemos un $e : \Sigma \rightarrow S_\intt$ y un $\sigma \iota : S_\boolt$,
 luego $e$ podr\'ia estar definido as\'i $(\lambda v . v)_{\intt}\sigma \iota$, esto es
@@ -1593,9 +1604,11 @@ $\sigma \iota$ es algo de tipo booleano, para manejar esto deber\'iamos
 introducir todo un manejo extra de errores de tipos en momento de evaluaci\'on, 
 y como consecuencia nuestra sem\'antica sin stack discipline generar\'ia una
 nueva clase de errores que la sem\'antica con stack discipline no genera ya que,
-seg\'un el primer principio, todos los errores de tipos deben ser sint\'acticos. \\
+seg\'un el primer principio, todos los errores de tipos deben ser sint\'acticos.
+Por esta raz\'on vamos a completar la definici\'on de $(\_)_\delta$ de la
+siguiente manera $f_{\delta}(\iota_{\delta'}x) = \bot$. \\
 
-Para solucionar esto podemos pensar en qu\'e casos nuestra sem\'antica sin
+Pero es interesante pensar en qu\'e casos nuestra sem\'antica sin
 stack discipline generar\'ia estos errores, nos damos cuenta que esto puede pasar
 solo cuando intentamos evaluar juicios de tipado no cerrados, es decir que 
 contienen variables libre. Analicemos por qu\'e esta afirmaci\'on, empecemos
@@ -1726,22 +1739,22 @@ dem\'as casos, incluidos los operadores binarios, son an\'alogos.\\
 
 $\semBrcks{\boolexp}(h,s)(\semBrcks{\pi \vdash \neg e : \boolexp}C\eta)\sigma'$ $=$\\
 $\semBrcks{\boolexp}(h,s)(\lambda \sigma . \ 
- (\lambda b. \ \iotabot \neg b)_{\dbot}(\semBrcks{\pi \vdash e : \boolexp}C\eta\sigma))\sigma'$ $=$\\
-$((\lambda b. \ \iotabot \neg b)_{\dbot}(\semBrcks{\pi \vdash e : \boolexp}C\eta\sigma) 
+ \neg_{\odot}(\semBrcks{\pi \vdash e : \boolexp}C\eta\sigma))\sigma'$ $=$\\
+$((\lambda \sigma . \ \neg_{\odot}(\semBrcks{\pi \vdash e : \boolexp}C\eta\sigma))
 	\circ 
 	h) \sigma'$ $=$ \\
-$(\lambda b. \ \iotabot \neg b)_{\dbot}(\semBrcks{\pi \vdash e : \boolexp}C\eta(h\sigma'))$ $=$\\
-$(\lambda b. \ \iotabot \neg b)_{\dbot}
+$\neg_{\odot}(\semBrcks{\pi \vdash e : \boolexp}C\eta(h\sigma'))$ $=$\\
+$\neg_{\odot}
 	((\semBrcks{\pi \vdash e : \boolexp}C\eta \circ h)\sigma'))$ $=$\\
-$(\lambda b. \ \iotabot \neg b)_{\dbot}
+$\neg_{\odot}
 	(\semBrcks{\boolexp}(h,s)(\semBrcks{\pi \vdash e : \boolexp}C\eta)\sigma')$\\
 	
 hasta ac\'a ha sido simplemente reescribir usando definiciones, de esta manera llegamos
 a poder aplicar la hip\'otesis inductiva,\\
 
-$(\lambda b. \ \iotabot \neg b)_{\dbot}
-	(\semBrcks{\boolexp}(h,s)(\semBrcks{\pi \vdash e :\boolexp}C\eta)\sigma')$ $=$\\
-$(\lambda b. \ \iotabot \neg b)_{\dbot}
+$\neg_{\odot}
+	(\semBrcks{\boolexp}(h,s)(\semBrcks{\pi \vdash e : \boolexp}C\eta)\sigma')$\\
+$\neg_{\odot}
 	(\semBrcks{\pi \vdash e : \boolexp}C(\semBrcks{\pi}(h,s)\eta)\sigma')$ $=$\\
 $\semBrcks{\pi \vdash \neg e : \boolexp}C(\semBrcks{\pi}(h,s)\eta)\sigma'$
 

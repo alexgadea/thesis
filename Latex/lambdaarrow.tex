@@ -462,7 +462,8 @@ $f_{\odot} = (\iotabot \circ f )_{\dbot}$\\
 $(\_)_{\circledcirc} : 
 (S_\delta \rightarrow S_\delta \rightarrow S_{\delta'}) \rightarrow ((S_\delta)_\bot \rightarrow (S_\delta)_\bot \rightarrow (S_{\delta'})_\bot)$\\
 \indent
-$f_{\circledcirc} = (\lambda x . \ (\lambda x' . \ \iotabot \ (f \ x \ x'))_{\dbot})_{\dbot}$\\
+$f_{\circledcirc} \ z \ z' = 
+(\lambda x . \ (\lambda x' . \ \iotabot \ (f \ x \ x'))_{\dbot} z')_{\dbot} z$\\
 
 Ahora s\'i comencemos con las definiciones de las ecuaciones sem\'anticas, un detalle 
 es que las definiciones consideran $\CD$ como $\Dom$.\\
@@ -483,7 +484,7 @@ $\semBrcks{\pi \vdash -e : \intt}$ $=$ $-_{\odot} \circ \semBrcks{\pi \vdash e :
 
 $\semBrcks{\pi \vdash -e : \realt}$ $=$ $-_{\odot} \circ \semBrcks{\pi \vdash e : \realt}$\\
 
-$\semBrcks{\pi \vdash \neg e : \boolt}$ $=$ $-_{\odot} \circ \semBrcks{\pi \vdash e : \boolt}$\\
+$\semBrcks{\pi \vdash \neg e : \boolt}$ $=$ $\neg_{\odot} \circ \semBrcks{\pi \vdash e : \boolt}$\\
 
 
 $\semBrcks{\pi \vdash e \otimes e' : \intt}\eta$ $=$ 
