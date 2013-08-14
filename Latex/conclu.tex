@@ -1,1 +1,31 @@
 \chapter{Conclusi\'on}
+
+La tesis ten\'ia como primer objetivo definir las ecuaciones sem\'anticas
+y dar una implementaci\'on del lenguaje Forsythe. El plan entonces fue
+comenzar con un lenguaje simple e ir complejizando su definici\'on hasta
+llegar a Forsythe; empezamos con $\lambdaarrow$ que es el c\'alculo lambda
+simplemente tipado, luego agreg\'abamos subtipado en $\lambdaleq$, el siguiente
+paso era agregar aspectos imperativos y obtener $\Alike$, este ya 
+cerca de Forsythe. Y una vez con $\Alike$ definido dar el salto hacia 
+Forsythe.\\
+
+Lo que se realizo en la tesis fue la definici\'on e implementaci\'on de los 
+lenguajes $\lambdaarrow$, $\lambdaleq$ y $\Alike$. Para cada uno adem\'as 
+probamos distintas propiedades como continuidad, naturalidad o coherencia 
+de la ecuaciones sem\'anticas.\\
+
+En cuanto a $\lambdaarrow$ y $\lambdaleq$ podemos mencionar que fueron
+especialmente pr\'acticos al momento de estudiar los sistemas de tipado y
+sobre todo para comenzar con la implementaci\'on en un lenguaje de programaci\'on
+con tipos dependientes. Adem\'as desde el punto de vista de las propiedades
+fue muy interesante pensar el significado de coherencia para $\lambdaleq$ y
+su contraste con \cite[Prop 4]{coherencereynolds}.\\
+
+Para $\Alike$ surgi\'o la idea de dar una sem\'antica que no contemple stack
+discipline, adem\'as de la sem\'antica general con stack discipline que caracteriza 
+a este tipo de lenguajes. La sem\'antica entonces que se defini\'o intento ser
+lo mas general posible posible utilizando categor\'ias
+de manera de poder, cambiando lo m\'inimo posible, seleccionar entre una
+sem\'antica u otra. El secreto parec\'ia estar en tener una categor\'ia
+de estados con algunas pequeñas restricciones y luego tener dos versiones
+de esta categor\'ia.
