@@ -1,11 +1,11 @@
 \chapter{Conclusi\'on}
 
-La tesis ten\'ia como primer objetivo definir las ecuaciones sem\'anticas
+La tesis ten\'ia como objetivo definir las ecuaciones sem\'anticas
 y dar una implementaci\'on del lenguaje Forsythe. El plan entonces fue
 comenzar con un lenguaje simple e ir complejizando su definici\'on hasta
 llegar a Forsythe; empezamos con $\lambdaarrow$ que es el c\'alculo lambda
 simplemente tipado, luego agreg\'abamos subtipado en $\lambdaleq$, el siguiente
-paso era agregar aspectos imperativos y obtener $\Alike$, este ya 
+paso fue agregar aspectos imperativos y obtener $\Alike$, este ya 
 cerca de Forsythe. Y una vez con $\Alike$ definido dar el salto hacia 
 Forsythe.\\
 
@@ -28,4 +28,23 @@ lo mas general posible posible utilizando categor\'ias
 de manera de poder, cambiando lo m\'inimo posible, seleccionar entre una
 sem\'antica u otra. El secreto parec\'ia estar en tener una categor\'ia
 de estados con algunas pequeñas restricciones y luego tener dos versiones
-de esta categor\'ia.
+de esta categor\'ia.\\
+La implementaci\'on de $\Alike$ termino difiriendo un poco de la sem\'antica
+denotacional que dimos y de la cual probamos ciertas propiedades, esto 
+debido principalmente por la utilizaci\'on de categor\'ias. En contraste
+con las implementaciones de $\lambdaarrow$ y $\lambdaleq$ que respetan 
+bien la estructura de la sem\'antica denotacional. En particular la definici\'on
+de la categor\'ia de estados que hac\'ia falta para la sem\'antica denotacional
+no aparece en la implementaci\'on sino que se utilizo una idea an\'aloga, no
+categ\'orica, que se puede encontrar en \cite[Cap 19]{reynolds2009theories}.\\
+
+Las cosas que quedaron por hacer y pueden ser parte de trabajos futuros,
+fueron definir e implementar 
+la sem\'antica de Forsythe, para lo cual se propone definir un lenguaje 
+intermedio entre $\Alike$ y Forsythe, $\lambdainter$. El cual es b\'asicamente
+$\Alike$ pero tal que el sistema de tipos soporta intersecci\'on, una prueba
+muy interesante para $\lambdainter$ ser\'ia coherencia.\\
+Adem\'as por el lado de la implementaci\'on ser\'ia bueno implementar categor\'ias
+para despu\'es dar una implementaci\'on que se corresponda con la sem\'antica
+denotacional que se dio para $\Alike$. Luego dar una implementaci\'on de 
+$\lambdainter$ parece ser bastante directo en base a la de $\Alike$.
