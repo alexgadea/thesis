@@ -372,7 +372,8 @@ sucedi\'o alguna de la siguientes:
 
 \end{lemma}
 
-Antes de enunciar y comenzar con la prueba de coherencia vamos a definir informalmente una 
+Para probar coherencia vamos a enunciar y probar el teorema que llamaremos
+\textit{De PreCoherencia} pero antes vamos a definir informalmente una 
 funci\'on que ser\'a de utilidad para agilizar la prueba y definir algunas
 propiedades. Esta funci\'on estricta la nombraremos $\J_{\theta}^{\theta'}$ tal que
 va de $\semBrcks{\theta}$ en $\semBrcks{\theta'}$ y los posibles casos se defininen as\'i\\
@@ -405,8 +406,7 @@ cualesquiera entonces vale
 
 \end{proposition}
 
-
-\begin{theorem}[De coherencia]
+\begin{theorem}[De PreCoherencia]
 Sean $e$ una frase y $\theta$ un tipo cualesquiera y tal que tenemos 
 $n$ derivaciones de los juicios de tipado
 $\pi_1 \vdash e : \theta, \ldots, \pi_n \vdash e : \theta$, donde
@@ -644,10 +644,19 @@ $\Y_{\theta} (\semBrcks{\pi \vdash e' : \theta \rightarrow \theta}\eta)$ $=$\\
 $\semBrcks{\pi \vdash \rec{e'} : \theta}\eta$
 
 \end{itemize}
-
 \end{itemize}
-
 \end{proof}
+
+Si ahora fijamos los $\pi_i = \pi$, $i = 1,\ldots,n$ en nuestro teorema (De PreCoherencia), 
+obtenemos la propiedad de coherencia. Es decir que dadas $D_1,\ldots,D_n$ derivaciones 
+del juicio de tipado $\pi \vdash e : \theta$ entonces $\semBrcks{D_1} = \ldots = \semBrcks{D_n}$.\\
+
+Algo a comentar es que el enunciado de nuestro teorema (De PreCoherencia) tiene
+una interesante similitud con la proposici\'on 4 de \cite{coherencereynolds}.
+Ambas son mas generales que la propiedad en s\'i de coherencia, en particular
+existe una generalizaci\'on sobre los contextos. Pero adem\'as la proposici\'on 4
+considera una generalizaci\'on sobre el tipo de los juicios de tipado, esto debido 
+a que el sistema de tipos que se considera contiene intersecci\'on.
 
 \section{Implementaci\'on en Idris}
 
