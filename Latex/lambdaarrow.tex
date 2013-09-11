@@ -1048,14 +1048,14 @@ Procedamos por inducci\'on en la estructura de la derivaci\'on de los juicios de
 \begin{itemize}
 \item Supongamos $\pi \vdash b : \boolt$, luego tenemos 
 $\semBrcks{\pi \vdash b : \boolt}\eta'$ $=$ $\iotabot b$ $=$ 
-$\semBrcks{\pi' \vdash b : \boolt}\eta$ $=$ $\semBrcks{\pi' \vdash b / \delta : \boolt}\eta$.
+$\semBrcks{\pi' \vdash b : \boolt}\eta$ $=$ $\semBrcks{\pi' \vdash b / \Delta : \boolt}\eta$.
 An\'alogo para constantes de otros tipos.
 
 \item Supongamos $\pi' \vdash \iota : \theta$, luego 
 $\semBrcks{\pi' \vdash \iota : \theta}\eta'$ $=$ $\eta'\iota$
 ahora por hip\'otesis tenemos que 
-$\eta'\iota$ $=$ $\semBrcks{\pi \vdash \delta\iota : \pi'\iota}\eta$ $=$
-$\semBrcks{\pi \vdash \iota / \delta : \theta}\eta$.
+$\eta'\iota$ $=$ $\semBrcks{\pi \vdash \Delta\iota : \pi'\iota}\eta$ $=$
+$\semBrcks{\pi \vdash \iota / \Delta : \theta}\eta$.
 \end{itemize}
 
 \item Casos inductivos,
