@@ -85,7 +85,7 @@ de un identificador de variable, es decir, ya sea como valor o como almacenamien
 para este primero es que tenemos el tipo de las expresiones y para el segundo es
 donde aparece el tipo de los aceptadores, este b\'asicamente se encarga de 
 representar a un identificador de variables como un almac\'en de valores; es
-decir, si una frase tiene tipo $\deltaacc$ puedo aparecer en el lado izquierdo
+decir, si una frase tiene tipo $\deltaacc$ puede aparecer en el lado izquierdo
 de una asignaci\'on pero no en el lado derecho.\\
 
 \noindent
@@ -106,6 +106,8 @@ imperativo simple. Estas construcciones
 ser\'an los comandos para la declaraci\'on de variables ($\cnew \deltavar$), 
 asignaci\'on($\cassig$), comando neutro ($\cskip$), concatenaci\'on de comandos ($\concatdots$)
 y un comando para iteraciones ($\cwhile$).\\
+
+\newpage
 
 \noindent
 $\lrangles{Phrase}$ ::= $\lrangles{PBool}$ | $\lrangles{PInt}$ | $\lrangles{PReal}$\\
@@ -263,7 +265,7 @@ viejos por los nuevos.
 Un contexto estar\'a definido por la siguiente gram\'atica,\\
 
 \noindent
-$\lrangles{Context}$ ::= $\varnothing$ | $\lrangles{Context}$,$\lrangles{Id}$:$\lrangles{Type}$\\
+$\lrangles{Context}$ ::= $\varnothing$ | $\lrangles{Context}$,$\lrangles{Id}$:$\phraseTypes$\\
 
 \noindent
 tal que dado cualquier contexto $\iota_0:\theta_0,\ldots,\iota_n:\theta_n$, los
@@ -294,7 +296,7 @@ $\texttt{Ty Rule:}$ Constantes.
 \DisplayProof
 \end{center}
 
-\newpage
+\
 
 \noindent
 $\texttt{Ty Rule:}$ Operadores b\'asicos.
@@ -406,8 +408,6 @@ $\texttt{Ty Rule:}$ Abstracci\'on lambda.
 \DisplayProof
 \end{center}
 
-\newpage
-
 \noindent
 $\texttt{Ty Rule:}$ Expresi\'on condicional.
 
@@ -450,9 +450,9 @@ $\texttt{Ty Rule:}$ $\cskip$.
 $\texttt{Ty Rule:}$ $\cwhile$.
 
 \begin{center}
-\AxiomC{$\pi \vdash e : \boolexp$}
-\AxiomC{$\pi \vdash e' : \commt$}
-\BinaryInfC{$\pi \vdash \cwhiledo{e}{e'} : \commt$}
+\AxiomC{$\pi \vdash b : \boolexp$}
+\AxiomC{$\pi \vdash e : \commt$}
+\BinaryInfC{$\pi \vdash \cwhiledo{b}{e} : \commt$}
 \DisplayProof
 \end{center}
 
@@ -475,7 +475,7 @@ que solamente vamos a poder agregar el identificador con un phrase type
 particular, en tanto el tipo de un identificador podr\'a ser de la forma
 $\deltavar$.
 
-\
+\newpage
 
 \noindent
 $\texttt{Ty Rule:}$ Declaraci\'on de variable.
@@ -792,9 +792,9 @@ de un estado en un conjunto $S_\delta$ de valores; la motivaci\'on de
 esta definici\'on es poder disponer del estado para obtener el valor de 
 una variable imperativa cuando se la utiliza como expresi\'on.
 
-\item $\semBrcks{\deltaexp}(h,s) \ e$, acá $e : C \rightarrow S_\delta$, luego
+\item $\semBrcks{\deltaexp}(h,s) \ e$, acá $e : C \rightarrow (S_\delta)_{\bot}$, luego
 hacemos la transformaci\'on componiendo con $h : C' \rightarrow C$, para obtener
-$e \circ h : C' \rightarrow S_\delta$.
+$e \circ h : C' \rightarrow (S_\delta)_{\bot}$.
 
 \item Un elemento de $\semBrcks{\commt}C$, esta tal vez sea la m\'as intuitiva, ser\'a
 una funci\'on de un estado con forma $C$ en otro con la misma forma $C$,
@@ -849,8 +849,6 @@ $\semBrcks{\pi}(h,s) : \semBrcks{\pi}C \rightarrow \semBrcks{\pi}C'$ y\\
 
 $\semBrcks{\pi \rTo^{\leq} \pi'}_1C : \semBrcks{\pi}C \rightarrow \semBrcks{\pi'}C$\\
 
-\newpage
-
 \begin{definition}\label{algol:contextsemfunctor}
 Sea $\semBrcks{ \_ } : \Pi \rightarrow \CD$ un funtor, tal que\\
 
@@ -894,6 +892,8 @@ $\semBrcks{ \pi \vdash b : \boolexp }C \ \eta \ \sigma$ $=$ $\iotabot \ b$\\
 $\semBrcks{ \pi \vdash i : \intexp  }C \ \eta \ \sigma$ $=$ $\iotabot \ i$\\
 
 $\semBrcks{ \pi \vdash r : \realexp }C \ \eta \ \sigma$ $=$ $\iotabot \ r$\\
+
+\newpage
 
 \noindent
 $\texttt{Denotal Sem:}$ Operadores unarios.\\
@@ -996,12 +996,12 @@ $\pi \vdash \cifthenelse{b}{e}{e'} : \theta \rightarrow \theta'$,
 sea valido; bas\'andonos en las ecuaciones sem\'anticas para los 
 distintos juicios de tipado de la expresi\'on condicional que hemos
 dado, la raz\'on entonces esta en notar que para evaluar el comando
-condicional tenemos que "rescatar" el estado para poder evaluar
+condicional tenemos que ``rescatar'' el estado para poder evaluar
 el juicio de la guarda $\pi \vdash b : \boolexp$, entonces para
 el caso en que nuestra expresi\'on condicional tipa a 
-$\deltaexp$ o $\commt$ es sencillo porque el estado esta "a la mano",
+$\deltaexp$ o $\commt$ es sencillo porque el estado esta ``a la mano'',
 ya para $\deltaacc$ no es tan cierto pero no es una limitaci\'on vemos
-que primero tenemos que "rescatar" un $z$ y despu\'es reci\'en aparece
+que primero tenemos que ``rescatar'' un $z$ y despu\'es reci\'en aparece
 el estado. \\
 Veamos ahora algunas de las complicaciones cuando
 el tipo de nuestro juicio de tipado para la expresi\'on condicional 
@@ -1011,7 +1011,7 @@ recordemos que la sem\'antica de $\theta_0 \rightarrow \theta_1$ se puede
 resumir en, tomar una posible expansi\'on del estado, un valor para agregar 
 al ambiente que
 ser\'a el valor pasado por argumento y finalmente aparece nuestro estado 
-en alguna de las formas que sabemos "rescatarlo" siempre y cuando $\theta_1$
+en alguna de las formas que sabemos ``rescatarlo'' siempre y cuando $\theta_1$
 no sea algo de tipo flecha.\\
 La pregunta que surge entonces es 
 ¿ C\'omo saber cuantos $z'$s y $C'$s hay que rescatar hasta encontrarse el estado?; 
@@ -1024,14 +1024,14 @@ tomar\'iamos este $z$ y $C$ y evaluar\'iamos cada caso de la expresi\'on
 condicional pasando estos valores, parecido a como hacemos cuando
 tenemos el tipo $\deltaacc$. Esta entonces parecer\'ia ser una posible 
 soluci\'on, pero surge otra complicaci\'on supongamos $f'$ es igual a
-$(\lambda \iota' . \lambda \iota . e)h$ es decir, $f'$ tipa correctamente pero
+$(\lambda \iota' . \lambda \iota . e)e'$ es decir, $f'$ tipa correctamente pero
 sin embargo no es una abstracci\'on lambda, si no que hay una aplicaci\'on
 y esto implica entonces que rescatar el estado es distinto para una componente
 que para otra de la expresi\'on condicional. En resumen, no es tan sencillo
-saber de qu\'e forma "rescatar" el estado para evaluar la guarda.\\
+saber de qu\'e forma ``rescatar'' el estado para evaluar la guarda.\\
 
 Una soluci\'on podr\'ia llegar a tener que ver con siempre tener el estado
-"a mano" para poder "rescatarlo", con esta idea en mente proponemos entonces
+``a mano'' para poder "rescatarlo", con esta idea en mente proponemos entonces
 la siguiente idea. Lo primero ser\'a agregar un tipo nuevo a nuestros 
 $\phraseTypes$, para esto entonces vamos a tener que acomodar la sintaxis y dar
 nuevas reglas de tipado, adem\'as de dar el significado sem\'antico, tanto
@@ -1052,9 +1052,9 @@ tipado de la expresi\'on condicional de la siguiente manera\\
 
 prestando especial atenci\'on a que ahora no restringimos $\theta$, sacando 
 $\rightarrow$. Donde el significado de nuestro tipo $\IF \ \theta$ ser\'a
-un funtor de $\C \rTo \D$ tal que, tomando una flecha $(h,s) : C \rTo C'$\\
+un funtor de $\C \rTo \PDom$ tal que, tomando una flecha $(h,s) : C \rTo C'$\\
 
-$\semBrcks{ \IF \ \theta }C$ $:$ $\D$\\
+$\semBrcks{ \IF \ \theta }C$ $:$ $\PDom$\\
 \indent
 $\semBrcks{ \IF \ \theta }C$ $=$ $C \rightarrow \semBrcks{\theta}C$\\
 
@@ -1105,7 +1105,7 @@ $\texttt{Denotal Sem:}$ Operador de punto fijo.\\
 $\semBrcks{ \pi \vdash \rec e : \theta}C \ \eta$ 
 $=$ 
 $\Y_{\semBrcks{\theta}C} \ 
-(\semBrcks{ \pi \vdash e : \theta \rightarrow \theta}C \ \eta \ \lrangles{})$\\
+(\semBrcks{ \pi \vdash e : \theta \rightarrow \theta}C \ \eta) \lrangles{}$\\
 
 \noindent
 $\texttt{Denotal Sem:}$ Identificador.\\
@@ -1694,42 +1694,16 @@ $\iota \ b$ $=$ $\semBrcks{\pi \vdash b : \boolexp}C'(\semBrcks{\pi}(h,s)\eta)\s
 
 por un lado tenemos,
 $\semBrcks{\theta}(h,s)(\semBrcks{\pi \vdash \iota : \theta}C \ \eta)$ $=$
-$\semBrcks{\theta}(h,s)(\eta \iota)$ $=$ $(\star)$ \\
+$\semBrcks{\theta}(h,s)(\eta \iota)$ \\
 
 y por el otro, $\semBrcks{\pi \vdash \iota : \theta}C'(\semBrcks{\pi}(h,s)\eta)$ $=$
-$(\semBrcks{\pi}(h,s)\eta) \iota$ $=$ $(\star \star)$,\\
+$(\semBrcks{\pi}(h,s)\eta) \iota$ \\
 
-ahora separamos en casos segundo $\theta$.
+donde utilizando la definici\'on de $\semBrcks{\pi}(h,s)\eta$, obtenemos\\
 
-\begin{itemize}
-\item Supongamos $\theta = \deltaexp$ y $\eta\iota = e$, \\
+$(\semBrcks{\pi}(h,s)\eta) \iota$ $=$ $\semBrcks{\pi\iota}(h,s)(\eta \iota)$ $=$
+$\semBrcks{\theta}(h,s)(\eta \iota)$
 
-$(\star)$ $=$ $\eta\iota \circ h$ $=$ $e \circ h$\\
-
-$(\star\star)$ $=$ $e \circ h$, esto ultimo ya que acomodar el ambiente con forma
-$C$ a la forma $C'$, es componer con $h$ a todos los valores del tipo $\deltaexp$.
-
-\item Supongamos $\theta = \commt$ y $\eta\iota = c$,\\
-
-$(\star)$ $=$ $s(\eta\iota)$ $=$ $s \ c$\\
-
-$(\star\star)$ $=$ $s \ c$, como para el caso de $\deltaexp$ pero ahora con valores
-de tipo $\commt$.
-
-\item Supongamos $\theta = \deltaacc$ y $\eta\iota = a$,\\
-
-$(\star)$ $=$ $s \circ \eta\iota$ $=$ $s \circ a$\\
-
-$(\star\star)$ $=$ $s \circ a$, al igual que para $\commt$ y $\deltaexp$.
-
-\item Supongamos $\theta = \theta_0 \rightarrow \theta_1$ y $\eta \iota = f$,\\
-
-$(\star)$ $=$ $\lambda \widehat{C} . \ (\eta\iota)(\overline{C}\concat\widehat{C})$ $=$ 
-$\lambda \widehat{C} . \ f(\overline{C}\concat\widehat{C})$
-
-$(\star\star)$ $=$ $\lambda \widehat{C} . \ f(\overline{C}\concat\widehat{C})$, al igual
-que en los casos anteriores.
-\end{itemize}
 \end{itemize}
 
 \item Casos inductivos
@@ -2088,7 +2062,7 @@ $\semBrcks{\pi,\iota:\theta \vdash e : \theta'}
 	[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:z \ ]$ $=$\\
 $\semBrcks{\pi,\iota:\theta \vdash e : \theta'}
 	(C' \concat \Chat)
-	[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:z \ ]$ $=$\\
+	[ \ \semBrcks{\pi}(\hover,\sover)\eta \ | \ \iota:z \ ]$ \\
 
 ahora bien, empezamos notando que el operador $\concat$ es asociativo por lo tanto
 $(C \concat (\Cover \concat \Chat)) = (C' \concat \Chat)$, luego adem\'as

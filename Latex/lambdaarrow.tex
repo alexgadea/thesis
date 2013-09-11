@@ -344,15 +344,15 @@ La pregunta que surge es ¿ Cuando aplicamos esta frase a dos frases enteras,
 que valor debe tomar $\iota$ ?; supongamos tenemos el juicio anterior
 aplicado a dos frases enteras, 
 $\vdash 
-	(\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota \times \iota}) \ 1 \ 2 : \intt$
-el resultado de tal evaluaci\'on deber\'ia $4$ si nos basamos en la sem\'antica operacional.
+	(\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota}) \ 1 \ 2 : \intt$
+el resultado de tal evaluaci\'on deber\'ia $2$ si nos basamos en la sem\'antica operacional.
 Esto sucede porque la primera ocurrencia de $\iota$ no tiene participaci\'on en el alcance
 de la segunda ocurrencia, es decir, ac\'a los par\'ametros de nuestras abstracciones lambda
 llevan el mismo nombre pero son distintos par\'ametros, esto pensando en la funci\'on que define
 nuestro ejemplo como una funci\'on que toma dos enteros y retorna otro.\\
 Para finalizar entonces notemos que si restringimos los contextos no perdemos expresividad
 para definir funciones y si solucionamos posibles problemas de tipado. La restricci\'on
-entonces implica que la frase $\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota \times \iota}$
+entonces implica que la frase $\clambda{\iota}{\intt}{\clambda{\iota}{\intt} \ \iota}$
 no tiene ning\'un juicio de tipado valido.
 
 \section{Sem\'antica para $\lambdaarrow$}
@@ -391,7 +391,7 @@ otra de contextos ($\lrangles{Context}$). Lo interesante sobre utilizar categor\
 todo para el significado de los juicios de tipado, ser\'a la capacidad de
 adaptar las ecuaciones sem\'anticas a las distintas caracter\'isticas del lenguaje.
 
-\begin{definition}{lambdaa:typescategory}
+\begin{definition}\label{lambdaa:typescategory}
 La categor\'ia de tipos, que nombraremos $\Theta$, sera una categor\'ia discreta tal que 
 la colecci\'on de objetos esta definida como,\\
 
@@ -450,7 +450,7 @@ un funtor sobre el juicio de tipado, tal que,
 $\semBrcks{\pi \vdash e : \theta} : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$.\\
 
 Agregamos a nuestra lista de metavariables, $\eta$ con tipo $\semBrcks{\pi}$, donde $\pi$
-estar\'a determinado por el contexto donde usemos $eta$.\\
+estar\'a determinado por el contexto donde usemos $\eta$.\\
 
 Vamos a definir funciones \\
 
@@ -555,7 +555,7 @@ $\IF (\semBrcks{\pi \vdash e : \theta}\eta
 	 , \ \semBrcks{\pi \vdash b : \boolt}\eta
 	 )$
 
-\
+\newpage
 
 \noindent
 $\texttt{Denotal Sem:}$ Aplicaci\'on.\
@@ -706,9 +706,9 @@ $=$ $\lrangles{1_{\semBrcks{\pi}} , g}$ y obtener,
 Ahora usando este diagrama podemos definir la ecuaci\'on sem\'antica
 de la aplicaci\'on como,\\
 
-$\semBrcks{\pi \vdash ee' : \theta'}$ $=$ $\epsilon \circ \lrangles{\widehat{f},g}$\\
+$\semBrcks{\pi \vdash ee' : \theta'}$ $=$ $\epsilon \circ \lrangles{\widetilde{f},g}$\\
 
-donde $\lrangles{\widehat{f},g} = (\widetilde{f} \times 1_{\semBrcks{\theta}}) \circ \lrangles{1_{\semBrcks{\pi}} , g}$.\\
+donde $\lrangles{\widetilde{f},g} = (\widetilde{f} \times 1_{\semBrcks{\theta}}) \circ \lrangles{1_{\semBrcks{\pi}} , g}$.\\
 
 Algo importante de notar es que esta definici\'on se corresponden exactamente
 con la definici\'on previa que hicimos, para terminar con este an\'alisis 
@@ -1060,7 +1060,9 @@ $\semBrcks{\pi \vdash \iota / \delta : \theta}\eta$.
 
 \item Casos inductivos,
 \begin{itemize}
-\item Supongamos $\pi' \vdash e \ominus e' : \boolt$, luego tenemos \\
+\item Supongamos $\pi' \vdash e \ominus e' : \boolt$, donde los casos para
+los dem\'as operadores binarios y un\'arios, expresi\'on condicional, aplicaci\'on
+y operador de punto fijo son an\'alogos, luego tenemos \\
 
 $\semBrcks{\pi' \vdash e \ominus e' : \boolt}\eta'$ $=$ 
 $\ominus_{\circledcirc} \ (\semBrcks{\pi' \vdash e : \boolt}\eta') \ 
@@ -1075,30 +1077,27 @@ $\ominus_{\circledcirc} \ (\semBrcks{\pi \vdash e / \Delta : \boolt}\eta) \
 $\semBrcks{\pi \vdash (e / \Delta) \ominus (e' / \Delta) : \boolt}\eta$ $=$\\
 $\semBrcks{\pi \vdash (e \ominus e') / \Delta : \boolt}\eta$.\\
 
-\item An\'alogo para todos los dem\'as operadores binarios, un\'arios, para
-la expresi\'on condicional, la aplicaci\'on y el operador de punto fijo.\\
-
 \item Supongamos $\pi' \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'$, luego\\
 
 $\semBrcks{\pi' \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'}\eta'$ $=$
 $\lambda x . \semBrcks{\pi',\iota:\theta \vdash e : \theta'}[ \eta' \ | \ \iota:x ]$ \\
 
-para poder aplicar la hip\'otesis inductiva debemos probar\\
+para poder aplicar la hip\'otesis inductiva supongamos vale\\
 
-(*) para todo $\kappa \in \ dom(\widehat{\pi})$, donde $\widehat{\pi} = \pi',\iota:\theta$ vale
+para todo $\kappa \in \ dom(\widehat{\pi})$, donde $\widehat{\pi} = \pi',\iota:\theta$ vale
 que $[ \eta' \ | \ \iota:x ]\kappa$ $=$ 
 $\semBrcks{\pi,\iota':\theta \vdash \Delta'\iota': \widehat{\pi}\kappa}[ \eta \ | \ \iota':x ]$\\
 
-donde $\Delta' = [ \Delta \ | \ \iota:\iota' ]$ y 
+donde $\Delta' = \Delta \ | \ \iota \rightsquigarrow \iota' $ y 
 $\iota' \not\in \bigcup\limits_{\kappa \in FV(e)-\{\iota\}} (FV(\Delta\kappa))$.\\
 
-Suponiendo (*), probamos\\
+luego\\
 
 $\lambda x . \semBrcks{\pi,\iota':\theta \vdash e / \Delta' : \theta'}[ \eta \ | \ \iota':x ]$ $=$
 $\semBrcks{\pi \vdash \clambda{\iota'}{\theta}{e / \Delta'} : \theta \rightarrow \theta'}\eta$ $=$
 $\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e}) / \Delta' : \theta \rightarrow \theta'}\eta$\\
 
-Pasemos ahora a la prueba de (*).
+Para finalizar probemos la suposici\'on que nos permit\'ia aplicar hip\'otesis inductiva.
 Tomamos un $\kappa$ cualquiera, y vamos a separar en dos casos, si $\kappa \not= \iota$ entonces
 es directo aplicando la hip\'otesis. Veamos que sucede si suponemos $\kappa = \iota$,\\
 

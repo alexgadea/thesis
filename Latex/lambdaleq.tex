@@ -21,7 +21,7 @@ de que $\theta$ es subtipo de $\theta'$ cuando $\theta \leq \theta'$.\\
 
 Primero veamos reglas de inferencia generales a cualquier sistema de tipos, empecemos discutiendo
 una idea intuitiva de las reglas que ser\'ian deseables. Supongamos tenemos una frase $e$ con tipo
-$\theta$ y adem\'as tenemos que $\theta' \leq \theta$ entonces podemos probar $e$ tiene tipo
+$\theta$ y adem\'as tenemos que $\theta \leq \theta'$ entonces podemos probar $e$ tiene tipo
 $\theta'$.\\
 
 \noindent
@@ -126,7 +126,7 @@ Adem\'as esta nueva definici\'on nos impacta directamente en el
 funtor sem\'antico $\semBrcks{ \ } : \Theta \rightarrow \CD$, ahora tenemos que 
 definir como act\'ua el funtor con respecto a las flechas.
 
-\begin{definition}\label{lambdal:typesemfunctor}22
+\begin{definition}\label{lambdal:typesemfunctor}
 Sea $\semBrcks{ \ } : \Theta \rightarrow \CD$ un funtor, tal que\\
 
 $\semBrcks{\delta}_0$ $=$ $(S_\delta)_\bot$\\
@@ -333,9 +333,9 @@ ejemplo estamos considerando juicios de tipado que no son iguales debido
 a los diferentes contextos. Esto se debe por un lado a que tiene sentido
 hablar de coherencia de juicios de tipado cuando consideramos juicios 
 para frases cerradas ya que en ese caso siempre consideramos el contexto 
-vac\'io, pero por otro lado coherencia en general enuncia la igualdad 
-sem\'antica de derivaciones de un juicio de tipado para una frase con 
-determinado tipo, independientemente del contexto.\\
+vac\'io, pero por otro lado para realizar la prueba de coherencia necesitamos 
+una propiedad mas general que considere la igualdad de juicios de tipado con 
+diferentes contextos.\\
 
 Otra cosa que surge de analizar este ejemplo es c\'omo saber cuantas derivaciones
 posibles existen para una determinada frase y tipo, acabamos de ver que
@@ -444,7 +444,7 @@ $\J_{\theta'}^{\theta} (\iotabot e)$ $=$ $\iotabot (\J_{\theta'}^{\theta} e)$\\
 
 Empecemos notando que por la definici\'on que hicimos de la funci\'on $\J_{\theta}^{\theta'}$
 podemos suponer sin que se nos escape ning\'un caso de que cuando usamos primero
-subsumption, despu\'es $\semBrcks{\pi \vdash e : \theta} = \iotabot e$. Por otro lado
+subsumption, despu\'es $\semBrcks{\pi \vdash e : \theta'}\eta = \iotabot e$. Por otro lado
 restar\'ia probar para este caso que $e : \semBrcks{\theta}$  es igual a 
 $\J_{\theta'}^{\theta} e : \semBrcks{\theta}$, pero esto es directo de la definici\'on
 de la funci\'on $\J_{\theta'}^{\theta}$.\\
@@ -504,7 +504,7 @@ $\semBrcks{\theta' \leq \theta} \circ
 \semBrcks{\theta_1 \leq \theta'} \circ 
 \ldots 
 \circ \semBrcks{\theta_m \leq ~ \theta_{m-1}}$.
-Pero prueba es directa de notar que 
+Pero la prueba es directa de notar que 
 $(\theta' \leq \theta_i) \circ (\theta_j \leq ~ \theta') = \theta_j \leq \theta_i$,
 por la definici\'on de la categor\'ia de tipos $\Theta$, adem\'as
 por ser $\semBrcks{\_}$ funtor, 
