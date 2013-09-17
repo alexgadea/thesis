@@ -1,0 +1,435 @@
+\documentclass{beamer}
+\usepackage[spanish]{babel} % Para separar correctamente las palabras
+\usepackage[utf8]{inputenc} % Este paquete permite poner acentos y eñes usando codificación utf-8
+
+\usefonttheme{professionalfonts} % fuentes de LaTeX
+\usetheme{Warsaw} % tema escogido en este ejemplo
+\usecolortheme[named=red]{structure}
+%%%% packages y comandos personales %%%%
+\usepackage{latexsym,amsmath,amssymb} % S\'imbolos
+\usepackage{diagrams}
+\usepackage{stmaryrd}
+\usepackage{xcolor}
+\usepackage{MnSymbol}
+\usepackage{../Latex/thesis}
+\usepackage{bussproofs}
+
+\begin{document}
+\beamertemplatenavigationsymbolsempty
+\title{Estudio de Semántica Categórica para Lenguajes Algol-Like}
+\author{{Alejandro Emilio Gadea}\\
+\vspace*{0.5cm}}
+\date{}
+\frame{\titlepage}
+
+\section{Introducci\'on}
+
+\begin{frame}
+\frametitle{Introducci\'on}
+\begin{block}{Gu\'ia}
+1. Lenguaje $\lambdaarrow$\\
+\quad \quad - Preliminares \\
+\quad \quad - Continuidad \\
+\quad \quad - Corrección regla-$\beta$\\
+
+\pause
+
+2. Lenguaje $\lambdaleq$\\
+\quad \quad - Preliminares \\
+\quad \quad - Coherencia \\
+
+\pause
+
+3. Lenguaje $\Alike$\\
+\quad \quad - Preliminares \\
+\quad \quad - Semántica con y sin stack discipline \\
+\quad \quad - Naturalidad 
+
+\end{block}
+\end{frame}
+
+\section{Lenguaje $\lambdaarrow$}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Sintaxis de los tipos}
+$\lrangles{Type}$ ::= $\boolt$ $|$ $\intt$ $|$ $\realt$\\
+\quad \quad \quad \quad
+$|$ $\lrangles{Type} \rightarrow \lrangles{Type}$\\
+\end{block}
+
+\begin{block}{Sintaxis $\lambdaarrow$}
+$\lrangles{Phrase}$ ::= $\lrangles{PBool}$ $|$ $\lrangles{PInt}$ $|$ $\lrangles{PReal}$\\
+\quad \quad \quad \quad \quad
+$|$ $\odot$ $\lrangles{Phrase}$ $|$ $\lrangles{Phrase}$ $\circledcirc$ $\lrangles{Phrase}$\\
+\quad \quad \quad \quad \quad
+$|$ $\textbf{if}$ $\lrangles{Phrase}$ $\textbf{then}$ $\lrangles{Phrase}$ $\textbf{else}$ $\lrangles{Phrase}$\\
+\quad \quad \quad \quad \quad
+$|$ $\lrangles{Id}$\\
+\quad \quad \quad \quad  \quad
+$|$ $\lrangles{Phrase}\lrangles{Phrase}$\\
+\quad \quad \quad \quad  \quad
+$|$ $\lambda$ $\lrangles{Id}_\theta$ . $\lrangles{Phrase}$\\
+\quad \quad \quad \quad  \quad
+$|$ $\textbf{rec} \lrangles{Phrase}$\\
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Contextos}
+
+$\lrangles{Context}$ ::= $\varnothing$ $|$ $\lrangles{Context}$,$\lrangles{Id}$:$\lrangles{Type}$\\
+
+\
+
+\noindent
+tal que dado cualquier contexto $\iota_0:\theta_0,\ldots,\iota_n:\theta_n$, los
+identificadores $\iota_0,\ldots,\iota_n$ son todos distintos.
+\end{block}
+
+\begin{block}{Juicio de tipado}
+
+Un juicio de tipado sera una relaci\'on entre un contexto $\pi$, una
+frase del lenguaje $e$ y un tipo $\theta$ que establecer\'a que
+bajo el contexto $\pi$ la expresi\'on $e$ tiene tipo $\theta$.
+Lo denotaremos como  $\pi \vdash e : \theta$, 
+en particular, cuando $\pi = \varnothing$ escribiremos
+$\vdash e : \theta$
+
+\end{block}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Algunas reglas de inferencia}
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\pi \vdash b : \boolt$}
+\DisplayProof
+\quad
+\AxiomC{$\pi \vdash e : \boolt$}
+\UnaryInfC{$\pi \vdash \neg e : \boolt$}
+\DisplayProof
+\end{center}
+
+\pause
+
+\begin{center}
+\AxiomC{$\iota:\theta \in \pi$}
+\RightLabel{}
+\UnaryInfC{$\pi \vdash \iota : \theta$}
+\DisplayProof
+\quad
+\AxiomC{$\pi,\iota:\theta \vdash e : \theta'$}
+\UnaryInfC{$\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \theta \rightarrow \theta$}
+\UnaryInfC{$\pi \vdash \rec{e} : \theta$}
+\DisplayProof
+\quad
+\AxiomC{$\pi \vdash e : \theta \rightarrow \theta'$}
+\AxiomC{$\pi \vdash e': \theta$}
+\BinaryInfC{$\pi \vdash ee' : \theta'$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash b  : \boolt$}
+\AxiomC{$\pi \vdash e  : \theta$}
+\AxiomC{$\pi \vdash e' : \theta$}
+\TrinaryInfC{$\pi \vdash \cifthenelse{b}{e}{e'} : \theta$}
+\DisplayProof
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Ejemplo de derivación de un juicio de tipado}
+\begin{center}
+\AxiomC{$\iota':\theta \in \iota:\intt, \iota':\realt$}
+\UnaryInfC{$\iota:\intt, \iota':\realt \vdash \iota' : \theta$}
+\UnaryInfC{$\iota:\intt \vdash \clambda{\iota'}{\realt} \ \iota' : \realt \rightarrow \theta$}
+\UnaryInfC{$\vdash 
+	\clambda{\iota}{\intt}{\clambda{\iota'}{\realt} \ \iota'} : 
+									\intt \rightarrow \realt \rightarrow \theta$}
+\DisplayProof
+\end{center}
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Categorías para $\lambdaarrow$}
+
+- $\Dom$, categoría de dominios y funciones continuas.\\
+- $\Theta$, categoría discreta de $\lrangles{Type}$.\\
+- $\Pi$, categoría discreta de $\lrangles{Context}$
+
+\end{block}
+
+\pause
+
+\begin{block}{Funtores para $\lambdaarrow$}
+
+$\semBrcks{ \ } : \Theta \rightarrow \Dom$ 
+\quad \quad \quad \
+$\semBrcks{ \ } : \Pi \rightarrow \Dom$
+\quad \quad \quad
+$\semBrcks{\pi \vdash e : \theta} : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$\\
+$\semBrcks{\delta}_0$ $=$ $(S_\delta)_\bot$
+\quad \quad \quad \quad
+$\semBrcks{\pi}_0$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}$\\
+$\semBrcks{\theta \rightarrow \theta'}_0$ $=$ $\semBrcks{\theta'}_0^{\semBrcks{\theta}_0}$
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Ecuaciones $\lambdaarrow$}
+\begin{center}
+$\semBrcks{\pi \vdash b : \boolt} \eta$ $=$ $\iotabot b$ \quad \quad \quad
+$\semBrcks{\pi \vdash \neg e : \boolt}$ $=$ $\neg_{\odot} \circ \semBrcks{\pi \vdash e : \boolt}$
+\end{center}
+
+\begin{center}
+$\semBrcks{\pi \vdash \iota : \theta}\eta$ $=$ $\eta \iota$
+\end{center}
+
+\begin{center}
+$\semBrcks{\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'}$ $=$
+		$\semBrcks{\pi,\iota:\theta \vdash e : \theta'} \circ ext_{\iota,\theta}$
+\end{center}
+
+\begin{center}
+$\semBrcks{\pi \vdash \rec{e} : \theta}\eta$ $=$ $\Y_{\theta} (\semBrcks{\pi \vdash e : \theta \rightarrow \theta}\eta)$
+\end{center}
+
+\begin{center}
+$\semBrcks{\pi \vdash ee' : \theta'}\eta$ $=$ $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta (\semBrcks{\pi \vdash e' : \theta}\eta)$
+\end{center}
+
+\end{block}
+
+donde 
+$ext_{\iota,\theta} : \semBrcks{\pi} 
+					  \rightarrow \semBrcks{\theta} \rightarrow \semBrcks{\pi,\iota:\theta}$\\
+\quad \quad \ \
+$ext_{\iota,\theta} \eta \ x$ $=$ $[\ \eta \ | \ \iota:x \ ]$
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Continuidad}
+
+\begin{block}{Teorema}
+Dado un juicio de tipado $\pi \vdash e : \theta$ la ecuaci\'on sem\'antica
+$\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua.
+\end{block}
+
+\pause
+
+\begin{block}{}
+Dada una cadena interesante
+$\eta_0 \sqsubseteq \eta_1 \sqsubseteq \cdots$ en $\semBrcks{\pi}$, queremos ver
+
+\begin{center}
+$\semBrcks{\pi \vdash e : \theta}(\bigsqcup\limits^{\infty}_{i=0} \eta_i)$
+$=$ $\bigsqcup\limits^{\infty}_{i=0} (\semBrcks{\pi \vdash e : \theta}\eta_i)$
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Continuidad}
+
+\begin{block}{Ecuación semántica aplicación}
+Si tenemos
+
+\begin{center}
+$\semBrcks{\pi \vdash ee' : \theta'} : \semBrcks{\pi} \rightarrow \semBrcks{\theta'}$\\
+\end{center}
+
+y definimos
+
+\begin{center}
+$f : \semBrcks{\pi} \times \semBrcks{\theta} \rightarrow \semBrcks{\theta'}$
+\quad \quad \quad \quad \quad \
+$g : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$\\
+$f = \uncurry (\semBrcks{\pi \vdash e : \theta \rightarrow \theta'})$
+\quad
+$g = \semBrcks{\pi \vdash e' : \theta}$
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Continuidad}
+
+\begin{block}{Ecuación semántica aplicación}
+
+\begin{diagram}
+  \semBrcks{\theta'}^{\semBrcks{\theta}} \times \semBrcks{\theta} & \rTo^{\epsilon} & \semBrcks{\theta'}\\
+  \uTo^{\widetilde{f} \times 1_{\semBrcks{\theta}}} & \ruTo^{f} \ruTo(2,4) & &  \\
+  \semBrcks{\pi} \times \semBrcks{\theta} & & f \circ \lrangles{1_{\semBrcks{\pi}} , g} & \\
+  \uTo^{\lrangles{1_{\semBrcks{\pi}} , g}}  \ruTo(3,2) & & &  \\
+  \semBrcks{\pi} & & &
+\end{diagram}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Continuidad}
+
+\begin{block}{Ecuación semántica aplicación}
+Luego podemos definir
+
+\begin{center}
+$\semBrcks{\pi \vdash ee' : \theta'} : \semBrcks{\pi} \rightarrow \semBrcks{\theta'}$\\
+
+\
+
+$\semBrcks{\pi \vdash ee' : \theta'} = 
+\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}
+						, \semBrcks{\pi \vdash e' : \theta}}$
+\end{center}
+
+además, tomando un $\eta$ en $\semBrcks{\pi}$\\
+
+\
+
+$\semBrcks{\pi \vdash ee' : \theta'}\eta = 
+(\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}
+						, \semBrcks{\pi \vdash e' : \theta}})\eta$\\
+\quad \quad \quad \quad \quad \quad 
+$= \semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta(\semBrcks{\pi \vdash e' : \theta}\eta)$
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Corrección regla-$\beta$}
+
+\begin{block}{Nuevo juicio de tipado y su regla de inferencia}
+\begin{center}
+\AxiomC{$\pi \vdash \Delta\iota : \pi'\iota$ \ \ \ para todo $\iota$ en $dom(\pi)$}
+\UnaryInfC{$\pi \vdash \Delta : \pi'$}
+\DisplayProof
+
+\end{center}
+
+donde $\Delta : \lrangles{Id} \rightarrow\lrangles{Phrase}$
+\end{block}
+
+\pause
+
+\begin{block}{Teorema Substitución}
+
+Sean $\pi$ y $\pi'$ contextos, $\Delta$ una substituci\'on y supongamos 
+
+\begin{center}
+$\pi' \vdash e : \theta$ \quad $\pi \vdash \Delta : \pi'$
+\end{center}
+
+donde  
+$\eta'\iota$ $=$ $\semBrcks{\pi \vdash \Delta\iota : \pi'\iota}\eta$
+$\forall \iota \in \ dom \ \pi'$, entonces\\
+
+\begin{center}
+$\semBrcks{\pi' \vdash e : \theta}\eta'$ $=$ $\semBrcks{\pi \vdash e / \Delta : \theta}\eta$.
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Corrección regla-$\beta$}
+
+\begin{block}{Teorema Corrección regla-$\beta$}
+Dado un juicio de tipado $\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'$ vale,
+
+\begin{center}
+$\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'}$ $=$
+$\semBrcks{\pi \vdash e / \iota \leadsto e' : \theta'}$
+\end{center}
+\end{block}
+
+\end{frame}
+
+\section{Lenguaje $\lambdaleq$}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Nuevo juicio de tipado}
+Sean $\theta$, $\theta'$ tipos, diremos que $\theta$ es subtipo de $\theta'$ cuando
+
+\begin{center}
+$\theta \leq \theta'$
+\end{center}
+
+\end{block}
+
+\pause
+
+\begin{block}{Nuevas reglas de inferencia}
+
+
+
+\end{block}
+
+\end{frame}
+
+\section{Lenguaje $\Alike$}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Preliminares}
+
+\begin{block}
+
+\end{block}
+
+\end{frame}
+
+\end{document}
+

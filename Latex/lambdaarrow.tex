@@ -562,8 +562,7 @@ $\texttt{Denotal Sem:}$ Aplicaci\'on.\
 
 \
 
-$\semBrcks{\pi \vdash ee' : \theta'}\eta$ $=$ $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta
-														  (\semBrcks{\pi \vdash e' : \theta}\eta)$
+$\semBrcks{\pi \vdash ee' : \theta'}\eta$ $=$ $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta (\semBrcks{\pi \vdash e' : \theta}\eta)$
 
 \
 
@@ -1024,7 +1023,7 @@ tipado. Dados $\pi$, $\pi'$ contextos y $\Delta$, vamos a representar el
 nuevo juicio como $\pi \vdash \Delta : \pi'$, cuya \'unica regla es:
 
 \begin{center}
-\AxiomC{$\pi \vdash \Delta\iota : \pi\iota$ \ \ \ para todo $\iota$ en $dom(\pi)$}
+\AxiomC{$\pi \vdash \Delta\iota : \pi'\iota$ \ \ \ para todo $\iota$ en $dom(\pi)$}
 \UnaryInfC{$\pi \vdash \Delta : \pi'$}
 \DisplayProof
 \end{center}
