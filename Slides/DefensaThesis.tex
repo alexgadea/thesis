@@ -195,14 +195,18 @@ $\vdash e : \theta$
 
 $\semBrcks{ \ } : \Theta \rightarrow \Dom$ 
 \quad \quad \quad \
-$\semBrcks{ \ } : \Pi \rightarrow \Dom$
-\quad \quad \quad
-$\semBrcks{\pi \vdash e : \theta} : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$\\
+$\semBrcks{ \ } : \Pi \rightarrow \Dom$\\
 $\semBrcks{\delta}_0$ $=$ $(S_\delta)_\bot$
 \quad \quad \quad \quad
 $\semBrcks{\pi}_0$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}$\\
 $\semBrcks{\theta \rightarrow \theta'}_0$ $=$ $\semBrcks{\theta'}_0^{\semBrcks{\theta}_0}$
 
+\end{block}
+
+\pause
+
+\begin{block}{Definición ecuación semántica}
+$\semBrcks{\pi \vdash e : \theta} : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$
 \end{block}
 
 \end{frame}
@@ -413,8 +417,246 @@ $\theta \leq \theta'$
 
 \begin{block}{Nuevas reglas de inferencia}
 
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\theta \leq \theta$}
+\DisplayProof
+\quad
+\AxiomC{$\theta \leq \theta'$}
+\AxiomC{$\theta' \leq \theta''$}
+\BinaryInfC{$\theta \leq \theta''$}
+\DisplayProof
+\quad
+\AxiomC{$\theta_0 \leq \theta_0'$}
+\AxiomC{$\theta_1 \leq \theta_1'$}
+\BinaryInfC{$\theta_0' \rightarrow \theta_1 \leq \theta_0 \rightarrow \theta_1'$}
+\DisplayProof
+\end{center}
+
+\end{block}
+
+\begin{block}{Regla subsumption}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \theta$}
+\AxiomC{$\theta \leq \theta'$}
+\BinaryInfC{$\pi \vdash e : \theta'$}
+\DisplayProof	
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Reglas de inferencia para los tipos básicos}
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\boolt \leq \intt$}
+\DisplayProof
+\quad
+\AxiomC{}
+\UnaryInfC{$\intt \leq \realt$}
+\DisplayProof
+\end{center}
+
+\end{block}
+
+\pause
+
+\begin{block}{Categorías de $\lambdaleq$}
+
+- $\Dom$, categoría de dominios y funciones continuas.\\
+- $\Theta$, categoría de $\lrangles{Type}$ cuyos morfismos estarán determinados por $\leq$\\
+- $\Pi$, categoría de $\lrangles{Context}$ cuyos morfismos estarán determinados por $\leq$
+
+\end{block}
 
 
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Funtores para $\lambdaarrow$}
+
+$\semBrcks{ \ } : \Theta \rightarrow \Dom$ 
+\quad \quad \quad \quad \quad \quad \quad \quad \
+$\semBrcks{ \ } : \Pi \rightarrow \Dom$ \\
+
+$\semBrcks{\delta}_0$ $=$ $(S_\delta)_\bot$
+\quad \quad \quad \quad \quad \quad \quad \quad \quad
+$\semBrcks{\pi}_0$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}$\\
+$\semBrcks{\theta \rightarrow \theta'}_0$ $=$ $\semBrcks{\theta'}_0^{\semBrcks{\theta}_0}$
+\quad \quad \quad \quad \quad \quad \pause
+$\semBrcks{\pi \leq \pi'}_1$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota \leq \pi'\iota}$\\
+
+\
+
+$\semBrcks{\boolt \leq \intt}_1 \ x =$ if $x$ then $0$ else $1$\\
+$\semBrcks{\intt \leq \realt}_1$ $=$ $\J$ \\
+$\semBrcks{\theta \leq \theta}_1$ $=$ $1_{\semBrcks{\theta}}$\\
+$\semBrcks{\theta \leq \theta''}_1$ $=$ $\semBrcks{\theta' \leq \theta''}_1 \circ \semBrcks{\theta \leq \theta'}_1$\\
+$\semBrcks{(\theta_0 \rightarrow \theta'_0) \leq (\theta_1 \rightarrow \theta'_1)}_1 \ f$ 
+$=$ $\semBrcks{\theta'_0 \leq \theta'_1}_1 \circ f \circ \semBrcks{\theta_1 \leq \theta_0}_1$
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Ecuación para subsumption}
+\begin{center}
+$\semBrcks{\pi \vdash e : \theta'}$ $=$ $\semBrcks{\theta \leq \theta'} \circ \semBrcks{\pi \vdash e : \theta}$
+\end{center}
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Coherencia}
+
+\begin{block}{Introduciendo coherencia (Ejemplo)}
+Usando la regla del identificador:
+\begin{center}
+\AxiomC{$\iota : \realt \in \pi$}
+\UnaryInfC{$\pi \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+
+Usando Subsumption:
+\begin{center}
+\AxiomC{$\intt \leq \realt$}
+\AxiomC{$\iota : \intt \in \pi$}
+\UnaryInfC{$\pi \vdash \iota : \intt$}
+\BinaryInfC{$\pi \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Coherencia}
+
+\begin{block}{Introduciendo coherencia (Ejemplo)}
+Usando la regla del identificador:
+\begin{center}
+\AxiomC{$\iota : \realt \in \pi$}
+\UnaryInfC{$\pi \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+
+Usando Subsumption:
+\begin{center}
+\AxiomC{$\intt \leq \realt$}
+\AxiomC{$\iota : \intt \in \pi'$}
+\UnaryInfC{$\pi' \vdash \iota : \intt$}
+\BinaryInfC{$\pi' \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Coherencia}
+
+\begin{block}{Introduciendo coherencia (Ejemplo)}
+
+Usando Subsumption$'$:
+\begin{center}
+\AxiomC{$\intt \leq \realt$}
+\AxiomC{$\boolt \leq \intt$}
+\AxiomC{$\iota : \boolt \in \pi''$}
+\UnaryInfC{$\pi'' \vdash \iota : \boolt$}
+\BinaryInfC{$\pi'' \vdash \iota : \intt$}
+\BinaryInfC{$\pi'' \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+
+Usando Subsumption$''$:
+\begin{center}
+\AxiomC{$\boolt \leq \intt$}
+\AxiomC{$\intt \leq \realt$}
+\BinaryInfC{$\boolt \leq \realt$}
+\AxiomC{$\iota : \boolt \in \pi'''$}
+\UnaryInfC{$\pi''' \vdash \iota : \boolt$}
+\BinaryInfC{$\pi''' \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Coherencia}
+
+\begin{block}{Lema de inversión}
+Sea $\pi \vdash e : \theta$ un juicio de tipado valido cualquiera, entonces
+la ultima regla aplicada es la regla referente a $e$ o subsumption.
+\end{block}
+
+\pause
+
+\begin{block}{Lema}
+
+Sean $e$ una frase y $\theta$ un tipo cualesquiera y tal que tenemos 
+juicios de tipado $\pi \vdash e : \theta$ y $\pi' \vdash e : \theta$
+con $\eta : \semBrcks{\pi}$ y $\eta' : \semBrcks{\pi'}$ entonces vale
+
+\begin{center}
+$\semBrcks{\pi \vdash e : \theta}\eta = \semBrcks{\pi' \vdash e : \theta}\eta'$
+\end{center}
+
+\noindent
+donde o bien pasa $\pi \leq \pi'$ y $\semBrcks{\pi \leq \pi'}\eta = \eta'$\\
+\quad \quad \ \
+o bien se da $\pi' \leq \pi$ y $\semBrcks{\pi' \leq \pi}\eta' = \eta$
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Coherencia}
+
+\begin{block}{Lema}
+
+Sean $e$ una frase y $\theta$ un tipo cualesquiera y tal que tenemos 
+juicios de tipado $\pi \vdash e : \theta$ y $\pi' \vdash e : \theta$
+con $\eta : \semBrcks{\pi}$ y $\eta' : \semBrcks{\pi'}$ entonces vale
+
+\begin{center}
+$\semBrcks{\pi \vdash e : \theta}\eta = \semBrcks{\pi' \vdash e : \theta}\eta'$
+\end{center}
+
+\noindent
+donde o bien pasa $\pi \leq \pi'$ y $\semBrcks{\pi \leq \pi'}\eta = \eta'$\\
+\quad \quad \ \
+o bien se da $\pi' \leq \pi$ y $\semBrcks{\pi' \leq \pi}\eta' = \eta$
+
+\end{block}
+
+\begin{block}{Coherencia}
+Fijando ahora $\pi = \pi'$ obtenemos la propiedad de coherencia. Sean $D$ y $D'$
+derivaciones del juicio de tipado $\pi \vdash e : \theta$, entonces 
+$\semBrcks{D} = \semBrcks{D'}$
 \end{block}
 
 \end{frame}
