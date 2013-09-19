@@ -536,9 +536,28 @@ luego\\
 $\semBrcks{\pi \vdash \odot e' : \theta}\eta$ $=$ 
 $\odot_{\odot} (\semBrcks{\pi \vdash e' : \theta}\eta)$\\
 
-utilizar hip\'otesis inductiva ac\'a significar\'ia que podemos suponer que la
-ultima regla para $\pi \vdash e' : \theta$ fue cualquiera de las posibilidades que
-da inversi\'on entonces\\
+ahora bien, por inversi\'on tenemos que la ultima regla utilizada en la 
+derivaci\'on del juicio de tipado de $\pi \vdash e' :\theta$ puede haber 
+sido subsumption o la regla respectiva a $e$, es decir\\
+
+\begin{center}
+D: 
+\AxiomC{$\theta' \leq \theta$}
+\AxiomC{$\vdots$}
+\UnaryInfC{$\pi \vdash e': \theta'$}
+\BinaryInfC{$\pi \vdash e': \theta$}
+\DisplayProof
+\quad \quad \quad \quad D':
+\AxiomC{$\vdots$}
+\UnaryInfC{$\pi \vdash e': \theta$}
+\DisplayProof
+\end{center}
+
+\
+
+adem\'as por hip\'otesis inductiva tenemos que $\semBrcks{D} = \semBrcks{D'}$ y por 
+lo tanto podemos resolver $\semBrcks{\pi \vdash e' : \theta}\eta$ utilizando 
+indistintamente cualquier derivaci\'on, en particular tomamos $D$\\
 
 $\odot_{\odot} (\semBrcks{\pi \vdash e' : \theta}\eta)$ $=$
 $\odot_{\odot} (\semBrcks{\theta' \leq \theta}\semBrcks{\pi \vdash e' : \theta'}\eta)$ $=$\\
@@ -564,9 +583,9 @@ $(\lambda b. \ if \ b \ then \ \semBrcks{\pi \vdash e' : \theta}\eta$\\
 \indent \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \
 $else \ \semBrcks{\pi \vdash e'' : \theta}\eta)_{\dbot} 
 							(\semBrcks{\pi \vdash b : \boolt}\eta)$ $=$\\
-$\semBrcks{\pi \vdash e' : \theta}\eta$
+$\semBrcks{\pi \vdash e' : \theta}\eta$\\
 
-usando hip\'otesis inductiva como en el caso del operador unario, tenemos que\\
+usando inversi\'on e hip\'otesis inductiva como en el caso del operador unario, tenemos que\\
 
 $\semBrcks{\pi \vdash e' : \theta}\eta$ $=$ 
 $\semBrcks{\theta' \leq \theta}(\semBrcks{\pi \vdash e' : \theta'}\eta)$ $=$\\
@@ -581,45 +600,117 @@ $\semBrcks{\pi \vdash \cifthenelse{b}{e'}{e''} : \theta}\eta$\\
 
 An\'alogo si suponemos $\semBrcks{\pi \vdash b : \boolt}\eta = \iotabot \ false$.
 
-\item Supongamos $e = e'e''$, luego\\
+\item Supongamos $e = e'e''$, vamos a proceder de manera similar a como
+lo hicimos en el caso del operador unario, luego usando la definici\'on de
+la aplicaci\'on tenemos\\
 
 $\semBrcks{\pi \vdash e'e'' : \theta}\eta$ $=$ 
 $\semBrcks{\pi \vdash e' : \thetahat \rightarrow \theta}\eta
+							(\semBrcks{\pi \vdash e'' : \thetahat}\eta)$\\
+
+ahora bien, usando inversi\'on en ambos juicios de tipado tenemos\\
+
+
+\begin{center}
+$D_{e'}$: 
+\AxiomC{$\thetahat' \rightarrow \theta' \leq \thetahat \rightarrow \theta$}
+\AxiomC{$\vdots$}
+\UnaryInfC{$\pi \vdash e': \thetahat' \rightarrow \theta'$}
+\BinaryInfC{$\pi \vdash e': \thetahat \rightarrow \theta$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+$D_{e'}'$:
+\AxiomC{$\vdots$}
+\UnaryInfC{$\pi \vdash e': \thetahat \rightarrow \theta$}
+\DisplayProof
+\end{center}
+
+\
+
+\begin{center}
+$D_{e''}$: 
+\AxiomC{$\widehat{\thetahat} \leq \thetahat$}
+\AxiomC{$\vdots$}
+\UnaryInfC{$\pi \vdash e'': \widehat{\thetahat}$}
+\BinaryInfC{$\pi \vdash e'': \thetahat$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+$D_{e''}'$:
+\AxiomC{$\vdots$}
+\UnaryInfC{$\pi \vdash e'': \thetahat$}
+\DisplayProof
+\end{center}
+
+luego por hip\'otesis inductiva en cada juicio de tipado tenemos, $\semBrcks{D_{e'}} =
+\semBrcks{D_{e'}'}$ y $\semBrcks{D_{e''}} = \semBrcks{D_{e''}'}$ y por lo tanto podemos
+usar para resolver $\semBrcks{\pi \vdash e' : \thetahat \rightarrow \theta}$ y 
+$\semBrcks{\pi \vdash e'' : \thetahat}$ cualquiera de las derivaciones seg\'un
+corresponda. En particular tomamos $D_{e'}$ y $D_{e''}$, desarrollemos cada ecuaci\'on
+por separado\\
+
+$\semBrcks{\pi \vdash e' : \thetahat \rightarrow \theta}\eta$ $=$
+$\semBrcks{\thetahat' \rightarrow \theta' \leq \thetahat \rightarrow \theta}
+(\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta)$ $=$
+$\semBrcks{\theta' \leq \theta} 
+	\circ 
+(\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta)
+	\circ
+ \semBrcks{\thetahat \leq \thetahat'}$\\
+
+$\semBrcks{\pi \vdash e'' : \thetahat}\eta$ $=$ 
+$\semBrcks{\widehat{\thetahat} \leq \thetahat} 
+	(\semBrcks{\pi \vdash e'' : \widehat{\thetahat}}\eta)$\\
+
+reemplazando ahora en la ecuaci\'on principal obtenemos\\
+
+$\semBrcks{\pi \vdash e' : \thetahat \rightarrow \theta}\eta
 							(\semBrcks{\pi \vdash e'' : \thetahat}\eta)$ $=$\\
-$(\semBrcks{\thetahat' \rightarrow \theta' \leq \thetahat \rightarrow \theta}
-(\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta))$
-$(\semBrcks{\pi \vdash e'' : \thetahat}\eta)$ $=$\\
 $(\semBrcks{\theta' \leq \theta} 
 	\circ 
 (\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta)
 	\circ
  \semBrcks{\thetahat \leq \thetahat'})$
-$(\semBrcks{\pi \vdash e'' : \thetahat}\eta)$\\
+$(\semBrcks{\widehat{\thetahat} \leq \thetahat} 
+	(\semBrcks{\pi \vdash e'' : \widehat{\thetahat}}\eta))$ $=$\\
+$(\semBrcks{\theta' \leq \theta} 
+	\circ 
+(\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta)
+	\circ
+ \semBrcks{\thetahat \leq \thetahat'}
+ 	\circ
+\semBrcks{\widehat{\thetahat} \leq \thetahat} )$
+$(\semBrcks{\pi \vdash e'' : \widehat{\thetahat}}\eta)$\\
 
-hasta ac\'a hemos usado hip\'otesis inductiva en el juicio de tipado
-$\pi \vdash e' : \thetahat \rightarrow \theta$ y la definici\'on de la 
-ecuaci\'on sem\'antica
-$\semBrcks{\thetahat' \rightarrow \theta' \leq \thetahat \rightarrow \theta}$\\
+ahora utilizando la composici\'on de morfismos y que $\semBrcks{ \_ }$ es
+funtor, tenemos que 
+$\semBrcks{\thetahat \leq \thetahat'}
+ 	\circ
+\semBrcks{\widehat{\thetahat} \leq \thetahat}$ $=$
+$\semBrcks{\widehat{\thetahat} \leq \thetahat'}$, luego\\
 
 $(\semBrcks{\theta' \leq \theta} 
 	\circ 
 (\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta)
 	\circ
- \semBrcks{\thetahat \leq \thetahat'})$
-$(\semBrcks{\pi \vdash e'' : \thetahat}\eta)$ $=$\\
+ \semBrcks{\thetahat \leq \thetahat'}
+ 	\circ
+\semBrcks{\widehat{\thetahat} \leq \thetahat} )$
+$(\semBrcks{\pi \vdash e'' : \widehat{\thetahat}}\eta)$ $=$\\
 $(\semBrcks{\theta' \leq \theta} 
 	\circ 
-\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta)$ 
-$(\semBrcks{\thetahat \leq \thetahat'} (\semBrcks{\pi \vdash e'' : \thetahat}\eta))$ $=$\\
+(\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta)
+	\circ
+ \semBrcks{\widehat{\thetahat} \leq \thetahat'})$
+$(\semBrcks{\pi \vdash e'' : \widehat{\thetahat}}\eta)$ $=$\\
 $(\semBrcks{\theta' \leq \theta} 
 	\circ 
-\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta)$ 
-$(\semBrcks{\pi \vdash e'' : \thetahat'}\eta)$\\
-
-es importante notar que en la ultima igualdad hemos usado hip\'otesis inductiva, de 
-hecho si ley\'eramos las igualdades de abajo para arriba quedar\'ia mas que claro y 
-el caso a tener cuidado ser\'ia para el juicio $\pi \vdash e' : \thetahat \rightarrow \theta$\\
-
+(\semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta))
+( \semBrcks{\widehat{\thetahat} \leq \thetahat'}$
+$(\semBrcks{\pi \vdash e'' : \widehat{\thetahat}}\eta))$ $=$\\
 $(\semBrcks{\theta' \leq \theta} 
 	\circ 
 \semBrcks{\pi \vdash e' : \thetahat' \rightarrow \theta'}\eta)$ 
@@ -648,8 +739,7 @@ $\semBrcks{\pi,\iota:\thetahat \vdash e' : \theta'}
 
 Esta vez empezamos suponiendo que la ultima regla fue subsumption, desarrollamos
 utilizando la definici\'on de la ecuaci\'on para el subtipado del tipo flecha y
-aplicamos la definici\'on, para el otro lado, de subsumption para el cuerpo de la 
-abstracci\'on lambda. Todo esto deja listo para aplicar hip\'otesis inductiva\\
+resolvemos la composici\'on. Todo esto deja listo para aplicar hip\'otesis inductiva\\
 
 $\semBrcks{\pi,\iota:\thetahat \vdash e' : \theta'}
 		[ \ \eta \ | \ \iota:\semBrcks{\theta \leq \thetahat}z \ ]$ $=$\\
