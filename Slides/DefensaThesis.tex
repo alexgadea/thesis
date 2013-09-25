@@ -1,0 +1,1209 @@
+\documentclass{beamer}
+\usepackage[spanish]{babel} % Para separar correctamente las palabras
+\usepackage[utf8]{inputenc} % Este paquete permite poner acentos y eñes usando codificación utf-8
+
+\usefonttheme{professionalfonts} % fuentes de LaTeX
+\usetheme{Warsaw} % tema escogido en este ejemplo
+\usecolortheme[named=red]{structure}
+%%%% packages y comandos personales %%%%
+\usepackage{latexsym,amsmath,amssymb} % S\'imbolos
+\usepackage{diagrams}
+\usepackage{stmaryrd}
+\usepackage{xcolor}
+\usepackage{MnSymbol}
+\usepackage{../Latex/thesis}
+\usepackage{bussproofs}
+
+\begin{document}
+\beamertemplatenavigationsymbolsempty
+\title{Estudio de Semántica Categórica para Lenguajes Algol-Like}
+\author{{Alejandro Emilio Gadea}\\
+\vspace*{0.5cm}}
+\date{}
+\frame{\titlepage}
+
+\section{Introducci\'on}
+
+\begin{frame}
+\frametitle{Introducci\'on}
+\begin{block}{Gu\'ia}
+1. Lenguaje $\lambdaarrow$\\
+\quad \quad - Preliminares \\
+\quad \quad - Continuidad \\
+\quad \quad - Corrección regla-$\beta$\\
+
+\pause
+
+2. Lenguaje $\lambdaleq$\\
+\quad \quad - Preliminares \\
+\quad \quad - Coherencia \\
+
+\pause
+
+3. Lenguaje $\Alike$\\
+\quad \quad - Preliminares \\
+\quad \quad - Semántica con y sin stack discipline \\
+\quad \quad - Naturalidad 
+
+\end{block}
+\end{frame}
+
+\section{Lenguaje $\lambdaarrow$}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Sintaxis de los tipos}
+$\lrangles{Type}$ ::= $\boolt$ $|$ $\intt$ $|$ $\realt$\\
+\quad \quad \quad \quad
+$|$ $\lrangles{Type} \rightarrow \lrangles{Type}$\\
+\end{block}
+
+\begin{block}{Sintaxis $\lambdaarrow$}
+$\lrangles{Phrase}$ ::= $\lrangles{PBool}$ $|$ $\lrangles{PInt}$ $|$ $\lrangles{PReal}$\\
+\quad \quad \quad \quad \quad
+$|$ $\odot$ $\lrangles{Phrase}$ $|$ $\lrangles{Phrase}$ $\circledcirc$ $\lrangles{Phrase}$\\
+\quad \quad \quad \quad \quad
+$|$ $\textbf{if}$ $\lrangles{Phrase}$ $\textbf{then}$ $\lrangles{Phrase}$ $\textbf{else}$ $\lrangles{Phrase}$\\
+\quad \quad \quad \quad \quad
+$|$ $\lrangles{Id}$\\
+\quad \quad \quad \quad  \quad
+$|$ $\lrangles{Phrase}\lrangles{Phrase}$\\
+\quad \quad \quad \quad  \quad
+$|$ $\lambda$ $\lrangles{Id}_\theta$ . $\lrangles{Phrase}$\\
+\quad \quad \quad \quad  \quad
+$|$ $\textbf{rec} \lrangles{Phrase}$\\
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Algunas reglas de inferencia}
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\pi \vdash b : \boolt$}
+\DisplayProof
+\quad
+\AxiomC{$\pi \vdash e : \boolt$}
+\UnaryInfC{$\pi \vdash \neg e : \boolt$}
+\DisplayProof
+\end{center}
+
+\pause
+
+\begin{center}
+\AxiomC{$\iota:\theta \in \pi$}
+\RightLabel{}
+\UnaryInfC{$\pi \vdash \iota : \theta$}
+\DisplayProof
+\quad
+\AxiomC{$\pi,\iota:\theta \vdash e : \theta'$}
+\UnaryInfC{$\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \theta \rightarrow \theta$}
+\UnaryInfC{$\pi \vdash \rec{e} : \theta$}
+\DisplayProof
+\quad
+\AxiomC{$\pi \vdash e : \theta \rightarrow \theta'$}
+\AxiomC{$\pi \vdash e': \theta$}
+\BinaryInfC{$\pi \vdash ee' : \theta'$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash b  : \boolt$}
+\AxiomC{$\pi \vdash e  : \theta$}
+\AxiomC{$\pi \vdash e' : \theta$}
+\TrinaryInfC{$\pi \vdash \cifthenelse{b}{e}{e'} : \theta$}
+\DisplayProof
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Categorías para $\lambdaarrow$}
+
+- $\Dom$, categoría de dominios y funciones continuas.\\
+- $\Theta$, categoría discreta de $\lrangles{Type}$.\\
+- $\Pi$, categoría discreta de contextos
+
+\end{block}
+
+\pause
+
+\begin{block}{Funtores para $\lambdaarrow$}
+
+$\semBrcks{ \ } : \Theta \rightarrow \Dom$ 
+\quad \quad \quad \
+$\semBrcks{ \ } : \Pi \rightarrow \Dom$\\
+$\semBrcks{\delta}_0$ $=$ $(S_\delta)_\bot$
+\quad \quad \quad \quad
+$\semBrcks{\pi}_0$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}$\\
+$\semBrcks{\theta \rightarrow \theta'}_0$ $=$ $\semBrcks{\theta'}_0^{\semBrcks{\theta}_0}$
+
+\end{block}
+
+\pause
+
+\begin{block}{Definición ecuación semántica}
+$\semBrcks{\pi \vdash e : \theta} : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Ecuaciones $\lambdaarrow$}
+\begin{center}
+$\semBrcks{\pi \vdash b : \boolt} \eta$ $=$ $\iotabot b$ \quad \quad \quad
+$\semBrcks{\pi \vdash \neg e : \boolt}$ $=$ $\neg_{\odot} \circ \semBrcks{\pi \vdash e : \boolt}$
+\end{center}
+
+\begin{center}
+$\semBrcks{\pi \vdash \iota : \theta}\eta$ $=$ $\eta \iota$
+\end{center}
+
+\begin{center}
+$\semBrcks{\pi \vdash \clambda{\iota}{\theta}{e} : \theta \rightarrow \theta'}$ $=$
+		$\semBrcks{\pi,\iota:\theta \vdash e : \theta'} \circ ext_{\iota,\theta}$
+\end{center}
+
+\begin{center}
+$\semBrcks{\pi \vdash \rec{e} : \theta}\eta$ $=$ $\Y_{\theta} (\semBrcks{\pi \vdash e : \theta \rightarrow \theta}\eta)$
+\end{center}
+
+\begin{center}
+$\semBrcks{\pi \vdash ee' : \theta'}\eta$ $=$ $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta (\semBrcks{\pi \vdash e' : \theta}\eta)$
+\end{center}
+
+\end{block}
+
+donde 
+$ext_{\iota,\theta} : \semBrcks{\pi} 
+					  \rightarrow \semBrcks{\theta} \rightarrow \semBrcks{\pi,\iota:\theta}$\\
+\quad \quad \ \
+$ext_{\iota,\theta} \eta \ x$ $=$ $[\ \eta \ | \ \iota:x \ ]$
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Continuidad}
+
+\begin{block}{Teorema}
+Dado un juicio de tipado $\pi \vdash e : \theta$ la ecuaci\'on sem\'antica
+$\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua.
+\end{block}
+
+\pause
+
+\begin{block}{}
+Dada una cadena interesante
+$\eta_0 \sqsubseteq \eta_1 \sqsubseteq \cdots$ en $\semBrcks{\pi}$, queremos ver
+
+\begin{center}
+$\semBrcks{\pi \vdash e : \theta}(\bigsqcup\limits^{\infty}_{i=0} \eta_i)$
+$=$ $\bigsqcup\limits^{\infty}_{i=0} (\semBrcks{\pi \vdash e : \theta}\eta_i)$
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Continuidad}
+
+\begin{block}{Ecuación semántica aplicación}
+Si tenemos
+
+\begin{center}
+$\semBrcks{\pi \vdash ee' : \theta'} : \semBrcks{\pi} \rightarrow \semBrcks{\theta'}$\\
+$\semBrcks{\pi \vdash ee' : \theta'}\eta$ $=$ $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta (\semBrcks{\pi \vdash e' : \theta}\eta)$
+\end{center}
+
+y definimos
+
+\begin{center}
+$f : \semBrcks{\pi} \times \semBrcks{\theta} \rightarrow \semBrcks{\theta'}$
+\quad \quad \quad \quad \quad \
+$g : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$\\
+$f = \uncurry (\semBrcks{\pi \vdash e : \theta \rightarrow \theta'})$
+\quad
+$g = \semBrcks{\pi \vdash e' : \theta}$
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Continuidad}
+
+\begin{block}{Ecuación semántica aplicación}
+
+\begin{diagram}
+  \semBrcks{\theta'}^{\semBrcks{\theta}} \times \semBrcks{\theta} & \rTo^{\epsilon} & \semBrcks{\theta'}\\
+  \uTo^{\widetilde{f} \times 1_{\semBrcks{\theta}}} & \ruTo^{f} \ruTo(2,4) & &  \\
+  \semBrcks{\pi} \times \semBrcks{\theta} & & f \circ \lrangles{1_{\semBrcks{\pi}} , g} & \\
+  \uTo^{\lrangles{1_{\semBrcks{\pi}} , g}}  \ruTo(3,2) & & &  \\
+  \semBrcks{\pi} & & &
+\end{diagram}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Continuidad}
+
+\begin{block}{Ecuación semántica aplicación}
+Luego podemos definir
+
+\begin{center}
+$\semBrcks{\pi \vdash ee' : \theta'} : \semBrcks{\pi} \rightarrow \semBrcks{\theta'}$\\
+
+\
+
+$\semBrcks{\pi \vdash ee' : \theta'} = 
+\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}
+						, \semBrcks{\pi \vdash e' : \theta}}$
+\end{center}
+
+además, tomando un $\eta$ en $\semBrcks{\pi}$\\
+
+\
+
+$\semBrcks{\pi \vdash ee' : \theta'}\eta = 
+(\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}
+						, \semBrcks{\pi \vdash e' : \theta}})\eta$\\
+\quad \quad \quad \quad \quad \quad 
+$= \semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta(\semBrcks{\pi \vdash e' : \theta}\eta)$
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Corrección regla-$\beta$}
+
+\begin{block}{Nuevo juicio de tipado y su regla de inferencia}
+\begin{center}
+\AxiomC{$\pi \vdash \Delta\iota : \pi'\iota$ \ \ \ para todo $\iota$ en $dom(\pi)$}
+\UnaryInfC{$\pi \vdash \Delta : \pi'$}
+\DisplayProof
+
+\end{center}
+
+donde $\Delta : \lrangles{Id} \rightarrow\lrangles{Phrase}$
+\end{block}
+
+\pause
+
+\begin{block}{Teorema Substitución}
+
+Sean $\pi$ y $\pi'$ contextos, $\Delta$ una substituci\'on y supongamos 
+
+\begin{center}
+$\pi' \vdash e : \theta$ \quad $\pi \vdash \Delta : \pi'$
+\end{center}
+
+donde  
+$\eta'\iota$ $=$ $\semBrcks{\pi \vdash \Delta\iota : \pi'\iota}\eta$
+$\forall \iota \in \ dom \ \pi'$, entonces\\
+
+\begin{center}
+$\semBrcks{\pi' \vdash e : \theta}\eta'$ $=$ $\semBrcks{\pi \vdash e / \Delta : \theta}\eta$.
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Corrección regla-$\beta$}
+
+\begin{block}{Teorema Corrección regla-$\beta$}
+Dado un juicio de tipado $\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'$ vale,
+
+\begin{center}
+$\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'}$ $=$
+$\semBrcks{\pi \vdash e / \iota \leadsto e' : \theta'}$
+\end{center}
+\end{block}
+
+\end{frame}
+
+\section{Lenguaje $\lambdaleq$}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Nuevo juicio de tipado}
+Sean $\theta$, $\theta'$ tipos, diremos que $\theta$ es subtipo de $\theta'$ cuando
+
+\begin{center}
+$\theta \leq \theta'$
+\end{center}
+
+\end{block}
+
+\pause
+
+\begin{block}{Nuevas reglas de inferencia}
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\theta \leq \theta$}
+\DisplayProof
+\quad
+\AxiomC{$\theta \leq \theta'$}
+\AxiomC{$\theta' \leq \theta''$}
+\BinaryInfC{$\theta \leq \theta''$}
+\DisplayProof
+\quad
+\AxiomC{$\theta_0 \leq \theta_0'$}
+\AxiomC{$\theta_1 \leq \theta_1'$}
+\BinaryInfC{$\theta_0' \rightarrow \theta_1 \leq \theta_0 \rightarrow \theta_1'$}
+\DisplayProof
+\end{center}
+
+\end{block}
+
+\begin{block}{Regla subsumption}
+
+\begin{center}
+\AxiomC{$\pi \vdash e : \theta$}
+\AxiomC{$\theta \leq \theta'$}
+\BinaryInfC{$\pi \vdash e : \theta'$}
+\DisplayProof	
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Reglas de inferencia para los tipos básicos}
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\boolt \leq \intt$}
+\DisplayProof
+\quad
+\AxiomC{}
+\UnaryInfC{$\intt \leq \realt$}
+\DisplayProof
+\end{center}
+
+\end{block}
+
+\pause
+
+\begin{block}{Categorías de $\lambdaleq$}
+
+- $\Dom$, categoría de dominios y funciones continuas.\\
+- $\Theta$, categoría de $\lrangles{Type}$ cuyos morfismos estarán determinados por $\leq$\\
+- $\Pi$, categoría de contextos cuyos morfismos estarán determinados por $\leq$
+
+\end{block}
+
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Funtores para $\lambdaarrow$}
+
+$\semBrcks{ \ } : \Theta \rightarrow \Dom$ 
+\quad \quad \quad \quad \quad \quad \quad \quad \
+$\semBrcks{ \ } : \Pi \rightarrow \Dom$ \\
+
+$\semBrcks{\delta}_0$ $=$ $(S_\delta)_\bot$
+\quad \quad \quad \quad \quad \quad \quad \quad \quad
+$\semBrcks{\pi}_0$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}$\\
+$\semBrcks{\theta \rightarrow \theta'}_0$ $=$ $\semBrcks{\theta'}_0^{\semBrcks{\theta}_0}$
+\quad \quad \quad \quad \quad \quad \pause
+$\semBrcks{\pi \leq \pi'}_1$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota \leq \pi'\iota}$\\
+
+\
+
+$\semBrcks{\boolt \leq \intt}_1 \ x =$ if $x$ then $0$ else $1$\\
+$\semBrcks{\intt \leq \realt}_1$ $=$ $\J$ \\
+$\semBrcks{\theta \leq \theta}_1$ $=$ $1_{\semBrcks{\theta}}$\\
+$\semBrcks{\theta \leq \theta''}_1$ $=$ $\semBrcks{\theta' \leq \theta''}_1 \circ \semBrcks{\theta \leq \theta'}_1$\\
+$\semBrcks{(\theta_0 \rightarrow \theta'_0) \leq (\theta_1 \rightarrow \theta'_1)}_1 \ f$ 
+$=$ $\semBrcks{\theta'_0 \leq \theta'_1}_1 \circ f \circ \semBrcks{\theta_1 \leq \theta_0}_1$
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Ecuación para subsumption}
+\begin{center}
+$\semBrcks{\pi \vdash e : \theta'}$ $=$ $\semBrcks{\theta \leq \theta'} \circ \semBrcks{\pi \vdash e : \theta}$
+\end{center}
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Coherencia}
+
+\begin{block}{Introduciendo coherencia (Ejemplo)}
+Usando la regla del identificador:
+\begin{center}
+\AxiomC{$\iota : \realt \in \pi$}
+\UnaryInfC{$\pi \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+
+Usando Subsumption:
+\begin{center}
+\AxiomC{$\intt \leq \realt$}
+\AxiomC{$\iota : \intt \in \pi$}
+\UnaryInfC{$\pi \vdash \iota : \intt$}
+\BinaryInfC{$\pi \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Coherencia}
+
+\begin{block}{Introduciendo coherencia (Ejemplo)}
+Usando la regla del identificador:
+\begin{center}
+\AxiomC{$\iota : \realt \in \pi$}
+\UnaryInfC{$\pi \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+
+Usando Subsumption:
+\begin{center}
+\AxiomC{$\intt \leq \realt$}
+\AxiomC{$\iota : \intt \in \pi'$}
+\UnaryInfC{$\pi' \vdash \iota : \intt$}
+\BinaryInfC{$\pi' \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Coherencia}
+
+\begin{block}{Introduciendo coherencia (Ejemplo)}
+
+Usando Subsumption$'$:
+\begin{center}
+\AxiomC{$\intt \leq \realt$}
+\AxiomC{$\boolt \leq \intt$}
+\AxiomC{$\iota : \boolt \in \pi''$}
+\UnaryInfC{$\pi'' \vdash \iota : \boolt$}
+\BinaryInfC{$\pi'' \vdash \iota : \intt$}
+\BinaryInfC{$\pi'' \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+
+Usando Subsumption$''$:
+\begin{center}
+\AxiomC{$\boolt \leq \intt$}
+\AxiomC{$\intt \leq \realt$}
+\BinaryInfC{$\boolt \leq \realt$}
+\AxiomC{$\iota : \boolt \in \pi'''$}
+\UnaryInfC{$\pi''' \vdash \iota : \boolt$}
+\BinaryInfC{$\pi''' \vdash \iota : \realt$}
+\DisplayProof
+\end{center}
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Coherencia}
+
+\begin{block}{Lema de inversión}
+Sea $\pi \vdash e : \theta$ un juicio de tipado valido cualquiera, entonces
+la ultima regla aplicada es la regla referente a $e$ o subsumption.
+\end{block}
+
+\pause
+
+\begin{block}{Lema}
+
+Sean $e$ una frase y $\theta$ un tipo cualesquiera y tal que tenemos 
+juicios de tipado $\pi \vdash e : \theta$ y $\pi' \vdash e : \theta$
+con $\eta : \semBrcks{\pi}$ y $\eta' : \semBrcks{\pi'}$ entonces vale
+
+\begin{center}
+$\semBrcks{\pi \vdash e : \theta}\eta = \semBrcks{\pi' \vdash e : \theta}\eta'$
+\end{center}
+
+\noindent
+donde o bien pasa $\pi \leq \pi'$ y $\semBrcks{\pi \leq \pi'}\eta = \eta'$\\
+\quad \quad \ \
+o bien se da $\pi' \leq \pi$ y $\semBrcks{\pi' \leq \pi}\eta' = \eta$
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Coherencia}
+
+\begin{block}{Lema}
+
+Sean $e$ una frase y $\theta$ un tipo cualesquiera y tal que tenemos 
+juicios de tipado $\pi \vdash e : \theta$ y $\pi' \vdash e : \theta$
+con $\eta : \semBrcks{\pi}$ y $\eta' : \semBrcks{\pi'}$ entonces vale
+
+\begin{center}
+$\semBrcks{\pi \vdash e : \theta}\eta = \semBrcks{\pi' \vdash e : \theta}\eta'$
+\end{center}
+
+\noindent
+donde o bien pasa $\pi \leq \pi'$ y $\semBrcks{\pi \leq \pi'}\eta = \eta'$\\
+\quad \quad \ \
+o bien se da $\pi' \leq \pi$ y $\semBrcks{\pi' \leq \pi}\eta' = \eta$
+
+\end{block}
+
+\begin{block}{Coherencia}
+Fijando ahora $\pi = \pi'$ obtenemos la propiedad de coherencia. Sean $D$ y $D'$
+derivaciones del juicio de tipado $\pi \vdash e : \theta$, entonces 
+$\semBrcks{D} = \semBrcks{D'}$
+\end{block}
+
+\end{frame}
+
+\section{Lenguaje $\Alike$}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Essence of Algol}\small
+\begin{enumerate}
+\item Algol-like se obtiene de un lenguaje imperativo simple imponiendo un
+sistema para los procedimientos basado en el calculo lambda ``fully type'' y utilizando
+call-by-name.
+
+\item Existe dos clases de tipos: los $\textit{Data Types}$ y los $\textit{Phrase Types}$.
+
+\item El orden de evaluaci\'on para las partes de una expresi\'on y su
+conversi\'on impl\'icita deber\'ia estar indeterminada, pero el significado
+del lenguaje es independiente de la indeterminaci\'on.
+
+\item La definici\'on de procedimientos, recursi\'on, expresiones condicionales
+pueden ser de cualquier $\textit{Phrase Types}$.
+
+\item El lenguaje contiene stack discipline y su definici\'on debe hacer esta disciplina
+obvia.
+\end{enumerate}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Sintaxis de los tipos}
+$\lrangles{Data \ Types}$ ::= $\boolt$ $|$ $\intt$ $|$ $\realt$\\
+
+\
+
+$\lrangles{Phrase \ Types}$ ::= $\commt$\\
+\quad \quad \quad \quad \quad 
+\quad \quad \quad
+$|$ $\deltaacc$\\
+\quad \quad \quad \quad \quad 
+\quad \quad \quad
+$|$ $\deltaexp$ \\
+\quad \quad \quad \quad \quad 
+\quad \quad \quad
+$|$ $\deltavar$\\
+\quad \quad \quad \quad \quad 
+\quad \quad \quad
+$|$ $\lrangles{Phrase \ Types} \rightarrow \lrangles{Phrase \ Types}$
+\end{block}
+
+donde $\delta \in \lrangles{Data \ Types}$
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Sintaxis $\Alike$}
+$\lrangles{Phrase}$ ::= $\lrangles{PBool}$ $|$ $\lrangles{PInt}$ $|$ $\lrangles{PReal}$\\
+\quad \quad \quad \quad \quad
+$|$ $\odot$ $\lrangles{Phrase}$ $|$ $\lrangles{Phrase}$ $\circledcirc$ $\lrangles{Phrase}$\\
+\quad \quad \quad \quad \quad
+$|$ $\textbf{if}$ $\lrangles{Phrase}$ $\textbf{then}$ $\lrangles{Phrase}$ $\textbf{else}$ $\lrangles{Phrase}$\\
+\quad \quad \quad \quad \quad
+$|$ $\lrangles{Id}$\\
+\quad \quad \quad \quad  \quad
+$|$ $\lrangles{Phrase}\lrangles{Phrase}$\\
+\quad \quad \quad \quad  \quad
+$|$ $\lambda$ $\lrangles{Id}_\theta$ . $\lrangles{Phrase}$\\
+\quad \quad \quad \quad  \quad
+$|$ $\textbf{rec} \lrangles{Phrase}$\\
+
+\pause
+
+\quad \quad \quad \quad  \quad
+$|$ $\cnewv$ $\deltavar$ $\lrangles{Id}$ $\cassig$ $\lrangles{Phrase}$ $\cin$ $\lrangles{Phrase}$\\
+\quad \quad \quad \quad  \quad
+$|$ $\lrangles{Phrase}$ $\cassig$ $\lrangles{Phrase}$ $|$ $\cskip$ $|$ $\lrangles{Phrase}$ $\concatdots$ $\lrangles{Phrase}$\\
+\quad \quad \quad \quad  \quad
+$|$ $\cwhile$ $\lrangles{Phrase}$ $\cdo$ $\lrangles{Phrase}$
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Reglas de inferencia para los Phrase Types}
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\intexp \leq \realexp$}
+\DisplayProof
+\quad \quad \quad
+\AxiomC{}
+\UnaryInfC{$\realacc \leq \intacc$}
+\DisplayProof
+
+\quad
+
+\AxiomC{}
+\UnaryInfC{$\deltavar \leq \deltaexp$}
+\DisplayProof
+\quad \quad \quad
+\AxiomC{}
+\UnaryInfC{$\deltavar \leq \deltaacc$}
+\DisplayProof
+\end{center}
+
+\end{block}
+
+\pause
+
+\begin{block}{Algunas reglas de inferencia}
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$\pi \vdash b : \boolexp$}
+\DisplayProof
+\quad
+\AxiomC{$\pi \vdash e : \boolexp$}
+\UnaryInfC{$\pi \vdash \neg e : \boolexp$}
+\DisplayProof
+\end{center}
+
+\begin{center}
+\AxiomC{$\pi \vdash b  : \boolexp$}
+\AxiomC{$\pi \vdash e  : \theta$}
+\AxiomC{$\pi \vdash e' : \theta$}
+\TrinaryInfC{$\pi \vdash \cifthenelse{b}{e}{e'} : \theta$}
+\DisplayProof
+
+\
+
+con $\theta \in \{\deltavar,\deltaacc,\deltaexp,\commt\}$.\\
+\end{center}
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Reglas de inferencia de la parte imperativa}
+
+\begin{center}
+\AxiomC{$\pi \vdash b : \boolexp$}
+\AxiomC{$\pi \vdash e : \commt$}
+\BinaryInfC{$\pi \vdash \cwhiledo{b}{e} : \commt$}
+\DisplayProof
+\quad
+\AxiomC{}
+\UnaryInfC{$\pi \vdash \cskip : \commt$}
+\DisplayProof
+
+\quad
+
+\quad
+
+\AxiomC{$\pi \vdash e  : \commt$}
+\AxiomC{$\pi \vdash e' : \commt$}
+\BinaryInfC{$\pi \vdash \cseq{e}{e'} : \commt$}
+\DisplayProof
+
+\quad
+
+\quad
+
+\AxiomC{$\pi \vdash e  : \deltaexp$}
+\AxiomC{$\pi,\iota:\deltavar \vdash e' : \commt$}
+\BinaryInfC{$\pi \vdash \newdeltavar{\iota}{e}{e'} : \commt$}
+\DisplayProof
+
+\quad
+
+\quad
+
+\AxiomC{$\pi \vdash e   : \deltaacc$}
+\AxiomC{$\pi \vdash e'  : \deltaexp$}
+\BinaryInfC{$\pi \vdash \assig{e}{e'} : \commt$}
+\DisplayProof
+\end{center}
+
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Preliminares}
+
+\begin{block}{Categorías de $\Alike$}
+
+- $\Theta$, categoría de $\lrangles{Phrase \ Types}$ 
+cuyos morfismos estarán determinados por $\leq$\\
+- $\Pi$, categoría de contextos cuyos morfismos estarán determinados por $\leq$
+
+\end{block}
+
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Semántica con y sin stack discipline}
+
+\begin{block}{Estado para la semántica con stack discipline}
+
+Un estado será un elemento perteneciente a $S_1 \times \ldots \times S_n$, 
+con $1 \leq n$ con $S_i$ cualquiera de los conjuntos $S_{\intt}$, $S_{\realt}$ o $S_{\boolt}$.\\
+Diremos además que este estado tiene forma $\lrangles{S_1,\ldots,S_n}$
+
+\end{block}
+
+\pause
+
+\begin{block}{Categorías para la semántica con stack discipline}
+
+$\SD_0$ $=$ $\{C$ $|$ $C$ es el conjunto de todos los estados con determinada forma$\}$\\
+$\SD_1(C,C')$ $=$ $\{C \rTo^{(h,s)} C'$ $|$ $C'$ extiende a $C\}$, $C' = C \concat \overline{C}$\\
+
+\
+
+donde \ $h: C' \rightarrow C$
+\quad \quad \quad
+	  $s: (C \rightarrow C_{\bot}) \rightarrow (C' \rightarrow C'_{\bot})$\\
+\quad \quad \ \ \ 
+	  $h = head_C$
+\quad \quad \quad 
+	  $s \ c \ \sigmahat =$ 
+	  	   $(\lambda \sigma. \ \sigma \concat (tail_{\overline{C}} \ \sigmahat))_{\bot}$
+	  	   	$(c(h \ \sigmahat))$\\
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Semántica con y sin stack discipline}
+
+\begin{block}{Estado para la semántica sin stack discipline}
+
+Un estado ser\'a un elemento perteneciente a 
+$\Sigma = \bigcup\limits_{I \in \FinId} I \rightarrow S$, 
+donde $\FinId$ ser\'a un conjunto de subconjuntos finitos de $\lrangles{Id}$ y
+$S = S_{\intt} + S_{\realt} + S_{\boolt}$\\
+
+\end{block}
+
+\pause
+
+\begin{block}{Categorías para la semántica sin stack discipline}
+$\SSD_0$ $=$ $\{\ \Sigma \ \}$\\
+
+\
+
+$(1_h,1_s) : \Sigma \rightarrow \Sigma$, tal que\\
+
+$1_h : \Sigma \rightarrow \Sigma$ \ \ \ \ \ \ \
+$1_s: (\Sigma \rightarrow \Sigma_{\bot}) \rightarrow (\Sigma \rightarrow \Sigma_{\bot})$\\
+\indent
+$1_h \sigma = \sigma$ \ \ \ \ \ \ \ \ \ \ \ $1_s \ c = c$
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Semántica con y sin stack discipline}
+
+\begin{block}{Categoría semántica}
+$\PDom^{\C}$, categoría de funtores $\C \rightarrow \PDom$ y transformaciones naturales.
+Donde $\PDom$ es la categoría de predominios y funciones continuas. Además con $\C$ vamos a
+referirnos a $\SD$ o $\SSD$.
+\end{block}
+
+\pause
+
+\begin{block}{Funtores para $\Alike$}
+$\semBrcks{ \ } : \Theta \rightarrow \PDom^{\C}$\\
+\pause
+$\semBrcks{\theta}_{0} : \C \rightarrow \PDom$, con $\theta$ objeto de $\Theta$\\
+\pause
+$\semBrcks{\theta}_{0}C : \PDom$, con $C$ objeto de $\C$\\
+\pause
+$\semBrcks{\theta}_{0}(h,s) : \semBrcks{\theta}_{0}C \rightarrow \semBrcks{\theta}_{0}C'$, con 
+$C \rTo^{(h,s)} C'$ flecha de $\C$\\
+
+\
+
+$\semBrcks{\theta \rTo^{\leq} \theta'}_{1} : 
+	\semBrcks{\theta}_{0} \rightarrow \semBrcks{\theta'}_{0}$\\
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Semántica con y sin stack discipline}
+
+\begin{block}{Funtores para $\Alike$}
+
+$\semBrcks{\deltaexp}_{0}C = C \rightarrow (S_{\delta})_{\bot}$
+\quad \quad \quad \quad \quad 
+$\semBrcks{\deltaacc}_{0}C = S_{\delta} \rightarrow \semBrcks{\commt}C$\\
+$\semBrcks{\deltaexp}_{0} \ (h,s) \ e = e \circ h$
+\quad \quad \quad \quad \quad 
+$\semBrcks{\deltaacc}_{0} \ (h,s) \ a = s \circ a$\\
+
+\
+
+$\semBrcks{\commt}_{0}C = C \rightarrow C_{\bot}$\\
+$\semBrcks{\commt}_{0} \ (h,s) \ c = s \ c$ \\
+
+\
+
+$\semBrcks{\deltavar}_{0}C = \semBrcks{\deltaacc}C \times \semBrcks{\deltaexp}C$\\
+$\semBrcks{\deltavar}_{0} \ (h,s) \ (a,e) = 
+			(\semBrcks{\deltaacc}(h,s)a,\semBrcks{\deltaacc}(h,s)e)$\\
+			
+\
+
+$\semBrcks{\theta \rightarrow \theta'}_0 C$ $=$ 
+					$\Nat{\semBrcks{\theta}(C \concat \_)}{\semBrcks{\theta'}(C \concat \_)}$\\
+\indent
+$\semBrcks{\theta \rightarrow \theta'}_0 \ (h,s) \ f \ \widehat{C}$ $=$ 
+														$f(\overline{C} \concat \widehat{C})$\\
+\indent \indent donde $C \concat \overline{C} = C'$\\
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Semántica con y sin stack discipline}
+
+\begin{block}{Funtores para $\Alike$}
+
+$\semBrcks{\intexp \leq \realexp}_1 C \ e$ $=$ $\J \circ e$
+\quad 
+$\semBrcks{\realacc \leq \intacc}_1 C \ a$ $=$ $a \circ \J$\\
+
+\
+
+$\semBrcks{\deltavar \leq \deltaexp}_1 C \ (a,e)$ $=$ $e$
+\quad \quad \quad 
+$\semBrcks{\deltavar \leq \deltaacc}_1 C \ (a,e)$ $=$ $a$\\
+
+\
+
+
+$\semBrcks{\theta \leq \theta}_1 C$ $=$ $1_{\semBrcks{\theta} C}$
+\quad \quad \quad \quad 
+$\semBrcks{\theta \leq \theta''}_1 C$ $=$ 
+					$\semBrcks{\theta' \leq \theta''}_1 C \circ \semBrcks{\theta \leq \theta'}_1 C$\\
+
+\
+
+$\semBrcks{(\theta_0 \rightarrow \theta'_0) \leq (\theta_1 \rightarrow \theta'_1)}_1 C \ f \ \widehat{C}$ \\
+\quad \quad \quad \quad \quad 
+			$=$ 
+			$\semBrcks{\theta'_0 \leq \theta'_1}_1 (C \concat \widehat{C}) 
+				\circ 
+			(f \ \widehat{C}) 
+				\circ 
+			\semBrcks{\theta_1 \leq \theta_0}_1 (C \concat \widehat{C}) 
+			$\\
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Semántica con y sin stack discipline}
+
+\begin{block}{Funtores para $\Alike$}
+
+$\semBrcks{ \ } : \Pi \rightarrow \PDom^{\C}$\\
+$\semBrcks{\pi}_{0} : \C \rightarrow \PDom$, con $\pi$ objeto de $\Pi$\\
+$\semBrcks{\pi}_{0}C : \PDom$, con $C$ objeto de $\C$\\
+$\semBrcks{\pi}_{0}(h,s) : \semBrcks{\pi}_{0}C \rightarrow \semBrcks{\pi}_{0}C'$, con 
+$C \rTo^{(h,s)} C'$ flecha de $\C$\\
+
+\
+
+$\semBrcks{\pi \rTo^{\leq} \pi'}_{1} : 
+	\semBrcks{\pi}_{0} \rightarrow \semBrcks{\pi'}_{0}$\\
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Semántica con y sin stack discipline}
+
+\begin{block}{Funtores para $\Alike$}
+
+$\semBrcks{\pi}_0C$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}C$\\
+
+\
+
+\
+
+$\semBrcks{\pi}_0(h,s) \ \eta$ $=$ $\prod\limits_{\iota \in dom \ \pi} 
+												\semBrcks{\pi\iota}(h,s)(\eta\iota)$\\
+\
+
+\
+
+$\semBrcks{\pi \leq \pi'}_1C$ $=$ $\prod\limits_{\iota \in dom \ \pi} 
+												\semBrcks{\pi\iota \leq \pi'\iota}C(\eta\iota)$
+
+\end{block}
+
+\pause
+
+\begin{block}{Ecuación semántica $\Alike$}
+$\semBrcks{\pi \vdash e : \theta}$ sera una transformación natural de $\semBrcks{\pi}$
+en $\semBrcks{\theta}$
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Semántica con y sin stack discipline}
+
+\begin{block}{Ecuaciones $\Alike$}
+$\semBrcks{ \pi \vdash b : \boolexp }C \ \eta \ \sigma$ $=$ $\iotabot \ b$\\
+
+\
+
+$\semBrcks{ \pi \vdash \neg b : \boolexp }C$ 
+$=$ 
+$\neg_{\odot} \circ \semBrcks{\pi \vdash b : \boolexp}C$\\
+
+\
+
+$\semBrcks{ \pi \vdash \cifthenelse{b}{e}{e'}: \deltaacc}C \ \eta \ z \ \sigma$ 
+$=$ \\
+\quad \quad \quad 
+$(\lambda b . \ if \ b $ $then \ \semBrcks{ \pi \vdash e : \deltaacc}C \ \eta \ z \ \sigma$\\
+\quad \quad \quad \quad \quad \quad \quad 
+$else \ \semBrcks{ \pi \vdash e' : \deltaacc}C \ \eta \ z \ \sigma)_{\dbot}$ \\
+\quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad 
+$(\semBrcks{ \pi \vdash b : \boolexp}C \ \eta \ \sigma)$\\
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Semántica con y sin stack discipline}
+
+\begin{block}{Ecuaciones $\Alike$}
+
+$\semBrcks{ \pi \vdash \assig{e}{e'} : \commt }C \ \eta \ \sigma$ 
+$=$ \\
+\quad \quad \quad \quad \quad 
+$(\lambda x . \ \semBrcks{\pi \vdash e : \deltaacc}C \ \eta \ x \ \sigma)_{\dbot}
+(\semBrcks{ \pi \vdash e' : \deltaexp }C \ \eta \ \sigma)$\\
+
+\
+
+$\semBrcks{ \pi \vdash ee' : \theta' }C \ \eta$ 
+$=$ 
+$\semBrcks{ \pi \vdash e : \theta \rightarrow \theta' }C \ \eta \ \lrangles{} \
+(\semBrcks{ \pi \vdash e' : \theta }C \ \eta)$\\
+
+\
+
+$\semBrcks{ \pi \vdash \lambda \iota_{\theta} . \ e : \theta \rightarrow \theta' }C \ \eta \ 
+\overline{C} \ z$ 
+$=$ \\
+\quad \quad \quad \quad \quad \quad 
+$\semBrcks{ \pi,\iota:\theta \vdash e : \theta' } \ (C \concat \overline{C}) \
+[ \ \semBrcks{\pi}(h,s) \ \eta \ | \ \iota:z \ ]$\\
+
+\
+
+con $(h,s)$ $:$ $C \rTo (C \concat \overline{C})$ 
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Semántica con y sin stack discipline}
+
+\begin{block}{Ecuación $\cnew \deltavar$ con stack discipline}
+
+$\semBrcks{\pi \vdash \newdeltavar{\iota}{ei}{c} : \commt}C \ \eta \ \sigma$ 
+$=$ $H_{\bot} ($\\ 
+\quad \quad 
+$(\lambda \ v . \ \semBrcks{\pi,\iota:\deltavar \vdash c : \commt}
+		\ (C\concat\lrangles{S_\delta}) \ \eta_{ext} \ \sigma_{ext})_{\dbot}$ \\ 
+\quad \quad \quad \quad \quad \quad \quad \quad \quad \quad 
+\quad \quad \quad \quad \quad \quad \quad 
+$(\semBrcks{\pi \vdash ei : \deltaexp}C \ \eta \ \sigma))$\\
+
+\
+
+con $(h,s)$ $:$ $C \rTo (C \concat \lrangles{S_\delta})$ \\
+\quad \quad 
+$a$ $=$ $\lambda z. \ \lambda \sigmahat . \ \iotabot ((head_{C} \sigmahat) \concat \lrangles{z})$\\
+\quad \quad 
+$e$ $=$ $ \iotabot \circ last_{S_\delta}$\\
+\quad \quad 
+$\sigma_{ext} = \sigma \concat \lrangles{v} $\\
+\quad \quad 
+$\eta_{ext} = [ \ \semBrcks{\pi}(h,s) \ \eta \ | \ \iota:\lrangles{a,e} \ ]$\\
+\quad \quad 
+$H = head_C$
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Semántica con y sin stack discipline}
+
+\begin{block}{Ecuación $\cnew \deltavar$ sin stack discipline}
+
+$\semBrcks{\pi \vdash \newdeltavar{\iota}{ei}{c} : \commt}C \ \eta \ \sigma$ 
+$=$ $H_{\bot} ($ \\ 
+\quad \quad
+$(\lambda \ v . \ \semBrcks{\pi,\iota:\deltavar \vdash c : \commt}
+C \ \eta_{new} \ \sigma_{new})_{\dbot}$\\
+\quad \quad \quad \quad \quad \quad \quad \quad \quad \quad 
+\quad \quad \quad \quad \quad \quad \quad 
+$(\semBrcks{\pi \vdash ei : \deltaexp}C \ \eta \ \sigma))$\\
+
+\
+
+con 
+$a \ v \ \sigma$ $=$ $\iotabot [ \ \sigma \ | \ \iota:\iotadelta v \ ] $\\
+\quad \quad 
+$e \ \sigma$ $=$ $(\lambda v . v)_{\delta}(\sigma \iota)$\\
+\quad \quad 
+$\sigma_{new} = [ \ \sigma \ | \ \iota:\iotadelta v \ ]$\\
+\quad \quad 
+$\eta_{new} = [ \ \eta \ | \ \iota:\lrangles{a,e} \ ]$\\
+\quad \quad 
+$H = 1_C$\\
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\Alike$}
+\framesubtitle{Naturalidad}
+
+\begin{block}{Teorema de Naturalidad}
+Dado un juicio de tipado valido $\pi \vdash e : \theta$ y una flecha 
+$C \rTo{(h,s)} C'$ en $\C$ el siguiente diagrama conmuta,
+\begin{center}
+\begin{diagram}
+   \semBrcks{\pi}C & & \rTo^{\semBrcks{\pi \vdash e : \theta}C} & & \semBrcks{\theta}C \\
+   \dTo^{\semBrcks{\pi}(h,s)} & & & & \dTo_{\semBrcks{\theta}(h,s)} & \\
+   \semBrcks{\pi}C' & & \rTo_{\semBrcks{\pi \vdash e : \theta}C'} & & \semBrcks{\theta}C' &
+\end{diagram}
+\end{center}
+
+\
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\begin{center}\Huge
+Gracias!!!
+\end{center}
+\end{frame}
+
+\end{document}
