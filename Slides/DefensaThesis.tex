@@ -54,26 +54,12 @@
 \frametitle{Lenguaje $\lambdaarrow$}
 \framesubtitle{Preliminares}
 
-\begin{block}{Sintaxis de los tipos}
-$\lrangles{Type}$ ::= $\boolt$ $|$ $\intt$ $|$ $\realt$\\
-\quad \quad \quad \quad
-$|$ $\lrangles{Type} \rightarrow \lrangles{Type}$\\
-\end{block}
+\begin{block}{Lenguaje $\lambdaarrow$}
 
-\begin{block}{Sintaxis $\lambdaarrow$}
-$\lrangles{Phrase}$ ::= $\lrangles{PBool}$ $|$ $\lrangles{PInt}$ $|$ $\lrangles{PReal}$\\
-\quad \quad \quad \quad \quad
-$|$ $\odot$ $\lrangles{Phrase}$ $|$ $\lrangles{Phrase}$ $\circledcirc$ $\lrangles{Phrase}$\\
-\quad \quad \quad \quad \quad
-$|$ $\textbf{if}$ $\lrangles{Phrase}$ $\textbf{then}$ $\lrangles{Phrase}$ $\textbf{else}$ $\lrangles{Phrase}$\\
-\quad \quad \quad \quad \quad
-$|$ $\lrangles{Id}$\\
-\quad \quad \quad \quad  \quad
-$|$ $\lrangles{Phrase}\lrangles{Phrase}$\\
-\quad \quad \quad \quad  \quad
-$|$ $\lambda$ $\lrangles{Id}_\theta$ . $\lrangles{Phrase}$\\
-\quad \quad \quad \quad  \quad
-$|$ $\textbf{rec} \lrangles{Phrase}$\\
+Este es un lenguaje funcional con tipado explicito simple, base
+de lenguajes como Haskell o ML. Sus tipos son $\boolt$, $\intt$ y $\realt$ 
+y tiene como frases relevantes a la aplicación, abstracción lambda, recursión, etc.
+
 \end{block}
 
 \end{frame}
@@ -159,7 +145,8 @@ $\semBrcks{\theta \rightarrow \theta'}_0$ $=$ $\semBrcks{\theta'}_0^{\semBrcks{\
 \pause
 
 \begin{block}{Definición ecuación semántica}
-$\semBrcks{\pi \vdash e : \theta} : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$
+$\semBrcks{\pi \vdash e : \theta}$ será un morfismo en la categoría $\Dom$ entre
+$\semBrcks{\pi}$ y $\semBrcks{\theta}$
 \end{block}
 
 \end{frame}
@@ -222,80 +209,11 @@ $=$ $\bigsqcup\limits^{\infty}_{i=0} (\semBrcks{\pi \vdash e : \theta}\eta_i)$
 
 \end{block}
 
-\end{frame}
+\pause
 
-\begin{frame}
-\frametitle{Lenguaje $\lambdaarrow$}
-\framesubtitle{Continuidad}
-
-\begin{block}{Ecuación semántica aplicación}
-Si tenemos
-
-\begin{center}
-$\semBrcks{\pi \vdash ee' : \theta'} : \semBrcks{\pi} \rightarrow \semBrcks{\theta'}$\\
-$\semBrcks{\pi \vdash ee' : \theta'}\eta$ $=$ $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta (\semBrcks{\pi \vdash e' : \theta}\eta)$
-\end{center}
-
-y definimos
-
-\begin{center}
-$f : \semBrcks{\pi} \times \semBrcks{\theta} \rightarrow \semBrcks{\theta'}$
-\quad \quad \quad \quad \quad \
-$g : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$\\
-$f = \uncurry (\semBrcks{\pi \vdash e : \theta \rightarrow \theta'})$
-\quad
-$g = \semBrcks{\pi \vdash e' : \theta}$
-\end{center}
-
-\end{block}
-
-\end{frame}
-
-\begin{frame}
-\frametitle{Lenguaje $\lambdaarrow$}
-\framesubtitle{Continuidad}
-
-\begin{block}{Ecuación semántica aplicación}
-
-\begin{diagram}
-  \semBrcks{\theta'}^{\semBrcks{\theta}} \times \semBrcks{\theta} & \rTo^{\epsilon} & \semBrcks{\theta'}\\
-  \uTo^{\widetilde{f} \times 1_{\semBrcks{\theta}}} & \ruTo^{f} \ruTo(2,4) & &  \\
-  \semBrcks{\pi} \times \semBrcks{\theta} & & f \circ \lrangles{1_{\semBrcks{\pi}} , g} & \\
-  \uTo^{\lrangles{1_{\semBrcks{\pi}} , g}}  \ruTo(3,2) & & &  \\
-  \semBrcks{\pi} & & &
-\end{diagram}
-
-\end{block}
-
-\end{frame}
-
-\begin{frame}
-\frametitle{Lenguaje $\lambdaarrow$}
-\framesubtitle{Continuidad}
-
-\begin{block}{Ecuación semántica aplicación}
-Luego podemos definir
-
-\begin{center}
-$\semBrcks{\pi \vdash ee' : \theta'} : \semBrcks{\pi} \rightarrow \semBrcks{\theta'}$\\
-
-\
-
-$\semBrcks{\pi \vdash ee' : \theta'} = 
-\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}
-						, \semBrcks{\pi \vdash e' : \theta}}$
-\end{center}
-
-además, tomando un $\eta$ en $\semBrcks{\pi}$\\
-
-\
-
-$\semBrcks{\pi \vdash ee' : \theta'}\eta = 
-(\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}
-						, \semBrcks{\pi \vdash e' : \theta}})\eta$\\
-\quad \quad \quad \quad \quad \quad 
-$= \semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta(\semBrcks{\pi \vdash e' : \theta}\eta)$
-
+\begin{block}{Nota}
+Para probar el caso de la aplicación, fue útil utilizar la semántica 
+categoría.
 \end{block}
 
 \end{frame}
@@ -304,7 +222,19 @@ $= \semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta(\semBrcks{\pi \vdash
 \frametitle{Lenguaje $\lambdaarrow$}
 \framesubtitle{Corrección regla-$\beta$}
 
-\begin{block}{Nuevo juicio de tipado y su regla de inferencia}
+\begin{block}{Teorema Corrección regla-$\beta$}
+Dado un juicio de tipado $\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'$ vale,
+
+\begin{center}
+$\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'}$ $=$
+$\semBrcks{\pi \vdash e / \iota \leadsto e' : \theta'}$
+\end{center}
+\end{block}
+\end{frame}
+
+\begin{frame}
+
+\begin{block}{Nueva forma de juicio de tipado y su regla de inferencia}
 \begin{center}
 \AxiomC{$\pi \vdash \Delta\iota : \pi'\iota$ \ \ \ para todo $\iota$ en $dom(\pi)$}
 \UnaryInfC{$\pi \vdash \Delta : \pi'$}
@@ -337,28 +267,13 @@ $\semBrcks{\pi' \vdash e : \theta}\eta'$ $=$ $\semBrcks{\pi \vdash e / \Delta : 
 
 \end{frame}
 
-\begin{frame}
-\frametitle{Lenguaje $\lambdaarrow$}
-\framesubtitle{Corrección regla-$\beta$}
-
-\begin{block}{Teorema Corrección regla-$\beta$}
-Dado un juicio de tipado $\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'$ vale,
-
-\begin{center}
-$\semBrcks{\pi \vdash (\clambda{\iota}{\theta}{e})e' : \theta'}$ $=$
-$\semBrcks{\pi \vdash e / \iota \leadsto e' : \theta'}$
-\end{center}
-\end{block}
-
-\end{frame}
-
 \section{Lenguaje $\lambdaleq$}
 
 \begin{frame}
 \frametitle{Lenguaje $\lambdaleq$}
 \framesubtitle{Preliminares}
 
-\begin{block}{Nuevo juicio de tipado}
+\begin{block}{Nueva forma de juicio de tipado}
 Sean $\theta$, $\theta'$ tipos, diremos que $\theta$ es subtipo de $\theta'$ cuando
 
 \begin{center}
@@ -369,7 +284,7 @@ $\theta \leq \theta'$
 
 \pause
 
-\begin{block}{Nuevas reglas de inferencia}
+\begin{block}{Reglas de subtipado}
 
 \begin{center}
 \AxiomC{}
@@ -406,7 +321,7 @@ $\theta \leq \theta'$
 \frametitle{Lenguaje $\lambdaleq$}
 \framesubtitle{Preliminares}
 
-\begin{block}{Reglas de inferencia para los tipos básicos}
+\begin{block}{Subtipado para los tipos básicos}
 
 \begin{center}
 \AxiomC{}
@@ -452,8 +367,10 @@ $\semBrcks{\pi \leq \pi'}_1$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\
 
 \
 
+$\semBrcks{\theta \leq \theta'}_{1} :
+\semBrcks{\theta}_{0} \rightarrow \semBrcks{\theta'}_{0}$\\
 $\semBrcks{\boolt \leq \intt}_1 \ x =$ if $x$ then $0$ else $1$\\
-$\semBrcks{\intt \leq \realt}_1$ $=$ $\J$ \\
+$\semBrcks{\intt \leq \realt}_1$ $=$ $\J_{\intt}^{\realt}$ \\
 $\semBrcks{\theta \leq \theta}_1$ $=$ $1_{\semBrcks{\theta}}$\\
 $\semBrcks{\theta \leq \theta''}_1$ $=$ $\semBrcks{\theta' \leq \theta''}_1 \circ \semBrcks{\theta \leq \theta'}_1$\\
 $\semBrcks{(\theta_0 \rightarrow \theta'_0) \leq (\theta_1 \rightarrow \theta'_1)}_1 \ f$ 
@@ -473,6 +390,16 @@ $\semBrcks{\pi \vdash e : \theta'}$ $=$ $\semBrcks{\theta \leq \theta'} \circ \s
 \end{center}
 \end{block}
 
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaleq$}
+\framesubtitle{Coherencia}
+
+\begin{block}{Coherencia}
+Sean $D$ y $D'$ derivaciones del juicio de tipado $\pi \vdash e : \theta$, entonces 
+$\semBrcks{D} = \semBrcks{D'}$
+\end{block}
 \end{frame}
 
 \begin{frame}
@@ -521,6 +448,7 @@ Usando Subsumption:
 \DisplayProof
 \end{center}
 
+donde $\pi' \leq \pi$
 \end{block}
 
 \end{frame}
@@ -533,25 +461,21 @@ Usando Subsumption:
 
 Usando Subsumption$'$:
 \begin{center}
-\AxiomC{$\intt \leq \realt$}
-\AxiomC{$\boolt \leq \intt$}
-\AxiomC{$\iota : \boolt \in \pi''$}
-\UnaryInfC{$\pi'' \vdash \iota : \boolt$}
-\BinaryInfC{$\pi'' \vdash \iota : \intt$}
-\BinaryInfC{$\pi'' \vdash \iota : \realt$}
-\DisplayProof
-\end{center}
-
-Usando Subsumption$''$:
-\begin{center}
 \AxiomC{$\boolt \leq \intt$}
 \AxiomC{$\intt \leq \realt$}
 \BinaryInfC{$\boolt \leq \realt$}
-\AxiomC{$\iota : \boolt \in \pi'''$}
-\UnaryInfC{$\pi''' \vdash \iota : \boolt$}
-\BinaryInfC{$\pi''' \vdash \iota : \realt$}
+\AxiomC{$\iota : \boolt \in \pi''$}
+\UnaryInfC{$\pi'' \vdash \iota : \boolt$}
+\BinaryInfC{$\pi'' \vdash \iota : \realt$}
 \DisplayProof
 \end{center}
+\end{block}
+
+\pause
+
+\begin{block}{Lema de inversión}
+Sea $\pi \vdash e : \theta$ un juicio de tipado valido cualquiera, entonces
+la ultima regla aplicada es la regla referente a $e$ o subsumption.
 \end{block}
 
 \end{frame}
@@ -559,13 +483,6 @@ Usando Subsumption$''$:
 \begin{frame}
 \frametitle{Lenguaje $\lambdaleq$}
 \framesubtitle{Coherencia}
-
-\begin{block}{Lema de inversión}
-Sea $\pi \vdash e : \theta$ un juicio de tipado valido cualquiera, entonces
-la ultima regla aplicada es la regla referente a $e$ o subsumption.
-\end{block}
-
-\pause
 
 \begin{block}{Lema}
 
@@ -624,10 +541,10 @@ $\semBrcks{D} = \semBrcks{D'}$
 \begin{block}{Essence of Algol}\small
 \begin{enumerate}
 \item Algol-like se obtiene de un lenguaje imperativo simple imponiendo un
-sistema para los procedimientos basado en el calculo lambda ``fully type'' y utilizando
+sistema para los procedimientos basado en el calculo lambda ``fully typed'' y utilizando
 call-by-name.
 
-\item Existe dos clases de tipos: los $\textit{Data Types}$ y los $\textit{Phrase Types}$.
+\item Existen dos clases de tipos: los $\textit{Data Types}$ y los $\textit{Phrase Types}$.
 
 \item El orden de evaluaci\'on para las partes de una expresi\'on y su
 conversi\'on impl\'icita deber\'ia estar indeterminada, pero el significado
@@ -902,7 +819,10 @@ referirnos a $\SD$ o $\SSD$.
 \begin{block}{Funtores para $\Alike$}
 $\semBrcks{ \ } : \Theta \rightarrow \PDom^{\C}$\\
 \pause
-$\semBrcks{\theta}_{0} : \C \rightarrow \PDom$, con $\theta$ objeto de $\Theta$\\
+Dado un $\theta$ objeto de $\Theta$, $\semBrcks{\theta}_{0}$ será un funtor 
+de $\C$ en $\PDom$\\
+\
+
 \pause
 $\semBrcks{\theta}_{0}C : \PDom$, con $C$ objeto de $\C$\\
 \pause
@@ -1002,7 +922,10 @@ $\semBrcks{(\theta_0 \rightarrow \theta'_0) \leq (\theta_1 \rightarrow \theta'_1
 \begin{block}{Funtores para $\Alike$}
 
 $\semBrcks{ \ } : \Pi \rightarrow \PDom^{\C}$\\
-$\semBrcks{\pi}_{0} : \C \rightarrow \PDom$, con $\pi$ objeto de $\Pi$\\
+Dado un $\pi$ objeto de $\Pi$, $\semBrcks{\pi}_{0}$ será un funtor 
+de $\C$ en $\PDom$\\
+\
+
 $\semBrcks{\pi}_{0}C : \PDom$, con $C$ objeto de $\C$\\
 $\semBrcks{\pi}_{0}(h,s) : \semBrcks{\pi}_{0}C \rightarrow \semBrcks{\pi}_{0}C'$, con 
 $C \rTo^{(h,s)} C'$ flecha de $\C$\\
@@ -1201,9 +1124,106 @@ $C \rTo{(h,s)} C'$ en $\C$ el siguiente diagrama conmuta,
 \end{frame}
 
 \begin{frame}
+\frametitle{Trabajos futuros}
+
+\begin{block}{}
+
+- Completar la ecuación semántica de \textbf{if}\\
+\
+
+- Tomar $\Alike$ y agregar intersección\\
+\
+
+- Probar coherencia para $\Alike$\\
+\
+
+- Terminar Forsythe\\
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
 \begin{center}\Huge
 Gracias!!!
 \end{center}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Continuidad}
+
+\begin{block}{Ecuación semántica aplicación}
+Si tenemos
+
+\begin{center}
+$\semBrcks{\pi \vdash ee' : \theta'} : \semBrcks{\pi} \rightarrow \semBrcks{\theta'}$\\
+$\semBrcks{\pi \vdash ee' : \theta'}\eta$ $=$ $\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta (\semBrcks{\pi \vdash e' : \theta}\eta)$
+\end{center}
+
+y definimos
+
+\begin{center}
+$f : \semBrcks{\pi} \times \semBrcks{\theta} \rightarrow \semBrcks{\theta'}$
+\quad \quad \quad \quad \quad \
+$g : \semBrcks{\pi} \rightarrow \semBrcks{\theta}$\\
+$f = \uncurry (\semBrcks{\pi \vdash e : \theta \rightarrow \theta'})$
+\quad
+$g = \semBrcks{\pi \vdash e' : \theta}$
+\end{center}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Continuidad}
+
+\begin{block}{Ecuación semántica aplicación}
+
+\begin{diagram}
+  \semBrcks{\theta'}^{\semBrcks{\theta}} \times \semBrcks{\theta} & \rTo^{\epsilon} & \semBrcks{\theta'}\\
+  \uTo^{\widetilde{f} \times 1_{\semBrcks{\theta}}} & \ruTo^{f} \ruTo(2,4) & &  \\
+  \semBrcks{\pi} \times \semBrcks{\theta} & & f \circ \lrangles{1_{\semBrcks{\pi}} , g} & \\
+  \uTo^{\lrangles{1_{\semBrcks{\pi}} , g}}  \ruTo(3,2) & & &  \\
+  \semBrcks{\pi} & & &
+\end{diagram}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Lenguaje $\lambdaarrow$}
+\framesubtitle{Continuidad}
+
+\begin{block}{Ecuación semántica aplicación}
+Luego podemos definir
+
+\begin{center}
+$\semBrcks{\pi \vdash ee' : \theta'} : \semBrcks{\pi} \rightarrow \semBrcks{\theta'}$\\
+
+\
+
+$\semBrcks{\pi \vdash ee' : \theta'} = 
+\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}
+						, \semBrcks{\pi \vdash e' : \theta}}$
+\end{center}
+
+además, tomando un $\eta$ en $\semBrcks{\pi}$\\
+
+\
+
+$\semBrcks{\pi \vdash ee' : \theta'}\eta = 
+(\epsilon \circ \lrangles{\semBrcks{\pi \vdash e : \theta \rightarrow \theta'}
+						, \semBrcks{\pi \vdash e' : \theta}})\eta$\\
+\quad \quad \quad \quad \quad \quad 
+$= \semBrcks{\pi \vdash e : \theta \rightarrow \theta'}\eta(\semBrcks{\pi \vdash e' : \theta}\eta)$
+
+\end{block}
+
 \end{frame}
 
 \end{document}
