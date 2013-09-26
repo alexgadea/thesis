@@ -57,7 +57,7 @@
 \begin{block}{Lenguaje $\lambdaarrow$}
 
 Este es un lenguaje funcional con tipado explicito simple, base
-de lenguajes como Haskell o ML. Sus tipos son $\boolt$, $\intt$ y $\realt$ 
+de lenguajes como Haskell o ML. Sus tipos son $\boolt$, $\intt$, $\realt$ y $\rightarrow$
 y tiene como frases relevantes a la aplicación, abstracción lambda, recursión, etc.
 
 \end{block}
@@ -145,8 +145,8 @@ $\semBrcks{\theta \rightarrow \theta'}_0$ $=$ $\semBrcks{\theta'}_0^{\semBrcks{\
 \pause
 
 \begin{block}{Definición ecuación semántica}
-$\semBrcks{\pi \vdash e : \theta}$ será un morfismo en la categoría $\Dom$ entre
-$\semBrcks{\pi}$ y $\semBrcks{\theta}$
+$\semBrcks{\pi \vdash e : \theta}$ será un morfismo en la categoría $\Dom$ de
+$\semBrcks{\pi}$ en $\semBrcks{\theta}$
 \end{block}
 
 \end{frame}
@@ -304,6 +304,8 @@ $\theta \leq \theta'$
 
 \end{block}
 
+\pause
+
 \begin{block}{Regla subsumption}
 
 \begin{center}
@@ -363,6 +365,9 @@ $\semBrcks{\delta}_0$ $=$ $(S_\delta)_\bot$
 $\semBrcks{\pi}_0$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota}$\\
 $\semBrcks{\theta \rightarrow \theta'}_0$ $=$ $\semBrcks{\theta'}_0^{\semBrcks{\theta}_0}$
 \quad \quad \quad \quad \quad \quad \pause
+$\semBrcks{\pi \leq \pi'}_1 : \semBrcks{\pi}_0 \rightarrow \semBrcks{\pi}_0$\\
+\quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad 
+\quad \quad \
 $\semBrcks{\pi \leq \pi'}_1$ $=$ $\prod\limits_{\iota \in dom \ \pi} \semBrcks{\pi\iota \leq \pi'\iota}$\\
 
 \
@@ -831,7 +836,8 @@ $C \rTo^{(h,s)} C'$ flecha de $\C$\\
 
 \
 
-$\semBrcks{\theta \rTo^{\leq} \theta'}_{1} : 
+\pause
+$\semBrcks{\theta \leq \theta'}_{1} : 
 	\semBrcks{\theta}_{0} \rightarrow \semBrcks{\theta'}_{0}$\\
 
 \end{block}
@@ -1108,8 +1114,8 @@ $H = 1_C$\\
 \framesubtitle{Naturalidad}
 
 \begin{block}{Teorema de Naturalidad}
-Dado un juicio de tipado valido $\pi \vdash e : \theta$ y una flecha 
-$C \rTo{(h,s)} C'$ en $\C$ el siguiente diagrama conmuta,
+Dado un juicio de tipado valido $\pi \vdash e : \theta$ y una flecha
+$C \rTo{(h,s)} C'$ en $\C$, el siguiente diagrama conmuta
 \begin{center}
 \begin{diagram}
    \semBrcks{\pi}C & & \rTo^{\semBrcks{\pi \vdash e : \theta}C} & & \semBrcks{\theta}C \\
