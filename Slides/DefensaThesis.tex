@@ -57,7 +57,17 @@
 \begin{block}{Lenguaje $\lambdaarrow$}
 
 Este es un lenguaje funcional con tipado explicito simple, base
-de lenguajes como Haskell o ML. Sus tipos son $\boolt$, $\intt$, $\realt$ y $\rightarrow$
+de lenguajes como Haskell o ML. En este tipo de lenguajes la noción 
+ejecución se corresponde con la reducción de expresiones, por ejemplo
+la regla de reducción $\beta$
+
+\begin{center}
+\AxiomC{}
+\UnaryInfC{$(\lambda v . e)e' \rightarrow (e / v \rightsquigarrow e')$}
+\DisplayProof
+\end{center}
+
+Sus tipos serán $\boolt$, $\intt$, $\realt$ y $\rightarrow$
 y tiene como frases relevantes a la aplicación, abstracción lambda, recursión, etc.
 
 \end{block}
@@ -72,7 +82,7 @@ y tiene como frases relevantes a la aplicación, abstracción lambda, recursión
 
 \begin{center}
 \AxiomC{}
-\UnaryInfC{$\pi \vdash b : \boolt$}
+\UnaryInfC{$\pi \vdash True : \boolt$}
 \DisplayProof
 \quad
 \AxiomC{$\pi \vdash e : \boolt$}
@@ -123,7 +133,7 @@ y tiene como frases relevantes a la aplicación, abstracción lambda, recursión
 \begin{block}{Categorías para $\lambdaarrow$}
 
 - $\Dom$, categoría de dominios y funciones continuas.\\
-- $\Theta$, categoría discreta de $\lrangles{Type}$.\\
+- $\Theta$, categoría discreta de tipos.\\
 - $\Pi$, categoría discreta de contextos
 
 \end{block}
@@ -342,7 +352,7 @@ $\theta \leq \theta'$
 \begin{block}{Categorías de $\lambdaleq$}
 
 - $\Dom$, categoría de dominios y funciones continuas.\\
-- $\Theta$, categoría de $\lrangles{Type}$ cuyos morfismos estarán determinados por $\leq$\\
+- $\Theta$, categoría de tipos cuyos morfismos estarán determinados por $\leq$\\
 - $\Pi$, categoría de contextos cuyos morfismos estarán determinados por $\leq$
 
 \end{block}
@@ -659,7 +669,7 @@ $|$ $\cwhile$ $\lrangles{Phrase}$ $\cdo$ $\lrangles{Phrase}$
 
 \begin{center}
 \AxiomC{}
-\UnaryInfC{$\pi \vdash b : \boolexp$}
+\UnaryInfC{$\pi \vdash True : \boolexp$}
 \DisplayProof
 \quad
 \AxiomC{$\pi \vdash e : \boolexp$}
