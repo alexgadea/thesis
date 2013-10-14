@@ -25,7 +25,7 @@ $\theta$ y adem\'as tenemos que $\theta \leq \theta'$ entonces podemos probar $e
 $\theta'$.\\
 
 \noindent
-$\texttt{Ty Rule:}$ Subsumption.
+$\texttt{Ty Rule:}$ Subsunción.
 
 \begin{center}
 \AxiomC{$\pi \vdash e : \theta$}
@@ -227,7 +227,7 @@ definir una ecuaci\'on sem\'antica que relacione un juicio de tipado
 con una relaci\'on de orden entre dos tipos.\\
 
 \noindent
-$\texttt{Denotal Sem:}$ Subsumption.\\
+$\texttt{Denotal Sem:}$ Subsunción.\\
 
 $\semBrcks{\pi \vdash e : \theta'}$ $=$ $\semBrcks{\theta \leq \theta'} \circ \semBrcks{\pi \vdash e : \theta}$
 
@@ -237,7 +237,7 @@ Al igual que como hicimos para el lenguaje $\lambdaarrow$ vamos a probar la
 continuidad de las ecuaciones sem\'anticas de $\lambdaleq$. En cuanto a 
 esta prueba lo interesante es que es realmente simple, ya que usando la 
 prueba de continuidad de $\lambdaarrow$ simplemente nos resta probar 
-la continuidad de Subsumption. Por otro lado adem\'as vamos a probar coherencia,
+la continuidad de Subsunción. Por otro lado adem\'as vamos a probar coherencia,
 esta propiedad describe que dados dos o mas derivaciones para un mismo
 juicio de tipado, todas estas derivaciones tiene el mismo significado
 sem\'antico. Coherencia se vuelve interesante para nuestro lenguaje $\lambdaleq$
@@ -260,7 +260,7 @@ $\semBrcks{\pi \vdash e : \theta}$ es una funci\'on continua.
 
 En la prueba vamos a proceder por inducci\'on en la estructura de la derivaci\'on 
 de los juicios de tipado. Adem\'as como ya mencionamos antes, solamente nos resta
-probar el caso inductivo para la sem\'antica denotacional de subsumption, supongamos
+probar el caso inductivo para la sem\'antica denotacional de Subsunción, supongamos
 entonces un juicio de tipado $\pi \vdash e : \theta'$, luego\\
 
 $\semBrcks{\pi \vdash e : \theta'}$ $=$ $\semBrcks{\theta \leq \theta'} \circ \semBrcks{\pi \vdash e : \theta}$\\
@@ -277,24 +277,24 @@ Retomemos coherencia con un ejemplo simple considerando el identificador
 $\iota$ con tipo $\realt$, para esta frase y tipo existen cuatro derivaciones 
 posibles.\\
 
-Usando Subsumption:
+Usando Subsunción:
 \begin{center}
-\AxiomC{$\intt \leq \realt$}
 \AxiomC{$\iota : \intt \in \pi$}
 \UnaryInfC{$\pi \vdash \iota : \intt$}
+\AxiomC{$\intt \leq \realt$}
 \BinaryInfC{$\pi \vdash \iota : \realt$}
 \DisplayProof
 \end{center}
 
 \
 
-Usando Subsumption$'$:
+Usando Subsunción$'$:
 \begin{center}
-\AxiomC{$\intt \leq \realt$}
-\AxiomC{$\boolt \leq \intt$}
 \AxiomC{$\iota : \boolt \in \pi'$}
 \UnaryInfC{$\pi' \vdash \iota : \boolt$}
+\AxiomC{$\boolt \leq \intt$}
 \BinaryInfC{$\pi' \vdash \iota : \intt$}
+\AxiomC{$\intt \leq \realt$}
 \BinaryInfC{$\pi' \vdash \iota : \realt$}
 \DisplayProof
 \end{center}
@@ -303,13 +303,13 @@ Usando Subsumption$'$:
 
 \
 
-Usando Subsumption$''$:
+Usando Subsunción$''$:
 \begin{center}
+\AxiomC{$\iota : \boolt \in \pi''$}
+\UnaryInfC{$\pi'' \vdash \iota : \boolt$}
 \AxiomC{$\boolt \leq \intt$}
 \AxiomC{$\intt \leq \realt$}
 \BinaryInfC{$\boolt \leq \realt$}
-\AxiomC{$\iota : \boolt \in \pi''$}
-\UnaryInfC{$\pi'' \vdash \iota : \boolt$}
 \BinaryInfC{$\pi'' \vdash \iota : \realt$}
 \DisplayProof
 \end{center}
@@ -347,27 +347,27 @@ el lema de inversi\'on, pero antes de enunciarlo hagamos una ultima observaci\'o
 Adelantando que vamos a utilizar inducci\'on estructural en la derivaci\'on
 del juicio de tipado para probar coherencia, notar que podemos agrupar
 tres de las derivaciones en un solo paso que es aplicar 
-subsumption como ultima regla para obtener el juicio de tipado final. En
+Subsunción como ultima regla para obtener el juicio de tipado final. En
 conclusi\'on nuestro lema de inversi\'on nos dir\'a que dado un juicio de 
 tipado cualquiera la ultima regla aplicada para concluirlo fue, o bien
-la regla respectiva a su frase o bien subsumption.
+la regla respectiva a su frase o bien Subsunción.
 
 \begin{lemma}[De inversi\'on]
 Sea $\pi \vdash e : \theta$ un juicio de tipado valido cualquiera, entonces
 sucedi\'o alguna de la siguientes:
 
 \begin{itemize}
-\item Si $e$ es constante, la ultima regla aplicada fue (Constantes) o (Subsumption)
-\item Si $e$ es identificador, la ultima regla aplicada fue (Identificador) o (Subsumption)
-\item Si $e = \odot e'$, la ultima regla aplicada fue ($\odot$) o (Subsumption)
+\item Si $e$ es constante, la ultima regla aplicada fue (Constantes) o (Subsunción)
+\item Si $e$ es identificador, la ultima regla aplicada fue (Identificador) o (Subsunción)
+\item Si $e = \odot e'$, la ultima regla aplicada fue ($\odot$) o (Subsunción)
 \item Si $e = e' \circledcirc e''$, la ultima regla aplicada fue 
-($\circledcirc$) o (Subsumption)
+($\circledcirc$) o (Subsunción)
 \item Si $e = \cifthenelse{b}{e'}{e''}$, la ultima regla aplicada fue 
-(Expresi\'on condicional) o (Subsumption)
-\item Si $e = e'e''$, la ultima regla aplicada fue (Aplicaci\'on) o (Subsumption)
+(Expresi\'on condicional) o (Subsunción)
+\item Si $e = e'e''$, la ultima regla aplicada fue (Aplicaci\'on) o (Subsunción)
 \item Si $e = \clambda{\iota}{\theta}{e'}$, la ultima regla aplicada fue 
-(Abstracci\'on lambda) o (Subsumption)
-\item Si $e = \rec{e'}$, la ultima regla aplicada fue (Operador de punto fijo) o (Subsumption)
+(Abstracci\'on lambda) o (Subsunción)
+\item Si $e = \rec{e'}$, la ultima regla aplicada fue (Operador de punto fijo) o (Subsunción)
 \end{itemize}
 
 \end{lemma}
@@ -438,7 +438,7 @@ Usando (Constante)\\
 
 $\semBrcks{\pi \vdash e : \theta}\eta = \iotabot e$\\
 
-Usando (Subsumption)\\
+Usando (Subsunción)\\
 
 $\semBrcks{\pi \vdash e : \theta}\eta = 
 \semBrcks{\theta' \leq \theta}(\semBrcks{\pi \vdash e : \theta'}\eta)$ $=$
@@ -446,7 +446,7 @@ $\J_{\theta'}^{\theta} (\iotabot e)$ $=$ $\iotabot (\J_{\theta'}^{\theta} e)$\\
 
 Empecemos notando que por la definici\'on que hicimos de la funci\'on $\J_{\theta}^{\theta'}$
 podemos suponer sin que se nos escape ning\'un caso de que cuando usamos primero
-subsumption, despu\'es $\semBrcks{\pi \vdash e : \theta'}\eta = \iotabot e$. Por otro lado
+Subsunción, despu\'es $\semBrcks{\pi \vdash e : \theta'}\eta = \iotabot e$. Por otro lado
 restar\'ia probar para este caso que $e : \semBrcks{\theta}$  es igual a 
 $\J_{\theta'}^{\theta} e : \semBrcks{\theta}$, pero esto es directo de la definici\'on
 de la funci\'on $\J_{\theta'}^{\theta}$.\\
@@ -462,7 +462,7 @@ Usando (Identificador)\\
 $\semBrcks{\pi \vdash \iota : \theta}\eta = \eta \iota = (\semBrcks{\pi' \leq \pi}\eta')\iota = 
 \semBrcks{\pi'\iota \leq \pi\iota}(\eta' \iota) = \semBrcks{\pi'\iota \leq \theta}(\eta' \iota)$\\
 
-Usando (Subsumption)\\
+Usando (Subsunción)\\
 
 $\semBrcks{\pi' \vdash \iota : \theta}\eta' = 
 \semBrcks{\theta' \leq \theta} (\semBrcks{\pi' \vdash \iota : \theta'}\eta')$\\
@@ -474,12 +474,12 @@ $\semBrcks{\pi'\iota \leq \theta} (\eta'\iota)$\\
 
 por el contrario si pasa que $\iota:\theta'' \in \pi'$ donde $\theta' \neq \theta''$
 entonces es porque la ultima regla en $\semBrcks{\pi' \vdash \iota : \theta'}\eta'$
-no fue la del identificador sino la de subsumption nuevamente. Supongamos entonces
+no fue la del identificador sino la de Subsunción nuevamente. Supongamos entonces
 que $\iota:\theta_m \in \pi'$ tal que 
 $\theta_m \leq \theta_{m-1} \leq \ldots \leq \theta_1 \leq \theta'$, notando que
 si tenemos esta cadena es porque en la derivaci\'on del juicio de tipado 
 $\pi' \vdash \iota : \theta'$ nunca podemos aplicar la regla para tipar el identificador
-y es siempre subsumption. Esto nos implica entonces\\
+y es siempre Subsunción. Esto nos implica entonces\\
 
 $\semBrcks{\pi' \vdash \iota : \theta'}\eta'$ $=$\\
 $(\semBrcks{\theta_1 \leq \theta'} \circ 
@@ -528,7 +528,7 @@ tal que $\pi' \leq \pi$ y $\semBrcks{\pi' \leq \pi}\eta' = \eta$\\
 
 Las pruebas de los distintos casos de inducci\'on van a proceder de la siguiente manera,
 vamos a partir de suponer la ultima regla fue la del comando en si y probar que llegamos
-a que la ultima regla fue subsumption o viceversa, adem\'as vamos a asumir que nuestros
+a que la ultima regla fue Subsunción o viceversa, adem\'as vamos a asumir que nuestros
 programas siempre terminan, para los casos en los que no es directo demostrar la igualdad.
 
 \begin{itemize}
@@ -540,13 +540,13 @@ $\odot_{\odot} (\semBrcks{\pi \vdash e' : \theta}\eta)$\\
 
 ahora bien, por inversi\'on tenemos que la ultima regla utilizada en la 
 derivaci\'on del juicio de tipado de $\pi \vdash e' :\theta$ puede haber 
-sido subsumption o la regla respectiva a $e$, es decir\\
+sido Subsunción o la regla respectiva a $e$, es decir\\
 
 \begin{center}
 D: 
-\AxiomC{$\theta' \leq \theta$}
 \AxiomC{$\vdots$}
 \UnaryInfC{$\pi \vdash e': \theta'$}
+\AxiomC{$\theta' \leq \theta$}
 \BinaryInfC{$\pi \vdash e': \theta$}
 \DisplayProof
 \quad \quad \quad \quad D':
@@ -574,7 +574,7 @@ $\semBrcks{\theta' \leq \theta}(\semBrcks{\pi \vdash \odot e' : \theta'}\eta)$ $
 $\semBrcks{\pi \vdash \odot e' : \theta}\eta$\\
 
 Y con esto hemos finalizado la prueba de este caso, repasando, partimos de suponer
-la ultima regla usada fue $\odot$ y llegamos a que la ultima regla usada fue subsumption.
+la ultima regla usada fue $\odot$ y llegamos a que la ultima regla usada fue Subsunción.
 
 \item Supongamos $e = \cifthenelse{b}{e'}{e''}$ y 
 $\semBrcks{\pi \vdash b : \boolt}\eta = \iotabot \ true$\\
@@ -615,9 +615,9 @@ ahora bien, usando inversi\'on en ambos juicios de tipado tenemos\\
 
 \begin{center}
 $D_{e'}$: 
-\AxiomC{$\thetahat' \rightarrow \theta' \leq \thetahat \rightarrow \theta$}
 \AxiomC{$\vdots$}
 \UnaryInfC{$\pi \vdash e': \thetahat' \rightarrow \theta'$}
+\AxiomC{$\thetahat' \rightarrow \theta' \leq \thetahat \rightarrow \theta$}
 \BinaryInfC{$\pi \vdash e': \thetahat \rightarrow \theta$}
 \DisplayProof
 \end{center}
@@ -633,9 +633,9 @@ $D_{e'}'$:
 
 \begin{center}
 $D_{e''}$: 
-\AxiomC{$\widehat{\thetahat} \leq \thetahat$}
 \AxiomC{$\vdots$}
 \UnaryInfC{$\pi \vdash e'': \widehat{\thetahat}$}
+\AxiomC{$\widehat{\thetahat} \leq \thetahat$}
 \BinaryInfC{$\pi \vdash e'': \thetahat$}
 \DisplayProof
 \end{center}
@@ -739,7 +739,7 @@ $\semBrcks{\pi,\iota:\thetahat \vdash e' : \theta'}
 $\semBrcks{\pi,\iota:\thetahat \vdash e' : \theta'}
 		[ \ \eta \ | \ \iota:\semBrcks{\theta \leq \thetahat}z \ ]$\\
 
-Esta vez empezamos suponiendo que la ultima regla fue subsumption, desarrollamos
+Esta vez empezamos suponiendo que la ultima regla fue Subsunción, desarrollamos
 utilizando la definici\'on de la ecuaci\'on para el subtipado del tipo flecha y
 resolvemos la composici\'on. Todo esto deja listo para aplicar hip\'otesis inductiva\\
 
