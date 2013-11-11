@@ -39,7 +39,7 @@ $\lrangles{Phrase} ::=$ $\lrangles{PBool}$ $|$ $\lrangles{PInt}$ $|$ $\lrangles{
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $|$ 
 $\odot \lrangles{Phrase}$ $|$ $\lrangles{Phrase} \otimes \lrangles{Phrase} $ \\ 
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $|$ 
-$\assig{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$ $\cskip$ $|$ $\seq{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
+$\assig{\lrangles{Phrase}}{\lrangles{Phrase}}$ $|$ $\cskip$ $|$ $\cseq{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $|$ 
 $\cifthenelse{\lrangles{Phrase}}{\lrangles{Phrase}}{\lrangles{Phrase}}$ \\ 
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $|$ 
@@ -210,7 +210,7 @@ $=$ \\
 (\semBrcks{ \pi \vdash e : \deltaexp }C\eta\sigma)$\\
 \
 
-$\semBrcks{ \pi \vdash \seq{e}{e'} : \commt }C\eta\sigma$ 
+$\semBrcks{ \pi \vdash \cseq{e}{e'} : \commt }C\eta\sigma$ 
 $=$ \\
 \ \ \ \ \ \ \ \ $(\lambda \sigmahat . \semBrcks{\pi \vdash e : \commt}C\eta\sigmahat)_{\dbot}
 (\semBrcks{ \pi \vdash e : \commt}C\eta\sigma)$\\
