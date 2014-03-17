@@ -1555,6 +1555,8 @@ de evaluar un $\cnew \deltavar$ autom\'aticamente perd\'iamos un elemento del es
 La cuesti\'on ahora es que, nosotros queremos que la cantidad de valores de un
 estado no tenga relaci\'on con la cantidad de comandos para introducir identificadores.\\
 
+\newpage
+
 \noindent
 $\texttt{Denotal Sem:}$ Declaraci\'on de variable (Sin stack discipline).\\
 
@@ -1676,6 +1678,8 @@ Procedamos por inducci\'on en la estructura de la derivaci\'on de los juicios de
 supongamos un $\eta : \semBrcks{\pi}C$ y un $\sigma' : C'$ tal que $\sigma : C$,
 $\overline{\sigma} : \overline{C}$, $C \concat \overline{C} = C'$ y 
 $\sigma \concat \overline{\sigma} = \sigma'$.
+
+\newpage
 
 \begin{itemize}
 
@@ -2525,7 +2529,11 @@ dtTOacc : DataType -> PhraseType
 dtTOacc IntDT  = IntAcc
 dtTOacc RealDT = RealAcc
 dtTOacc BoolDT = BoolAcc
+\end{code}
 
+\newpage
+
+\begin{code}
 dtTOexp : DataType -> PhraseType
 dtTOexp IntDT  = IntExp
 dtTOexp RealDT = RealExp
@@ -2846,6 +2854,8 @@ evalLeq {t'=t} (Reflx t) c f = f
 evalLeq (Trans leq leq') c f = evalLeq leq' c $ evalLeq leq c f
 evalLeq (SubsFun leq leq') c f = \c' => evalLeq leq' (c ++ c') . (f c') . evalLeq leq (c ++ c')
 \end{code}
+
+\newpage
 
 \noindent Juicios de tipado del lenguaje $\Alike$
 \begin{code}

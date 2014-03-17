@@ -1230,7 +1230,11 @@ mutual
         FCons : (i:Identifier) -> (pt':PType) -> (i':Identifier) -> 
                 (p:Ctx) -> (fi':Fresh p i') -> so (i/=i') -> (Fresh p i) -> 
                 Fresh (Prepend p i' pt' fi') i
+\end{code}
 
+\newpage
+
+\begin{code}
 -- Representa la pertenencia de un identificador en un contexto.
 data InCtx : Ctx -> Identifier -> Type where
     InHead : (p:Ctx) -> (i:Identifier) -> (pt:PType) -> 
@@ -1239,8 +1243,6 @@ data InCtx : Ctx -> Identifier -> Type where
              (j:Identifier) -> (fj:Fresh p j) -> 
              InCtx p i -> InCtx (Prepend p j pt fj) i
 \end{code}
-
-\newpage
 
 \noindent Versi\'on sem\'antica
 \begin{code}
